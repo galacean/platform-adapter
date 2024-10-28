@@ -39,8 +39,8 @@ function inject () {
     }
     utils.cloneProperty(global, myWindow);
     utils.cloneProperty(global.document, myWindow.document);
-    global.window = myWindow;
-    window = global;
+    GameGlobal.window = myWindow;
+    window = GameGlobal;
     window.top = window.parent = window;
   }
 }

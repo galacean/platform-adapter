@@ -1,3 +1,4 @@
+import { innerWidth, innerHeight } from './WindowProperties';
 import $HTMLElement from './HTMLElement'
 import EventTarget from '../../../../../common/web/EventTarget';
 
@@ -31,15 +32,21 @@ export default function Canvas() {
       return {
         top: '0px',
         left: '0px',
-        width: `${window.innerWidth}px`,
-        height: `${window.innerHeight}px`
+        width: `${innerWidth}px`,
+        height: `${innerHeight}px`
       };
     }
   });
 
   Object.defineProperty(canvas, 'clientWidth', {
     get() {
-      return 
+      return innerWidth;
+    }
+  });
+
+  Object.defineProperty(canvas, 'clientHeight', {
+    get() {
+      return innerHeight;
     }
   });
 
