@@ -1,0 +1,13 @@
+root: 
+  true
+
+env:
+  browser: true
+  node: true
+  es6: true
+
+globals:
+  PlatformGlobal: readonly
+
+rules:
+  global-require: off
