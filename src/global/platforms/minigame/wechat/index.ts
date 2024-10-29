@@ -1,3 +1,3 @@
 import PlatformGlobal from '../../../modules/index';
-GameGlobal.PlatformGlobal = PlatformGlobal;
+GameGlobal.PlatformGlobal = new PlatformGlobal();
 export default PlatformGlobal;

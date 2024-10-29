@@ -1,3 +1,3 @@
 import PlatformGlobal from '../../../modules/index';
-global.PlatformGlobal = PlatformGlobal;
+global.PlatformGlobal = new PlatformGlobal();
 export default PlatformGlobal;
