@@ -10,6 +10,9 @@ export { default as FileReader } from '../../../../../common/web/FileReader';
 export { default as HTMLElement } from './HTMLElement';
 export { default as localStorage } from './localStorage';
 export { default as location } from './location';
+export { Blob } from '../../../../../common/web/Blob';
+export { URL } from '../../../../../common/web/URL';
+export { URLSearchParams } from '../../../../../common/web/URLSearchParams';
 export * from './WindowProperties';
 export * from '../../../../../common/web/constructor';
 
