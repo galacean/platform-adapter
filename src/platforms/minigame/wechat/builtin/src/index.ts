@@ -34,9 +34,6 @@ function inject () {
 
     window.parent = window;
   } else {
-    for (const key in myWindow) {
-      global[key] = myWindow[key];
-    }
     utils.cloneProperty(global, myWindow);
     utils.cloneProperty(global.document, myWindow.document);
     GameGlobal.window = myWindow;

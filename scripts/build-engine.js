@@ -13,7 +13,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import ts from '@rollup/plugin-typescript';
 import chalk from 'chalk';
 
-import inject from './plugins/dist/plugin-inject.js';
+import inject from './plugins/dist/plugin-inject-global.js';
 import { walk } from 'estree-walker';
 import { generate } from 'escodegen';
 
@@ -136,10 +136,10 @@ function rebuildGEPlugin(entry, injectName, injectNamePostfix, apiList) {
     inject({
       modules: apiList.reduce((acc, curr) => {
         const injectSetting = {
-          modName: entry,
-          importName: 'default',
+          globalVarName: entry,
           localName: injectName,
-          localNamePostfix: injectNamePostfix.concat(`.${curr}`)
+          localNamePostfix: injectNamePostfix.concat(`.${curr}`),
+          overwrite: true,
         };
 
         acc[curr] = injectSetting;
@@ -165,23 +165,50 @@ function getPlatformsFromPath(path) {
   return platforms;
 }
 
-async function bundleGalaceanEngineWX() {
+async function bundleGECoreWX() {
   const platformsPath = path.join(rootDir, 'src/platforms/minigame');
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
 
   for (const platform of platforms) {
+    if (platform === 'alipay') {
+      // Jump over alipay, before the adapter is ready
+      continue;
+    }
     console.log(`handling platform ${chalk.green(platform)}`);
 
     const needUglify = (platform !== 'xiaomi');
 
     const builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine/dist/module.js`));
-    const builtinGlobalEntry = normalizePath(path.join(rootDir, `dist/global/platform-global.js`));
-    const builtinOutput = normalizePath(path.join(rootDir, `dist/engine/minigame/${platform}/galacean-engine.js`));
+    const builtinGlobalEntry = Platform_GlobalVars_Map[platform];
+    const builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine.js`));
     await bundle(builtinEntry, builtinOutput, needUglify, {
       format: 'cjs',
-    }, rebuildGEPlugin(builtinGlobalEntry, 'PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST));
+    }, rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST));
   }
+}
+
+async function bundleGEPhysxLiteWX() {
+  const platformsPath = path.join(rootDir, 'src/platforms/minigame');
+  const platforms = getPlatformsFromPath(platformsPath);
+  console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
+
+  for (const platform of platforms) {
+    if (platform === 'alipay') {
+      // Jump over alipay, before the adapter is ready
+      continue;
+    }
+    console.log(`handling platform ${chalk.green(platform)}`);
+
+    const needUglify = (platform !== 'xiaomi');
+
+    const builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine-physics-lite/dist/module.js`));
+    const builtinGlobalEntry = Platform_GlobalVars_Map[platform];
+    const builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-physics-lite.js`));
+    await bundle(builtinEntry, builtinOutput, needUglify, {
+      format: 'cjs',
+    }, rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST));
+  } 
 }
 
 function createBundleTask(src, dst, needUglify, targets, plugins) {
@@ -190,7 +217,7 @@ function createBundleTask(src, dst, needUglify, targets, plugins) {
   dst = path.dirname(dst);
   let task = rollup({
     input: src,
-    output: targets ? targets : undefined,
+    output: targets ? targets : {},
     plugins: [
       // ts(),
       resolve(),
@@ -203,7 +230,7 @@ function createBundleTask(src, dst, needUglify, targets, plugins) {
   .pipe(gulp.dest(dst))
   .pipe(rename(targetFileNameMin));
 
-  if (needUglify && !targets) {
+  if (needUglify) {
     task = task.pipe(uglify());
   }
   task = task.pipe(gulp.dest(dst));
@@ -218,6 +245,9 @@ async function bundle(entry, output, needUglify, targets = {}, plugins = []) {
 
 (async function bundleEngine() {
   console.time('Bundle engine of wechat platform');
-  await bundleGalaceanEngineWX();
+  await bundleGECoreWX();
   console.timeEnd('Bundle engine of wechat platform');
+  console.time('Bundle physics-lite engine of wechat platform');
+  await bundleGEPhysxLiteWX();
+  console.timeEnd('Bundle physics-lite engine of wechat platform');
 }());

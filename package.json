@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "@galacean/engine": "1.3.6",
-    "@galacean/engine-physics-physx": "1.3.6"
+    "@galacean/engine-physics-physx": "1.3.6",
+    "@galacean/engine-physics-lite": "1.3.6"
   },
   "devDependencies": {
     "@rollup/pluginutils": "^5.1.3",

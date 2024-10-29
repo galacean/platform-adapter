@@ -3,6 +3,7 @@
 declare interface PlatformAdapter {
   document: Document;
   window: Window;
+  performance: Performance;
 }
 
 declare interface EngineAdapter {

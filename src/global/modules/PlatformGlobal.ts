@@ -15,5 +15,4 @@ class PlatformGlobal {
   }
 };
 
-GameGlobal.PlatformGlobal = new PlatformGlobal();
-export default GameGlobal.PlatformGlobal;
+export default PlatformGlobal;
