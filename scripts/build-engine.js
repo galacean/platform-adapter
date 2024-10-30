@@ -100,9 +100,6 @@ function replaceGalaceanAPI() {
           `this._requireResult = Object.assign({}, $defaultWebGLExtensions)`,
         );
 
-        // 开发工具补丁, 但raycast还是不灵敏, 真机没问题
-        code = code.replace(/activePointerCount === 1 &&/g, `activePointerCount >= 1 && `);
-
         // 不适用texSubImage设置ImageSource, 微信小程序内会报错
         // code = code.replace(
           // `gl.texSubImage2D(this._target, mipLevel, x || 0, y || 0, baseFormat, dataType, imageSource);`,
