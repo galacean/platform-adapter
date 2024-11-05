@@ -100,19 +100,6 @@ function replaceGalaceanAPI() {
           `this._requireResult = Object.assign({}, $defaultWebGLExtensions)`,
         );
 
-        // 不适用texSubImage设置ImageSource, 微信小程序内会报错
-        // code = code.replace(
-          // `gl.texSubImage2D(this._target, mipLevel, x || 0, y || 0, baseFormat, dataType, imageSource);`,
-          // `gl.texImage2D(this._target, mipLevel, baseFormat, baseFormat, dataType, imageSource);`,
-          // 并且下面的写法会crash...
-        //   `try {
-        //   // 微信小程序可能报错...
-        //   gl.texSubImage2D(this._target, mipLevel, x || 0, y || 0, baseFormat, dataType, imageSource);
-        // } catch (e) {
-        //   gl.texImage2D(this._target, mipLevel, baseFormat, baseFormat, dataType, imageSource);
-        // }`,
-        // );
-
         const ast = this.parse(code);
         walk(ast, {
           enter(node) {
@@ -162,7 +149,7 @@ function getPlatformsFromPath(path) {
   return platforms;
 }
 
-async function bundleGECoreWX() {
+async function bundleGECore() {
   const platformsPath = path.join(rootDir, 'src/platforms/minigame');
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
@@ -185,7 +172,7 @@ async function bundleGECoreWX() {
   }
 }
 
-async function bundleGEPhysxLiteWX() {
+async function bundleGEPhysxLite() {
   const platformsPath = path.join(rootDir, 'src/platforms/minigame');
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
@@ -242,9 +229,9 @@ async function bundle(entry, output, needUglify, targets = {}, plugins = []) {
 
 (async function bundleEngine() {
   console.time('Bundle engine of wechat platform');
-  await bundleGECoreWX();
+  await bundleGECore();
   console.timeEnd('Bundle engine of wechat platform');
   console.time('Bundle physics-lite engine of wechat platform');
-  await bundleGEPhysxLiteWX();
+  await bundleGEPhysxLite();
   console.timeEnd('Bundle physics-lite engine of wechat platform');
 }());
