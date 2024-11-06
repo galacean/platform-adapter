@@ -8,6 +8,7 @@ import Audio from './Audio';
 import HTMLElement from './HTMLElement';
 import localStorage from './localStorage';
 import location from './location';
+import OffscreenCanvas from './OffscreenCanvas';
 
 import window from 'common/web/window';
 import performance from './performance';
@@ -21,6 +22,7 @@ window.Audio = Audio;
 window.HTMLElement = HTMLElement;
 window.localStorage = localStorage;
 window.location = location;
+window.OffscreenCanvas = OffscreenCanvas;
 
 const { screenWidth, screenHeight, devicePixelRatio } = wx.getSystemInfoSync()
 

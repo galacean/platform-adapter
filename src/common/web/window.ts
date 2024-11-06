@@ -37,6 +37,7 @@ interface Window {
   clearInterval,
   requestAnimationFrame,
   cancelAnimationFrame,
+  OffscreenCanvas,
 }
 
 // @ts-ignore
