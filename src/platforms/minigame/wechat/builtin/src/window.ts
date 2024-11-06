@@ -1,23 +1,41 @@
 import Canvas from './Canvas';
 
-export { default as document } from './document';
-export { default as navigator } from './navigator';
-export { default as XMLHttpRequest } from './XMLHttpRequest';
-export { default as WebSocket } from './WebSocket';
-export { default as Image } from './Image';
-export { default as Audio } from './Audio';
-export { default as FileReader } from '../../../../../common/web/FileReader';
-export { default as HTMLElement } from './HTMLElement';
-export { default as localStorage } from './localStorage';
-export { default as location } from './location';
-export { Blob } from '../../../../../common/web/Blob';
-export { URL } from '../../../../../common/web/URL';
-export { URLSearchParams } from '../../../../../common/web/URLSearchParams';
-export * from './WindowProperties';
-export * from '../../../../../common/web/constructor';
+import navigator from './navigator';
+import XMLHttpRequest from './XMLHttpRequest';
+import WebSocket from './WebSocket';
+import Image from './Image';
+import Audio from './Audio';
+import HTMLElement from './HTMLElement';
+import localStorage from './localStorage';
+import location from './location';
 
-// 暴露全局的 canvas
-const canvas = Canvas();
+import window from 'common/web/window';
+import performance from './performance';
+
+window.canvas = Canvas();
+window.navigator = navigator;
+window.XMLHttpRequest = XMLHttpRequest;
+window.WebSocket = WebSocket;
+window.Image = Image;
+window.Audio = Audio;
+window.HTMLElement = HTMLElement;
+window.localStorage = localStorage;
+window.location = location;
+
+const { screenWidth, screenHeight, devicePixelRatio } = wx.getSystemInfoSync()
+
+window.innerWidth = screenWidth;
+window.innerHeight = screenHeight;
+window.devicePixelRatio = devicePixelRatio;
+window.screen = {
+  availWidth: screenWidth,
+  availHeight: screenHeight
+};
+window.ontouchstart = null;
+window.ontouchmove = null;
+window.ontouchend = null;
+
+window.performance = performance;
 
 const {
   setTimeout,
@@ -28,10 +46,9 @@ const {
   cancelAnimationFrame,
 } = GameGlobal;
 
-export { canvas }
-export { setTimeout };
-export { setInterval };
-export { clearTimeout };
-export { clearInterval };
-export { requestAnimationFrame };
-export { cancelAnimationFrame };
+window.setTimeout = setTimeout;
+window.setInterval = setInterval;
+window.clearTimeout = clearTimeout;
+window.clearInterval = clearInterval;
+window.requestAnimationFrame = requestAnimationFrame;
+window.cancelAnimationFrame = cancelAnimationFrame;

@@ -1,96 +1,80 @@
-import * as window from './window';
+import document from 'common/web/document';
+import window from 'common/web/window';
 import $HTMLElement from './HTMLElement';
 import Image from './Image';
 import Audio from './Audio';
 import Canvas from './Canvas';
 import './EventIniter/';
 
-import utils from '../../utils/utils';
-import EventTarget from '../../../../../common/web/EventTarget';
+document.documentElement = window;
+document.location = window.location,
 
-const document = {
-  readyState: 'complete',
-  visibilityState: 'visible',
-  documentElement: window,
-  hidden: false,
-  style: {},
-  location: window.location,
-  ontouchstart: null,
-  ontouchmove: null,
-  ontouchend: null,
+document.head = new $HTMLElement('head'),
+document.body = new $HTMLElement('body'),
 
-  head: new $HTMLElement('head'),
-  body: new $HTMLElement('body'),
+document.createElement = (tagName) => {
+  if (tagName === 'canvas') {
+    return Canvas();
+  } else if (tagName === 'audio') {
+    return new Audio();
+  } else if (tagName === 'img') {
+    return Image();
+  }
 
-  createElement(tagName) {
-    if (tagName === 'canvas') {
-      return Canvas();
-    } else if (tagName === 'audio') {
-      return new Audio();
-    } else if (tagName === 'img') {
-      return Image();
-    }
+  return new $HTMLElement(tagName)
+};
 
-    return new $HTMLElement(tagName)
-  },
+document.getElementById = (id) => {
+  if (id === window.canvas.id) {
+    return window.canvas;
+  }
+  return null;
+};
 
-  getElementById(id) {
-    if (id === window.canvas.id) {
-      return window.canvas;
-    }
-    return null;
-  },
+document.getElementsByTagName = (tagName) => {
+  if (tagName === 'head') {
+    return [document.head];
+  } else if (tagName === 'body') {
+    return [document.body];
+  } else if (tagName === 'canvas') {
+    return [window.canvas];
+  }
+  return [];
+};
 
-  getElementsByTagName(tagName) {
-    if (tagName === 'head') {
-      return [document.head];
-    } else if (tagName === 'body') {
-      return [document.body];
-    } else if (tagName === 'canvas') {
-      return [window.canvas];
-    }
-    return [];
-  },
+document.getElementsByName = (tagName) => {
+  if (tagName === 'head') {
+    return [document.head];
+  } else if (tagName === 'body') {
+    return [document.body];
+  } else if (tagName === 'canvas') {
+    return [window.canvas];
+  }
+  return [];
+};
 
-  getElementsByName(tagName) {
-    if (tagName === 'head') {
-      return [document.head];
-    } else if (tagName === 'body') {
-      return [document.body];
-    } else if (tagName === 'canvas') {
-      return [window.canvas];
-    }
-    return [];
-  },
+document.querySelector = (query) => {
+  if (query === 'head') {
+    return document.head;
+  } else if (query === 'body') {
+    return document.body;
+  } else if (query === 'canvas') {
+    return window.canvas;
+  } else if (query === `#${window.canvas.id}`) {
+    return window.canvas;
+  }
+  return null;
+};
 
-  querySelector(query) {
-    if (query === 'head') {
-      return document.head;
-    } else if (query === 'body') {
-      return document.body;
-    } else if (query === 'canvas') {
-      return window.canvas;
-    } else if (query === `#${window.canvas.id}`) {
-      return window.canvas;
-    }
-    return null;
-  },
+document.querySelectorAll = (query) => {
+  if (query === 'head') {
+    return [document.head];
+  } else if (query === 'body') {
+    return [document.body];
+  } else if (query === 'canvas') {
+    return [window.canvas];
+  }
+  return [];
+};
 
-  querySelectorAll(query) {
-    if (query === 'head') {
-      return [document.head];
-    } else if (query === 'body') {
-      return [document.body];
-    } else if (query === 'canvas') {
-      return [window.canvas];
-    }
-    return [];
-  },
-}
-
-const old = document.__proto__;
-document.__proto__ = {};
-document.__proto__.__proto__ = old;
-utils.cloneProperty(document.__proto__, EventTarget.prototype);
-
-export default document;
+document.dispatchEvent = (event) => {}

@@ -1,4 +1,4 @@
-import { Blob } from '../../../../../common/web/Blob';
+import { Blob } from 'common/web/Blob';
 
 const _url = new WeakMap();
 const _method = new WeakMap();

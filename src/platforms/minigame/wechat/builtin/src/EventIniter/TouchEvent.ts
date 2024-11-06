@@ -1,6 +1,6 @@
-import * as window from '../window'
-import document from '../document'
-import TouchEvent from '../../../../../../common/web/EventIniter/TouchEvent';
+import window from 'common/web/window'
+import document from 'common/web/document'
+import TouchEvent from 'common/web/EventIniter/TouchEvent';
 
 function touchEventHandlerFactory(type) {
   return (event) => {

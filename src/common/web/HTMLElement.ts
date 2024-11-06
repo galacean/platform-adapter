@@ -11,7 +11,7 @@ export default class HTMLElement extends Element {
 
   innerHTML = '';
 
-  constructor(tagName = '', innerWidth = 1, innerHeight = 1) {
+  constructor(tagName = '') {
     super();
     this.tagName = tagName.toUpperCase();
   }

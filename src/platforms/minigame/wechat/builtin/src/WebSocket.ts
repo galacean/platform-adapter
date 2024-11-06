@@ -1,4 +1,4 @@
-const _socketTask = new WeakMap()
+const _socketTask = new WeakMap();
 
 class WebSocket {
   static CONNECTING = 0; // The connection is not yet open.

@@ -1,5 +1,7 @@
-import * as _window from './window'
-import utils from '../../utils/utils';
+import _window from 'common/web/window';
+import './window';
+import './document';
+import utils from 'utils/utils';
 
 declare global {
   const wx;

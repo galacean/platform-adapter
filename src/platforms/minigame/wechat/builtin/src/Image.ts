@@ -1,5 +1,5 @@
 export default function Image() {
-  const image = wx.createImage()
+  const image = wx.createImage();
 
   Object.assign(image, {
     addEventListener(event, cb) {
@@ -8,7 +8,7 @@ export default function Image() {
     removeEventListener(event) {
       image[`on${event}`] = null;
     },
-  })
+  });
 
-  return image
+  return image;
 }

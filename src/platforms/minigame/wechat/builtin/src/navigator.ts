@@ -1,7 +1,7 @@
-import { noop } from '../../../../../common/web/utils/noop'
+import { noop } from 'common/web/utils/noop'
 
 // TODO 需要 wx.getSystemInfo 获取更详细信息
-const { platform } = wx.getSystemInfoSync()
+const { platform } = wx.getSystemInfoSync();
 const navigator = {
   platform,
   language: 'zh-cn',
@@ -15,6 +15,6 @@ const navigator = {
     watchPosition: noop,
     clearWatch: noop
   }
-}
+};
 
-export default navigator
+export default navigator;

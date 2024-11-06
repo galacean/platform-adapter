@@ -1,6 +1,6 @@
-import * as window from '../window'
-import document from '../document'
-import PointerEvent from '../../../../../../common/web/EventIniter/PointerEvent';
+import window from 'common/web/window'
+import document from 'common/web/document'
+import PointerEvent from 'common/web/EventIniter/PointerEvent';
 
 function typeToButtons(type) {
   let ret = 0;

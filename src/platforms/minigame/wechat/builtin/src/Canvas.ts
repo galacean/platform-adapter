@@ -1,8 +1,8 @@
 import { innerWidth, innerHeight } from './WindowProperties';
 import $HTMLElement from './HTMLElement'
-import EventTarget from '../../../../../common/web/EventTarget';
+import EventTarget from 'common/web/EventTarget';
 
-import utils from '../../utils/utils';
+import utils from 'utils/utils';
 
 let hasModifiedCanvasPrototype = false
 let hasInit2DContextConstructor = false

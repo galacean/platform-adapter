@@ -1,4 +1,4 @@
-import HTMLAudioElement from '../../../../../common/web/HTMLAudioElement'
+import HTMLAudioElement from 'common/web/HTMLAudioElement'
 
 const HAVE_NOTHING = 0
 const HAVE_METADATA = 1
