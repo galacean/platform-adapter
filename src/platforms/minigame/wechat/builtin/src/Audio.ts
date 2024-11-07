@@ -8,8 +8,6 @@ const HAVE_ENOUGH_DATA = 4
 
 const _innerAudioContext = new WeakMap()
 const _src = new WeakMap()
-const _loop = new WeakMap()
-const _autoplay = new WeakMap()
 export default class Audio extends HTMLAudioElement {
   HAVE_NOTHING = HAVE_NOTHING
   HAVE_METADATA = HAVE_METADATA
