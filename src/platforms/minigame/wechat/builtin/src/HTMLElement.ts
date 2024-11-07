@@ -3,7 +3,7 @@ import { innerWidth, innerHeight } from './WindowProperties';
 
 export default class $HTMLElement extends HTMLElement {
   constructor(tagName = '') {
-    super();
+    super(tagName);
     this.style.width = `${innerWidth}px`;
     this.style.height = `${innerHeight}px`;
   }

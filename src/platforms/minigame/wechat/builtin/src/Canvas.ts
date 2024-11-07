@@ -4,18 +4,12 @@ import EventTarget from 'common/web/EventTarget';
 
 import utils from 'utils/utils';
 
-let hasModifiedCanvasPrototype = false
-let hasInit2DContextConstructor = false
-let hasInitWebGLContextConstructor = false
-
 export default function Canvas() {
   const canvas = wx.createCanvas();
 
   canvas.type = 'canvas';
 
   canvas.__proto__.__proto__ = new $HTMLElement('canvas');
-
-  const _getContext = canvas.getContext;
 
   canvas.getBoundingClientRect = () => {
     const ret = {
