@@ -11,7 +11,7 @@ import location from './location';
 import OffscreenCanvas from './OffscreenCanvas';
 
 import window from 'common/web/window';
-import performance from './performance';
+import { devicePixelRatio, innerWidth, innerHeight, performance } from './WindowProperties';
 
 window.canvas = Canvas();
 window.navigator = navigator;
@@ -24,14 +24,12 @@ window.localStorage = localStorage;
 window.location = location;
 window.OffscreenCanvas = OffscreenCanvas;
 
-const { screenWidth, screenHeight, devicePixelRatio } = wx.getSystemInfoSync()
-
-window.innerWidth = screenWidth;
-window.innerHeight = screenHeight;
+window.innerWidth = innerWidth;
+window.innerHeight = innerHeight;
 window.devicePixelRatio = devicePixelRatio;
 window.screen = {
-  availWidth: screenWidth,
-  availHeight: screenHeight
+  availWidth: innerWidth,
+  availHeight: innerHeight,
 };
 window.ontouchstart = null;
 window.ontouchmove = null;

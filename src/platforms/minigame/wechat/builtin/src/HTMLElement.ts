@@ -1,4 +1,4 @@
-import HTMLElement from '../../../../../common/web/HTMLElement';
+import HTMLElement from 'common/web/HTMLElement';
 import { innerWidth, innerHeight } from './WindowProperties';
 
 export default class $HTMLElement extends HTMLElement {
