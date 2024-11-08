@@ -17,6 +17,8 @@ import inject from './plugins/dist/plugin-inject-global.js';
 import { walk } from 'estree-walker';
 import { generate } from 'escodegen';
 
+import { getPlatformsFromPath, normalizePath } from './utils/utils.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.join(__dirname, '..');
@@ -31,7 +33,6 @@ const GE_REF_API_LIST = [
   'Blob',
   'window',
   'document',
-  'DOMParser',
   'TextDecoder',
   'XMLHttpRequest',
   'OffscreenCanvas',
@@ -40,10 +41,8 @@ const GE_REF_API_LIST = [
   'Image',
 
   'atob',
-  'global',
   'navigator',
   'performance',
-  'createImageBitmap',
   'cancelAnimationFrame',
   'requestAnimationFrame',
   '$defaultWebGLExtensions',
@@ -135,25 +134,13 @@ function rebuildGEPlugin(entry, injectName, injectNamePostfix, apiList) {
   ];
 }
 
-function normalizePath(path) {
-  return path.replace(/\\/g, '/');
-}
-
-/**
- * @param path
- * @returns platforms name
- */
-function getPlatformsFromPath(path) {
-  let platforms = fs.readdirSync(path);
-  platforms = platforms.filter((p) => !p.startsWith('.'));
-  return platforms;
-}
-
-async function bundleGECore() {
+async function bundleGECoreWX() {
   const platformsPath = path.join(rootDir, 'src/platforms/minigame');
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
 
+  let builtinEntry, builtinOutput, builtinGlobalEntry, needUglify = true;
+  const plugins = rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST);
   for (const platform of platforms) {
     if (platform === 'alipay') {
       // Jump over alipay, before the adapter is ready
@@ -161,22 +148,20 @@ async function bundleGECore() {
     }
     console.log(`handling platform ${chalk.green(platform)}`);
 
-    const needUglify = (platform !== 'xiaomi');
-
-    const builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine/dist/module.js`));
-    const builtinGlobalEntry = Platform_GlobalVars_Map[platform];
-    const builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine.js`));
-    await bundle(builtinEntry, builtinOutput, needUglify, {
-      format: 'cjs',
-    }, rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST));
+    builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine/dist/module.js`));
+    builtinGlobalEntry = Platform_GlobalVars_Map[platform];
+    builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine.js`));
+    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, plugins);
   }
 }
 
-async function bundleGEPhysxLite() {
+async function bundleGEPhysxLiteWX() {
   const platformsPath = path.join(rootDir, 'src/platforms/minigame');
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
 
+  let builtinEntry, builtinOutput, builtinGlobalEntry, needUglify = true;
+  const plugins = rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST);
   for (const platform of platforms) {
     if (platform === 'alipay') {
       // Jump over alipay, before the adapter is ready
@@ -184,15 +169,32 @@ async function bundleGEPhysxLite() {
     }
     console.log(`handling platform ${chalk.green(platform)}`);
 
-    const needUglify = (platform !== 'xiaomi');
-
-    const builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine-physics-lite/dist/module.js`));
-    const builtinGlobalEntry = Platform_GlobalVars_Map[platform];
-    const builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-physics-lite.js`));
-    await bundle(builtinEntry, builtinOutput, needUglify, {
-      format: 'cjs',
-    }, rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST));
+    builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine-physics-lite/dist/module.js`));
+    builtinGlobalEntry = Platform_GlobalVars_Map[platform];
+    builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-physics-lite.js`));
+    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, plugins);
   } 
+}
+
+async function bundleGEShaderLabWX() {
+  const platformsPath = path.join(rootDir, 'src/platforms/minigame');
+  const platforms = getPlatformsFromPath(platformsPath);
+  console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
+
+  let builtinEntry, builtinOutput, builtinGlobalEntry, needUglify = true;
+  const plugins = rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST);
+  for (const platform of platforms) {
+    if (platform === 'alipay') {
+      // Jump over alipay, before the adapter is ready
+      continue;
+    }
+    console.log(`handling platform ${chalk.green(platform)}`);
+
+    builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine-shader-lab/dist/module.js`));
+    builtinGlobalEntry = Platform_GlobalVars_Map[platform];
+    builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-shader-lab.js`));
+    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, plugins);
+  }
 }
 
 function createBundleTask(src, dst, needUglify, targets, plugins) {
@@ -229,9 +231,12 @@ async function bundle(entry, output, needUglify, targets = {}, plugins = []) {
 
 (async function bundleEngine() {
   console.time('Bundle engine of wechat platform');
-  await bundleGECore();
+  await bundleGECoreWX();
   console.timeEnd('Bundle engine of wechat platform');
   console.time('Bundle physics-lite engine of wechat platform');
-  await bundleGEPhysxLite();
+  await bundleGEPhysxLiteWX();
   console.timeEnd('Bundle physics-lite engine of wechat platform');
+  console.time('Bundle shader-lab of wechat platform');
+  await bundleGEShaderLabWX();
+  console.timeEnd('Bundle shader-lab of wechat platform');
 }());
