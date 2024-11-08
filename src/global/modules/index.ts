@@ -1,2 +1,2 @@
-import PlatformGlobal from "./PlatformGlobal";
-export default PlatformGlobal;
+import platformAdapter from "./PlatformAdapter";
+export { platformAdapter };

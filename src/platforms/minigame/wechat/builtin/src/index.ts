@@ -8,7 +8,7 @@ declare global {
   const GameGlobal;
 }
 
-const global = GameGlobal.PlatformGlobal.platformAdapter;
+const global = GameGlobal.platformAdapter;
 
 function inject () {
   utils.cloneProperty(global.window, _window);

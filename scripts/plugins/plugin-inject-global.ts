@@ -3,19 +3,7 @@
 /// <reference types="node" />
 
 /**
- * feat: add deconstruction support
- * feat: add relative path support for test
- * feat: add importLocalNamePostfix & customImportLocalName support
- * feat: add overwrite existing import support
- *
- * "default.polyfill.URL"
- * import { default: { polyfill: { URL as URL } } } from 'relative path';
- *
- * import { default as $inject_mod } from 'relative path';
- * const URL = $inject_mod.polyfill.URL;
- *
- * import { default as $inject_mod } from 'relative path';
- * $inject_mod.polyfill.URL;
+ * "globalThis.document.URL"
  */
 
 import * as path from 'path';

@@ -1,3 +1,2 @@
-import PlatformGlobal from 'global/modules/index';
-global.PlatformGlobal = new PlatformGlobal();
-export default PlatformGlobal;
+import { platformAdapter } from 'global/modules/index';
+global.platformAdapter = platformAdapter;

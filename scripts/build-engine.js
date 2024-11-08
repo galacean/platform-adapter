@@ -140,7 +140,6 @@ async function bundleGECoreWX() {
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
 
   let builtinEntry, builtinOutput, builtinGlobalEntry, needUglify = true;
-  const plugins = rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST);
   for (const platform of platforms) {
     if (platform === 'alipay') {
       // Jump over alipay, before the adapter is ready
@@ -151,7 +150,7 @@ async function bundleGECoreWX() {
     builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine/dist/module.js`));
     builtinGlobalEntry = Platform_GlobalVars_Map[platform];
     builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine.js`));
-    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, plugins);
+    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, rebuildGEPlugin(builtinGlobalEntry, '.platformAdapter', ``, GE_REF_API_LIST));
   }
 }
 
@@ -161,7 +160,6 @@ async function bundleGEPhysxLiteWX() {
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
 
   let builtinEntry, builtinOutput, builtinGlobalEntry, needUglify = true;
-  const plugins = rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST);
   for (const platform of platforms) {
     if (platform === 'alipay') {
       // Jump over alipay, before the adapter is ready
@@ -172,7 +170,7 @@ async function bundleGEPhysxLiteWX() {
     builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine-physics-lite/dist/module.js`));
     builtinGlobalEntry = Platform_GlobalVars_Map[platform];
     builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-physics-lite.js`));
-    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, plugins);
+    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, rebuildGEPlugin(builtinGlobalEntry, '.platformAdapter', ``, GE_REF_API_LIST));
   } 
 }
 
@@ -182,7 +180,6 @@ async function bundleGEShaderLabWX() {
   console.log(chalk.green(`Bundling minigame engines, including: ${platforms}`));
 
   let builtinEntry, builtinOutput, builtinGlobalEntry, needUglify = true;
-  const plugins = rebuildGEPlugin(builtinGlobalEntry, '.PlatformGlobal', `.platformAdapter`, GE_REF_API_LIST);
   for (const platform of platforms) {
     if (platform === 'alipay') {
       // Jump over alipay, before the adapter is ready
@@ -193,7 +190,7 @@ async function bundleGEShaderLabWX() {
     builtinEntry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine-shader-lab/dist/module.js`));
     builtinGlobalEntry = Platform_GlobalVars_Map[platform];
     builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-shader-lab.js`));
-    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, plugins);
+    await bundle(builtinEntry, builtinOutput, needUglify, { format: 'cjs', }, rebuildGEPlugin(builtinGlobalEntry, '.platformAdapter', ``, GE_REF_API_LIST));
   }
 }
 

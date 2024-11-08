@@ -39,7 +39,6 @@ async function bundleMinigamePlatformGlobal() {
   }
 }
 
-
 async function bundleMinigameAdapter() {
   const platformsPath = path.join(rootDir, 'src/platforms/minigame');
   const platforms = getPlatformsFromPath(platformsPath);
