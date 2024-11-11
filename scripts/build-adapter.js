@@ -59,6 +59,26 @@ async function bundleMinigameAdapter() {
   }
 }
 
+async function bundleMinigameEngineAdapter() {
+  const platformsPath = path.join(rootDir, 'src/platforms/minigame');
+  const platforms = getPlatformsFromPath(platformsPath);
+  console.log(chalk.green(`Bundling minigame engine adapters, including: ${platforms}`));
+
+  let builtinEntry, builtinOutput, needUglify = true;
+  for (const platform of platforms) {
+    if (platform === 'alipay') {
+      // Jump over alipay, before the adapter is ready
+      continue;
+    }
+    console.log(`handling platform ${chalk.green(platform)}`);
+
+    // bundle platform-adapter.js
+    builtinEntry = normalizePath(path.join(platformsPath, `${platform}/engine/index.ts`));
+    builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-adapter.js`));
+    await bundle(builtinEntry, builtinOutput, needUglify);
+  }
+}
+
 function createBundleTask(src, dst, needUglify, targets) {
   const targetFileName = path.basename(dst);
   const targetFileNameMin = `${path.basename(targetFileName, '.js')}.min.js`;
@@ -98,6 +118,9 @@ async function bundle(entry, output, needUglify, targets = {}) {
     console.time('Bundle minigame adapter');
     await bundleMinigameAdapter();
     console.timeEnd('Bundle minigame adapter');
+    console.time('Bundle minigame engine adapter');
+    await bundleMinigameEngineAdapter();
+    console.timeEnd('Bundle minigame engine adapter');
     process.exit(0);
   } catch (e) {
     console.log(e);
