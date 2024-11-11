@@ -1,6 +1,9 @@
 function reject(galacean){
+  const TextUtils = galacean.TextUtils;
+  const Vector2 = galacean.Vector2;
+
   function _measureFontOrChar(fontString: string, measureString: string, isChar: boolean) {
-    const { canvas, context } = galacean.TextUtils.textContext();
+    const { canvas, context } = TextUtils.textContext();
     context.font = fontString;
     // Safari gets data confusion through getImageData when the canvas width is not an integer.
     // The measure text width of some special invisible characters may be 0, so make sure the width is at least 1.
@@ -11,10 +14,10 @@ function reject(galacean){
     // but the space rules between characters are unclear. Using actualBoundingBoxRight + Math.abs(actualBoundingBoxLeft) is the closest to the native effect.
     const width = Math.max(1, actualWidth);
     // Make sure enough width.
-    let baseline = Math.ceil(context.measureText(galacean.TextUtils._measureBaseline).width);
-    let height = baseline * galacean.TextUtils._heightMultiplier;
-    baseline = (galacean.TextUtils._baselineMultiplier * baseline) | 0;
-    const { _extendHeight } = galacean.TextUtils;
+    let baseline = Math.ceil(context.measureText(TextUtils._measureBaseline).width);
+    let height = baseline * TextUtils._heightMultiplier;
+    baseline = (TextUtils._baselineMultiplier * baseline) | 0;
+    const { _extendHeight } = TextUtils;
     height += _extendHeight;
     baseline += _extendHeight * 0.5;
 
@@ -80,7 +83,7 @@ function reject(galacean){
         offsetX: 0,
         offsetY: (ascent - descent) * 0.5,
         xAdvance: Math.round(actualWidth),
-        uvs: [new galacean.Vector2(), new galacean.Vector2(), new galacean.Vector2(), new galacean.Vector2()],
+        uvs: [new Vector2(), new Vector2(), new Vector2(), new Vector2()],
         ascent,
         descent,
         index: 0,
@@ -91,7 +94,7 @@ function reject(galacean){
     }
   }
 
-  galacean.TextUtils._measureFontOrChar = _measureFontOrChar;
+  TextUtils._measureFontOrChar = _measureFontOrChar;
 };
 
 export default reject;
