@@ -1,3 +1,4 @@
+import platformAdapter from 'global/modules/PlatformAdapter';
 import _window from 'common/web/window';
 import './window';
 import './document';
@@ -8,7 +9,8 @@ declare global {
   const GameGlobal;
 }
 
-const global = GameGlobal.platformAdapter;
+GameGlobal.platformAdapter = platformAdapter;
+const global = platformAdapter;
 
 function inject () {
   utils.cloneProperty(global.window, _window);

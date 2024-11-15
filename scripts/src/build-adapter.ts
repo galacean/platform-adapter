@@ -24,41 +24,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const rootDir = path.join(__dirname, '../..');
 
-async function bundleMinigamePlatformGlobal(argv) {
-  const platformsPath = path.join(rootDir, 'src/global/platforms/minigame');
-  const platforms = getPlatformsFromPath(platformsPath);
-  console.log(chalk.green(`Bundling platform-global, including: ${platforms}`));
-
-  let needUglify = true;
-  async function bundleModule(platform, needUglify = true) {
-    console.log(`handling platform ${chalk.green(platform)}`);
-
-    // bundle platform-adapter.js
-    let entry = normalizePath(path.join(platformsPath, `${platform}/index.ts`));
-    let output = normalizePath(path.join(rootDir, `dist/minigame/${platform}/platform-global.js`));
-    await bundle(argv, entry, output, needUglify);
-  }
-
-  const { target: targetPlatform } = argv;
-  if (targetPlatform == TargetPlatform.All) {
-    for (const platform of platforms) {
-      if (platform === 'alipay') {
-        // Jump over alipay, before the adapter is ready
-        continue;
-      }
-      await bundleModule(platform, needUglify);
-    }
-  } else {
-    if (platforms.includes(targetPlatform)) {
-      if (targetPlatform === 'alipay') {
-        // Jump over alipay, before the adapter is ready
-        return;
-      }
-      await bundleModule(targetPlatform, needUglify);
-    }
-  }
-}
-
 async function bundleMinigameAdapter(argv) {
   const platformsPath = path.join(rootDir, 'src/platforms/minigame');
   const platforms = getPlatformsFromPath(platformsPath);
@@ -172,9 +137,6 @@ async function bundle(argv, entry, output, needUglify, targets = {}) {
     })
     .argv;
 
-    console.time('Bundle platform global');
-    await bundleMinigamePlatformGlobal(argv);
-    console.timeEnd('Bundle platform global');
     console.time('Bundle minigame adapter');
     await bundleMinigameAdapter(argv);
     console.timeEnd('Bundle minigame adapter');
