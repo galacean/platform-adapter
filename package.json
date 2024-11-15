@@ -1,39 +1,25 @@
 {
   "type": "module",
   "scripts": {
-    "build:adapter": "node ./scripts/build-adapter.js",
-    "build:engine": "node ./scripts/build-engine.js",
+    "postinstall": "pnpm --filter ./scripts install && pnpm run build:cli",
+    "build:adapter": "node ./scripts/dist/build-adapter.js",
+    "build:adapter:debug": "node ./scripts/dist/build-adapter.js --env=development",
+    "build:engine": "node ./scripts/dist/build-engine.js",
+    "build:engine:debug": "node ./scripts/dist/build-engine.js --env=development",
     "build": "pnpm run build:adapter && pnpm run build:engine",
+    "build:debug": "pnpm run build:adapter:debug && pnpm run build:engine:debug",
+    "build:cli": "pnpm --filter=./scripts run build",
     "test": "jest"
   },
   "dependencies": {
-    "@galacean/engine": "^1.3.19",
-    "@galacean/engine-physics-physx": "^1.3.19",
-    "@galacean/engine-physics-lite": "^1.3.19",
-    "@galacean/engine-shader-lab": "^1.3.19"
+    "@galacean/engine": "1.3.8",
+    "@galacean/engine-physics-lite": "1.3.8",
+    "@galacean/engine-physics-physx": "1.3.8",
+    "@galacean/engine-shader-lab": "1.3.8",
+    "@galacean/engine-spine": "^1.2.0"
   },
   "devDependencies": {
-    "@rollup/pluginutils": "^5.1.3",
-    "@rollup/plugin-commonjs": "^26.0.1",
-    "@rollup/plugin-inject": "^5.0.5",
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "@rollup/plugin-typescript": "^12.1.1",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/stream": "^3.0.1",
     "@types/node": "^22.5.5",
-    "chalk": "^5.3.0",
-    "escodegen": "^2.1.0",
-    "estree-walker": "^3.0.3",
-    "fs": "^0.0.1-security",
-    "gulp": "^5.0.0",
-    "gulp-debug": "^5.0.1",
-    "gulp-rename": "^2.0.0",
-    "gulp-uglify": "^3.0.2",
-    "magic-string": "^0.30.12",
-    "rollup": "^4.22.1",
-    "tslib": "^2.8.0",
-    "typescript": "^5.6.2",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "typescript": "^5.6.2"
   }
 }

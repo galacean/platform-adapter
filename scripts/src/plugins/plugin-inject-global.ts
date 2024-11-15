@@ -6,7 +6,7 @@
  * "globalThis.document.URL"
  */
 
-import * as path from 'path';
+import path from 'path';
 import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
 import { attachScopes, createFilter, makeLegalIdentifier } from '@rollup/pluginutils';

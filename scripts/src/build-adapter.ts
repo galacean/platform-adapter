@@ -1,0 +1,190 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import gulp from 'gulp';
+import buffer from 'vinyl-buffer';
+import source from 'vinyl-source-stream';
+import uglify from 'gulp-uglify';
+import rename from 'gulp-rename';
+import debug from 'gulp-debug';
+import rollup from '@rollup/stream';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import ts from '@rollup/plugin-typescript';
+import chalk from 'chalk';
+import yargs from 'yargs';
+
+import { getPlatformsFromPath, normalizePath } from './utils/utils.js';
+
+import { Environment, TargetPlatform } from './cli.js';
+
+// Get current directory
+// @ts-ignore
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const rootDir = path.join(__dirname, '../..');
+
+async function bundleMinigamePlatformGlobal(argv) {
+  const platformsPath = path.join(rootDir, 'src/global/platforms/minigame');
+  const platforms = getPlatformsFromPath(platformsPath);
+  console.log(chalk.green(`Bundling platform-global, including: ${platforms}`));
+
+  let needUglify = true;
+  async function bundleModule(platform, needUglify = true) {
+    console.log(`handling platform ${chalk.green(platform)}`);
+
+    // bundle platform-adapter.js
+    let entry = normalizePath(path.join(platformsPath, `${platform}/index.ts`));
+    let output = normalizePath(path.join(rootDir, `dist/minigame/${platform}/platform-global.js`));
+    await bundle(argv, entry, output, needUglify);
+  }
+
+  const { target: targetPlatform } = argv;
+  if (targetPlatform == TargetPlatform.All) {
+    for (const platform of platforms) {
+      if (platform === 'alipay') {
+        // Jump over alipay, before the adapter is ready
+        continue;
+      }
+      await bundleModule(platform, needUglify);
+    }
+  } else {
+    if (platforms.includes(targetPlatform)) {
+      if (targetPlatform === 'alipay') {
+        // Jump over alipay, before the adapter is ready
+        return;
+      }
+      await bundleModule(targetPlatform, needUglify);
+    }
+  }
+}
+
+async function bundleMinigameAdapter(argv) {
+  const platformsPath = path.join(rootDir, 'src/platforms/minigame');
+  const platforms = getPlatformsFromPath(platformsPath);
+  console.log(chalk.green(`Bundling minigame adapters, including: ${platforms}`));
+
+  let needUglify = true;
+  async function bundleModule(platform, needUglify = true) {
+    console.log(`handling platform ${chalk.green(platform)}`);
+
+    // bundle platform-adapter.js
+    let builtinEntry = normalizePath(path.join(platformsPath, `${platform}/builtin/src/index.ts`));
+    let builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/platform-adapter.js`));
+    await bundle(argv, builtinEntry, builtinOutput, needUglify);
+  }
+
+  const { target: targetPlatform } = argv;
+  if (targetPlatform == TargetPlatform.All) {
+    for (const platform of platforms) {
+      if (platform === 'alipay') {
+        // Jump over alipay, before the adapter is ready
+        continue;
+      }
+      await bundleModule(platform, needUglify);
+    }
+  } else {
+    if (platforms.includes(targetPlatform)) {
+      if (targetPlatform === 'alipay') {
+        // Jump over alipay, before the adapter is ready
+        return;
+      }
+      await bundleModule(targetPlatform, needUglify);
+    }
+  }
+}
+
+async function bundleMinigameEngineAdapter(argv) {
+  const platformsPath = path.join(rootDir, 'src/platforms/minigame');
+  const platforms = getPlatformsFromPath(platformsPath);
+  console.log(chalk.green(`Bundling minigame engine adapters, including: ${platforms}`));
+
+  let needUglify = true;
+  async function bundleModule(platform, needUglify = true) {
+    console.log(`handling platform ${chalk.green(platform)}`);
+
+    // bundle platform-adapter.js
+    let builtinEntry = normalizePath(path.join(platformsPath, `${platform}/engine/index.ts`));
+    let builtinOutput = normalizePath(path.join(rootDir, `dist/minigame/${platform}/engine-adapter.js`));
+    await bundle(argv, builtinEntry, builtinOutput, needUglify);
+  }
+
+  const { target: targetPlatform } = argv;
+  if (targetPlatform == TargetPlatform.All) {
+    for (const platform of platforms) {
+      if (platform === 'alipay') {
+        // Jump over alipay, before the adapter is ready
+        continue;
+      }
+      await bundleModule(platform, needUglify);
+    }
+  } else {
+    if (platforms.includes(targetPlatform)) {
+      if (targetPlatform === 'alipay') {
+        // Jump over alipay, before the adapter is ready
+        return;
+      }
+      await bundleModule(targetPlatform, needUglify);
+    }
+  }
+}
+
+function createBundleTask(argv, src, dst, needUglify, targets) {
+  const { env } = argv;
+
+  const targetFileName = path.basename(dst);
+  dst = path.dirname(dst);
+  let task = rollup({
+    input: src,
+    output: targets ? targets : {},
+    plugins: [
+      ts(),
+      resolve(),
+      commonjs(),
+    ],
+  })
+  .pipe(source(targetFileName))
+  .pipe(buffer());
+
+  if (env === Environment.Production && needUglify) {
+    task = task.pipe(uglify());
+  }
+  task = task.pipe(gulp.dest(dst));
+  return task;
+}
+
+async function bundle(argv, entry, output, needUglify, targets = {}) {
+  await new Promise((resolve) => {
+    createBundleTask(argv, entry, output, needUglify, targets).on('end', resolve);
+  });
+}
+
+(async function bundleAdapter() {
+  try {
+    const argv = yargs(process.argv)
+    .option('env', {
+      default: Environment.Production,
+      type: 'string'
+    })
+    .option('target', {
+      default: TargetPlatform.All,
+      type: 'string'
+    })
+    .argv;
+
+    console.time('Bundle platform global');
+    await bundleMinigamePlatformGlobal(argv);
+    console.timeEnd('Bundle platform global');
+    console.time('Bundle minigame adapter');
+    await bundleMinigameAdapter(argv);
+    console.timeEnd('Bundle minigame adapter');
+    console.time('Bundle minigame engine adapter');
+    await bundleMinigameEngineAdapter(argv);
+    console.timeEnd('Bundle minigame engine adapter');
+
+    process.exit(0);
+  } catch (e) {
+    console.log(e);
+    process.exit(1);
+  }
+}());
