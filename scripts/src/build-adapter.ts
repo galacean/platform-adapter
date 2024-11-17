@@ -30,7 +30,7 @@ async function bundleMinigameAdapter(argv) {
   console.log(chalk.green(`Bundling minigame adapters, including: ${platforms}`));
 
   let needUglify = true;
-  async function bundleModule(platform, needUglify = true) {
+  async function bundleModule(platform: string, needUglify = true) {
     console.log(`handling platform ${chalk.green(platform)}`);
 
     // bundle platform-adapter.js
@@ -65,7 +65,7 @@ async function bundleMinigameEngineAdapter(argv) {
   console.log(chalk.green(`Bundling minigame engine adapters, including: ${platforms}`));
 
   let needUglify = true;
-  async function bundleModule(platform, needUglify = true) {
+  async function bundleModule(platform: string, needUglify = true) {
     console.log(`handling platform ${chalk.green(platform)}`);
 
     // bundle platform-adapter.js
@@ -94,7 +94,15 @@ async function bundleMinigameEngineAdapter(argv) {
   }
 }
 
-function createBundleTask(argv, src, dst, needUglify, targets) {
+/**
+ * @param argv Command line arguments, e.g. default is { env: 'release', target: 'all' }
+ * @param src The path of the input file
+ * @param dst Path of the output file, contains the file's name
+ * @param needUglify Need to uglify the output
+ * @param targets Some key-value pairs of rollup output config, e.g. { format: 'cjs' }
+ * @returns 
+ */
+function createBundleTask(argv: any, src: string, dst: string, needUglify: boolean, targets = {}) {
   const { env } = argv;
 
   const targetFileName = path.basename(dst);
@@ -111,14 +119,22 @@ function createBundleTask(argv, src, dst, needUglify, targets) {
   .pipe(source(targetFileName))
   .pipe(buffer());
 
-  if (env === Environment.Production && needUglify) {
+  if (env === Environment.Release && needUglify) {
     task = task.pipe(uglify());
   }
   task = task.pipe(gulp.dest(dst));
   return task;
 }
 
-async function bundle(argv, entry, output, needUglify, targets = {}) {
+/**
+ * @param argv Command line arguments, e.g. default is { env: 'release', target: 'all' }
+ * @param entry The path of the input file
+ * @param output Path of the output file, contains the file's name
+ * @param needUglify Need to uglify the output
+ * @param targets Some key-value pairs of rollup output config, e.g. { format: 'cjs' }
+ * @returns 
+ */
+async function bundle(argv: any, entry: string, output: string, needUglify: boolean, targets = {}) {
   await new Promise((resolve) => {
     createBundleTask(argv, entry, output, needUglify, targets).on('end', resolve);
   });
@@ -128,7 +144,7 @@ async function bundle(argv, entry, output, needUglify, targets = {}) {
   try {
     const argv = yargs(process.argv)
     .option('env', {
-      default: Environment.Production,
+      default: Environment.Release,
       type: 'string'
     })
     .option('target', {

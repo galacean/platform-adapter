@@ -1,6 +1,6 @@
 const Environment = {
-  Devlopment: 'development',
-  Production: 'production',
+  Debug: 'Debug',
+  Release: 'Release',
   Test: 'test',
 };
 const TargetPlatform = {
