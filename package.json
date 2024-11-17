@@ -3,9 +3,9 @@
   "scripts": {
     "postinstall": "pnpm --filter ./scripts install && pnpm run build:cli",
     "build:adapter": "node ./scripts/dist/build-adapter.js",
-    "build:adapter:debug": "node ./scripts/dist/build-adapter.js --env=development",
+    "build:adapter:debug": "node ./scripts/dist/build-adapter.js --env=Debug",
     "build:engine": "node ./scripts/dist/build-engine.js",
-    "build:engine:debug": "node ./scripts/dist/build-engine.js --env=development",
+    "build:engine:debug": "node ./scripts/dist/build-engine.js --env=Debug",
     "build": "pnpm run build:adapter && pnpm run build:engine",
     "build:debug": "pnpm run build:adapter:debug && pnpm run build:engine:debug",
     "build:cli": "pnpm --filter=./scripts run build",
@@ -16,7 +16,9 @@
     "@galacean/engine-physics-lite": "1.3.8",
     "@galacean/engine-physics-physx": "1.3.8",
     "@galacean/engine-shader-lab": "1.3.8",
-    "@galacean/engine-spine": "^1.2.0"
+    "@galacean/engine-spine": "^1.2.0",
+    "@galacean/engine-toolkit": "1.3.8",
+    "@galacean/engine-xr": "1.3.8"
   },
   "devDependencies": {
     "@types/node": "^22.5.5",

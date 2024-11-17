@@ -92,7 +92,7 @@ export function replaceAPICaller(entry: string, injectName: string, injectNamePo
   );
 }
 
-export function injectGalaceanImports(options={sourceMap: false, sourcemap:false}) {
+export function injectGalaceanImports(options: any = {}) {
   return {
     name: 'injectGalaceanImports',
     transform(code: string,id: string) {

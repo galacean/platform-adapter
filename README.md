@@ -21,7 +21,7 @@ npm install
     npm run build:engine
     ```
 
-  - 单独打包引擎，可以使用以下命令，现在打包引擎时会对 `@galacean/engine` 、 `@galacean/engine-shader-lab` 等模块分别打包，导致 `@galacean/engine` 会被重复打包，需要优化逻辑
+  - 单独打包引擎，可以使用以下命令
     ``` shell
     npm run build:engine
     ```
@@ -40,48 +40,51 @@ npm install
             - platform-global.min.js # 压缩后的平台定制的全局变量
       ```
 
+- 打包脚本说明
+  
+  `scripts`目录下提供了打包脚本，用于生成平台适配器和引擎适配器
+    - build-adapter.ts: 生成平台适配器代码
+    - build-engine.ts: 生成引擎适配器代码
+  
+  修改打包脚本后，需要执行 `npm run build:cli` 重新构建打包脚本
+
+
 - 平台全局变量注入代码说明
 
-  目前会在平台的全局变量中添加 `PlatformGlobal` 变量，该变量包含平台的WebAPI适配器和引擎适配器
+  目前会在平台的全局变量中添加 `platformAdapter` 变量，该变量包含`Galacean`在对应运行平台的`WebAPI`适配代码，避免使用多个不同引擎、插件时，出现可能的全局变量冲突问题
   - platformAdapter
     - 适配平台的WebAPI，如 `canvas` 、 `document` 等
-  - engineAdapter
-    - 适配引擎可能需要对平台适配的功能，例如：`Audio` 、 `Image` 等组件
 
-  伪代码
-    ``` javascript
-    // 平台全局变量
-    global.PlatformGlobal = {
-      platformAdapter: {
-        canvas: canvas,
-        ...
-      },
-      engineAdapter: {
-        ...
-      }
-    };
-    ```
+- 引擎定制代码说明
+  - engineAdapter，在不同平台上，引擎可能需要定制不同的逻辑，如微信小游戏真机没有实现`TextMetrics`的`actualBoundingBoxLeft`、`actualBoundingBoxRight`等方法
 
 - 使用
-  - 小游戏在用户代码加载前导入代码
+  - 模板
     ``` javascript
-    require('platform-global.min');
-    require('platform-adapter.min');
+    // 加载平台 API 适配代码
+    require('platform-adapter');
+
+    // 引擎适配代码逻辑
+    const core = require('engine');
+    require('engine-adapter').default({
+      core: core,
+    });
     ```
 
   - 用户代码中导入引擎代码
     ``` javascript
-    import { WebGLEngine, } from "engine.min";
-    import { ShaderLab } from "engine-shader-lab.min";
+    import { WebGLEngine, } from "engine";
+    import { LitePhysics } from "engine-physics-lite";
+    import { ShaderLab } from "engine-shader-lab";
     ```
 
   - 用户初始化引擎画布
 
-    不同平台拥有不同的global变量，
-    - 微信小游戏通过 `GameGlobal.PlatformGlobal.platformAdapter.canvas` 获取到引擎画布
+    在`platform-adapter`代码加载后，会准备一个全局画布，可以通过全局变量获取
+    - 微信小游戏通过 `GameGlobal.platformAdapter.canvas` 获取到引擎画布
       ``` javascript
       // 引擎画布，以微信平台为例
-      const canvas = GameGlobal.PlatformGlobal.platformAdapter.canvas;
+      const canvas = GameGlobal.platformAdapter.canvas;
       WebGLEngine.create({ canvas: canvas }).then(engine => {
         engine.canvas.resizeByClientSize();
         engine.run();
@@ -89,4 +92,4 @@ npm install
       ```
 
 ## TODO
-- [ ] 优化引擎打包逻辑，减少重复打包
+- [ ] PhysX 物理引擎适配
