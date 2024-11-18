@@ -1,8 +1,8 @@
-import window from 'common/web/window'
-import document from 'common/web/document'
+import window from 'common/web/Window'
+import document from 'common/web/Document'
 import PointerEvent from 'common/web/EventIniter/PointerEvent';
 
-function typeToButtons(type) {
+function typeToButtons(type: string) {
   let ret = 0;
   if (type === "touchstart" || type === "touchmove" || type === "pointerdown" || type === "pointermove") {
     ret = 1;
@@ -10,7 +10,7 @@ function typeToButtons(type) {
   return ret;
 }
 
-function touchEventHandlerFactory(type) {
+function touchEventHandlerFactory(type: string) {
   return (event) => {
     const changedTouches = event.changedTouches || event.touches;
     for (let i = 0, len = changedTouches.length; i < len; ++i) {

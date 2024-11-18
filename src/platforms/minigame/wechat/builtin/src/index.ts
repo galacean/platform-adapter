@@ -1,7 +1,7 @@
 import platformAdapter from 'global/modules/PlatformAdapter';
-import _window from 'common/web/window';
-import './window';
-import './document';
+import _window from 'common/web/Window';
+import './Window';
+import './Document';
 import utils from 'utils/utils';
 
 declare global {

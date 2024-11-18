@@ -1,15 +1,15 @@
 import {noop} from './utils/noop';
 
 export default class Event {
-  cancelBubble = false;
-  cancelable = false;
+  cancelBubble: boolean = false;
+  cancelable: boolean = false;
   target = null;
-  timestampe = Date.now();
+  timestampe: number = Date.now();
   preventDefault = noop;
   stopPropagation = noop;
-  type;
+  type: string;
 
-  constructor(type) {
+  constructor(type: string) {
     this.type = type;
   }
 }

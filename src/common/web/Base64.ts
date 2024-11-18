@@ -1,5 +1,5 @@
 let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-function InvalidCharacterError(message) {
+function InvalidCharacterError(message: string) {
     this.message = message;
 }
 InvalidCharacterError.prototype = new Error;
@@ -8,7 +8,7 @@ InvalidCharacterError.prototype.name = 'InvalidCharacterError';
 // encoder
 // [https://gist.github.com/999166] by [https://github.com/nignag]
 
-function btoa(input) {
+function btoa(input: string) {
     let str = String(input);
     let output = '';
     for (
@@ -32,7 +32,7 @@ function btoa(input) {
 
 // decoder
 // [https://gist.github.com/1020396] by [https://github.com/atk]
-function atob(input) {
+function atob(input: string) {
     let str = String(input).replace(/[=]+$/, '');
     let output = '';
     for (

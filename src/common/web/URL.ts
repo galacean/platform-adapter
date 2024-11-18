@@ -21,7 +21,7 @@ export class URL {
   public href: string;
 
   // todo: 完善URL对象
-  constructor(url, host = "") {
+  constructor(url: string, host = "") {
     if (url.indexOf("http://") == 0 || url.indexOf("https://") == 0) {
       this.href = url;
       return;
@@ -30,7 +30,7 @@ export class URL {
   }
 }
 
-function _arrayBufferToBase64(buffer) {
+function _arrayBufferToBase64(buffer: ArrayBuffer) {
   var binary = "";
   var bytes = new Uint8Array(buffer);
   var len = bytes.byteLength;

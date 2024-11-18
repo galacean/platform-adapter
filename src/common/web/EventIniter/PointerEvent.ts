@@ -1,14 +1,12 @@
+import Event from "../Event";
 import { noop } from "../utils/noop";
 
-export default class PointerEvent {
-  cancelBubble: boolean;
-  cancelable: boolean;
-  target;
-  currentTarget;
+export default class PointerEvent extends Event {
+  target = null;
+  currentTarget = null;
   preventDefault = noop;
   stopPropagation = noop;
-  type;
-  timeStamp;
+  timeStamp: number;
 
   buttons: number;
   which: number;
@@ -21,9 +19,5 @@ export default class PointerEvent {
   pointerId: number;
   bubbles: boolean;
   pressure: number;
-  pointerType;
-
-  constructor(type) {
-    this.type = type;
-  }
+  pointerType: string;
 }

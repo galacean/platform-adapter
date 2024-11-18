@@ -5,7 +5,7 @@ class EventTarget {
     _events.set(this, {});
   }
 
-  addEventListener(type, listener, options = {}) {
+  addEventListener(type: string, listener: any, options = {}) {
     let events = _events.get(this);
 
     if (!events) {
@@ -28,7 +28,7 @@ class EventTarget {
     }
   }
 
-  removeEventListener(type, listener) {
+  removeEventListener(type: string, listener: any) {
     const listeners = _events.get(this)[type];
 
     if (listeners && listeners.length > 0) {

@@ -1,36 +1,39 @@
-import document from "./document";
+import document from "./Document";
 import { Blob } from "./Blob";
 import FileReader from "./FileReader";
 import HTMLElement from "./HTMLElement";
 import { URL } from "./URL";
 import { URLSearchParams } from "./URLSearchParams";
-import { HTMLImageElement, HTMLCanvasElement } from "./constructor";
+import { HTMLCanvasElement } from "./HTMLCanvasElement";
+import { HTMLImageElement } from "./HTMLImageElement";
+import Performance from "./Performance";
+import Navigator from "./Navigator";
 
 interface Window {
   canvas: HTMLElement,
   document,
-  navigator,
+  navigator: Navigator,
   XMLHttpRequest,
   WebSocket,
   Image,
   Audio,
-  FileReader,
+  FileReader: typeof FileReader,
   HTMLElement,
-  localStorage,
-  location,
-  Blob,
-  URL,
-  URLSearchParams,
+  localStorage: {},
+  location: {},
+  Blob: typeof Blob,
+  URL: typeof URL,
+  URLSearchParams: typeof URLSearchParams,
   innerWidth: number,
   innerHeight: number,
   devicePixelRatio: number,
-  screen,
+  screen: {},
   ontouchstart,
   ontouchmove,
   ontouchend,
-  performance,
-  HTMLImageElement,
-  HTMLCanvasElement,
+  performance: Performance,
+  HTMLImageElement: typeof HTMLImageElement,
+  HTMLCanvasElement: typeof HTMLCanvasElement,
   setTimeout,
   setInterval,
   clearTimeout,

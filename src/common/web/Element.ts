@@ -1,8 +1,8 @@
 import Node from './Node';
 
-export default class ELement extends Node {
-  className = '';
-  children = [];
+export default class Element extends Node {
+  className: string = '';
+  children: Array<Element> = [];
 
   constructor() {
     super();

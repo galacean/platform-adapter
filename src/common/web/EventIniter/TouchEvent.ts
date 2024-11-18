@@ -1,17 +1,17 @@
 import { noop } from '../utils/noop';
 
 export default class TouchEvent {
-  target;
-  currentTarget;
+  target = null;
+  currentTarget = null;
   touches = [];
   targetTouches = [];
   changedTouches = [];
   preventDefault = noop;
   stopPropagation = noop;
-  type;
-  timeStamp;
+  type: string;
+  timeStamp: number;
 
   constructor(type) {
-    this.type = type
+    this.type = type;
   }
 }

@@ -5,9 +5,9 @@ export default class Node extends EventTarget {
     super();
   }
 
-  childNodes = [];
+  childNodes: Array<Node> = [];
 
-  appendChild(node) {
+  appendChild(node: Node) {
     if (node instanceof Node) {
       this.childNodes.push(node);
     } else {

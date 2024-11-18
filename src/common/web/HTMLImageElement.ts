@@ -5,9 +5,3 @@ export class HTMLImageElement extends HTMLElement {
     super('img');
   }
 }
-
-export class HTMLCanvasElement extends HTMLElement {
-  constructor() {
-    super('canvas');
-  }
-}

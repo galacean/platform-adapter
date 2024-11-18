@@ -65,10 +65,7 @@ npm install
     require('platform-adapter');
 
     // 引擎适配代码逻辑
-    const core = require('engine');
-    require('engine-adapter').default({
-      core: core,
-    });
+    require('engine-adapter');
     ```
 
   - 用户代码中导入引擎代码

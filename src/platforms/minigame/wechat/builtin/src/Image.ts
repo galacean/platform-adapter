@@ -2,10 +2,10 @@ export default function Image() {
   const image = wx.createImage();
 
   Object.assign(image, {
-    addEventListener(event, cb) {
+    addEventListener(event: string, cb: () => {}) {
       image[`on${event}`] = cb.bind(image);
     },
-    removeEventListener(event) {
+    removeEventListener(event: string) {
       image[`on${event}`] = null;
     },
   });

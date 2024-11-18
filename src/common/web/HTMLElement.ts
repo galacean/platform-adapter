@@ -2,25 +2,25 @@ import Element from './Element'
 import { noop } from './utils/noop'
 
 export default class HTMLElement extends Element {
-  className = '';
-  childern = [];
+  className: string = '';
+  childern: Array<HTMLElement> = [];
   style = { };
-  tagName;
+  tagName: string;
 
   insertBefore = noop;
 
   innerHTML = '';
 
-  constructor(tagName = '') {
+  constructor(tagName: string = '') {
     super();
     this.tagName = tagName.toUpperCase();
   }
 
-  setAttribute(name, value) {
+  setAttribute(name: string, value: string) {
     this[name] = value;
   }
 
-  getAttribute(name) {
+  getAttribute(name: string) {
     return this[name];
   }
 

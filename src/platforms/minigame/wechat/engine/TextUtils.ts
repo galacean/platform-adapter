@@ -1,4 +1,6 @@
-function reject(galacean){
+const galacean = require('./engine.js');
+
+function reject(){
   const TextUtils = galacean.TextUtils;
   const Vector2 = galacean.Vector2;
 

@@ -1,16 +1,16 @@
-import document from 'common/web/document';
-import window from 'common/web/window';
+import document from 'common/web/Document';
+import window from 'common/web/Window';
 import $HTMLElement from './HTMLElement';
 import Image from './Image';
 import Audio from './Audio';
 import Canvas from './Canvas';
-import './EventIniter/';
+import './EventIniter';
 
 document.documentElement = window;
-document.location = window.location,
+document.location = window.location;
 
-document.head = new $HTMLElement('head'),
-document.body = new $HTMLElement('body'),
+document.head = new $HTMLElement('head');
+document.body = new $HTMLElement('body');
 
 document.createElement = (tagName) => {
   if (tagName === 'canvas') {
@@ -21,7 +21,7 @@ document.createElement = (tagName) => {
     return Image();
   }
 
-  return new $HTMLElement(tagName)
+  return new $HTMLElement(tagName);
 };
 
 document.getElementById = (id) => {
@@ -77,4 +77,4 @@ document.querySelectorAll = (query) => {
   return [];
 };
 
-document.dispatchEvent = (event) => {}
+document.dispatchEvent = (event) => {};
