@@ -8,6 +8,7 @@ import { HTMLCanvasElement } from "./HTMLCanvasElement";
 import { HTMLImageElement } from "./HTMLImageElement";
 import Performance from "./Performance";
 import Navigator from "./Navigator";
+import TextDecoder from "./TextDecoder";
 
 interface Window {
   canvas: HTMLElement,
@@ -41,6 +42,7 @@ interface Window {
   requestAnimationFrame,
   cancelAnimationFrame,
   OffscreenCanvas,
+  TextDecoder,
 }
 
 // @ts-ignore
@@ -52,6 +54,7 @@ var window: Window = {
   Blob: Blob,
   URL: URL,
   URLSearchParams: URLSearchParams,
+  TextDecoder: TextDecoder,
 };
 
 export default window;

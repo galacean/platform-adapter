@@ -8,7 +8,7 @@ const isReference = (node, parent) => {
     if (parent.type === 'MemberExpression') return parent.computed || node === parent.object;
 
     // disregard the `bar` in { bar: foo }
-    if (parent.type === 'Property' && node !== parent.value) return false;
+    if ((parent.type === 'Property' || parent.type === 'PropertyDefinition') && node !== parent.value) return false;
 
     // disregard the `bar` in `class Foo { bar () {...} }`
     if (parent.type === 'MethodDefinition') return false;
