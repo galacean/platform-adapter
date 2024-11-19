@@ -19,14 +19,32 @@ export class URL {
   }
 
   public href: string;
+  public origin: string;
+  public pathname: string;
+  public protocol: string;
+  public host: string;
+  public hostname: string;
+  public port: string;
+
+  static urlRegex = /(.+:\/\/)?([^\/]+)(\/.*)*/i;
 
   // todo: 完善URL对象
   constructor(url: string, host = "") {
-    if (url.indexOf("http://") == 0 || url.indexOf("https://") == 0) {
-      this.href = url;
+    let match = URL.urlRegex.exec(url);
+    if (match) {
+      this.href = match[0];
+      this.origin = match[1] + match[2];
+      this.pathname = match[3];
+      this.protocol = match[1].split('//')[0];
+      this.host = match[2] ?? "";
+      let hostAndPort = this.host.split(':');
+      this.hostname = hostAndPort[0];
+      this.port = hostAndPort[1];
       return;
     }
     this.href = host + url;
+    this.origin = host.split("/")[0];
+    this.pathname = url;
   }
 }
 
