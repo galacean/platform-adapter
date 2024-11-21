@@ -1,4 +1,4 @@
-const isReference = (node, parent) => {
+function isReference(node, parent) {
   if (node.type === 'MemberExpression') {
     return !node.computed && isReference(node.object, node);
   }
@@ -27,7 +27,7 @@ const isReference = (node, parent) => {
   return false;
 };
 
-const flatten = startNode => {
+function flatten(startNode) {
   const parts = [];
   let node = startNode;
 

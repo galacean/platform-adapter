@@ -103,7 +103,7 @@ export default class XMLHttpRequest {
           }
         }
 
-        this.status = statusCode;
+        this.status = statusCode ?? 200;
         _responseHeader.set(this, header);
         _triggerEvent.call(this, 'loadstart');
         _changeReadyState.call(this, XMLHttpRequest.HEADERS_RECEIVED);

@@ -15,7 +15,6 @@ if (wx.getPerformance) {
         return (wxPerf.now() - initTime) / 1000;
       }
     };
-    utils.cloneProperty(clientPerfAdapter, wxPerf);
 
     performance = clientPerfAdapter;
   }

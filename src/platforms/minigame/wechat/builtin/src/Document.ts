@@ -76,5 +76,3 @@ document.querySelectorAll = (query) => {
   }
   return [];
 };
-
-document.dispatchEvent = (event) => {};
