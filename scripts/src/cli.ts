@@ -1,10 +1,8 @@
-const Environment = {
-  Debug: 'Debug',
-  Release: 'Release',
-  Test: 'test',
-};
-const TargetPlatform = {
-  All: 'all'
-};
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-export { Environment, TargetPlatform };
+// Get current directory
+// @ts-ignore
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+export const rootDir = path.join(__dirname, '../..');

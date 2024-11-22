@@ -8,7 +8,7 @@
     "esModuleInterop": true,      // 使 CommonJS 的模块可以良好地与 ESModule 交互
     // "strict": true,              // 启用所有严格类型检查选项
     "skipLibCheck": true,        // 跳过库文件的类型检查（可选）
-    "forceConsistentCasingInFileNames": true // 确保文件名一致性
+    "forceConsistentCasingInFileNames": true, // 确保文件名一致性
   },
   "include": ["**/*"],      // 包含的文件
   "exclude": ["node_modules"]   // 排除的文件

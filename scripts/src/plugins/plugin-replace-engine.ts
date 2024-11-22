@@ -9,42 +9,7 @@ import MagicString from 'magic-string';
 import { attachScopes, createFilter, makeLegalIdentifier } from '@rollup/pluginutils';
 import { isReference, flatten } from '../utils/plugin-utils.js';
 
-function replaceSIMDSupportedWX(node, code: string) {
-  // 微信基础库从2.16版本开始删除了原生WebAssembly的支持, WXWebAssembly不支持部分api以及SIMD, 且不支持远程加载wasm, 必须使用local wasm
-  // https://developers.weixin.qq.com/community/develop/doc/000e2c019f8a003d5dfbb54c251c00?jumpto=comment&commentid=000eac66934960576d0cb1a7256c
-  if (node.type === "AssignmentExpression" &&
-    node.left.type === "MemberExpression" &&
-    node.left.object.type === "ThisExpression" &&
-    node.left.property.name === "_simdSupported" &&
-    node.right.type === "CallExpression" &&
-    node.right.type === "CallExpression" &&
-    (node.right.callee.object.name === "WebAssembly" || node.right.callee.object.name === "WXWebAssembly") &&
-    node.right.callee.property.name === "validate") {
-    // 构造新的赋值表达式节点
-    const newAssignment = {
-      type: "AssignmentExpression",
-      operator: "=",
-      left: {
-        type: "MemberExpression",
-        object: {
-          type: "ThisExpression"
-        },
-        property: {
-          type: "Identifier",
-          name: "_simdSupported"
-        }
-      },
-      right: {
-        type: "Literal", // 使用 Literal 表示一个字面量
-        value: false  // 设置字面量的值为 false
-      } // 将原始调用表达式作为赋值的右侧
-    }
-    return code.replace(code.slice(node.start, node.end), generate(newAssignment));
-  }
-  return code;
-}
-
-export function replaceGalaceanLogic() {
+export function pluginReplaceGalaceanLogic() {
   return {
     name: 'replaceGalaceanLogic',
     transform(code: string, id: string) {
@@ -58,43 +23,17 @@ export function replaceGalaceanLogic() {
           `this._requireResult = Object.assign({}, $defaultWebGLExtensions)`,
         );
 
-        const ast = this.parse(code);
-        walk(ast, {
-          enter(node) {
-            code = replaceSIMDSupportedWX(node, code);
-          }
-        });
-
         code = code.replace(/WebAssembly/g, `WXWebAssembly`);
+        code = code.replace(/typeof WebAssembly/g, `typeof WXWebAssembly`);
       }
       return { code, map: null };
     }
   };
 }
 
-export function replaceAPICaller(entry: string, injectName: string, injectNamePostfix: string, apiList: string[]) {
-  return inject(
-    {
-      modules: apiList.reduce((acc, curr) => {
-        const injectSetting = {
-          globalVarName: entry,
-          localName: injectName,
-          localNamePostfix: injectNamePostfix.concat(`.${curr}`),
-          overwrite: true,
-        };
-
-        acc[curr] = injectSetting;
-        acc[`self.${curr}`] = injectSetting;
-
-        return acc;
-      }, {}),
-    }
-  );
-}
-
-export function injectGalaceanImports(options: any = {}) {
+export function pluginReplaceGalaceanImports(options: any = {}) {
   return {
-    name: 'injectGalaceanImports',
+    name: 'replaceGalaceanImports',
     transform(code: string,id: string) {
       if (id.indexOf('@galacean') > -1) {
         const regex = /import\s*{\s*[^}]*\s*}\s*from\s*(['"])(@galacean\/engine)\1;/g;
