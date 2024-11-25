@@ -30,14 +30,14 @@ export class URL {
 
   // todo: 完善URL对象
   constructor(url: string, host = "") {
-    let match = URL.urlRegex.exec(url);
+    const match = URL.urlRegex.exec(url);
     if (match) {
       this.href = match[0];
       this.origin = match[1] + match[2];
       this.pathname = match[3];
       this.protocol = match[1].split('//')[0];
       this.host = match[2] ?? "";
-      let hostAndPort = this.host.split(':');
+      const hostAndPort = this.host.split(':');
       this.hostname = hostAndPort[0];
       this.port = hostAndPort[1];
       return;
@@ -50,9 +50,8 @@ export class URL {
 
 function _arrayBufferToBase64(buffer: ArrayBuffer) {
   let binary = "";
-  let bytes = new Uint8Array(buffer);
-  let len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0, len = bytes.byteLength; i < len; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
   return btoa(binary);
