@@ -43,10 +43,11 @@ export default function Canvas() {
   });
 
   // Copy prototype from EventTarget to canvas
-  const old = canvas.__proto__;
-  canvas.__proto__ = {};
-  canvas.__proto__.__proto__ = old;
-  utils.cloneProperty(canvas.__proto__, EventTarget.prototype);
+  const old = Object.getPrototypeOf(canvas);
+  Object.setPrototypeOf(canvas, {});
+  const newProto = Object.getPrototypeOf(canvas);
+  Object.setPrototypeOf(newProto, old);
+  utils.cloneProperty(Object.getPrototypeOf(canvas), EventTarget.prototype);
 
   return canvas;
 }

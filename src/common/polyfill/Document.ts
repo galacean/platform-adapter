@@ -38,9 +38,10 @@ let document: Document = {
   ontouchend: null,
 };
 
-const old = document.__proto__;
-document.__proto__ = {};
-document.__proto__.__proto__ = old;
-utils.cloneProperty(document.__proto__, EventTarget.prototype);
+const old = Object.getPrototypeOf(document);
+Object.setPrototypeOf(document, {});
+const proto = Object.getPrototypeOf(document);
+Object.setPrototypeOf(proto, old);
+utils.cloneProperty(Object.getPrototypeOf(document), EventTarget.prototype);
 
 export default document;
