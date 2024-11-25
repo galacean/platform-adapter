@@ -31,7 +31,7 @@ export class URLSearchParams {
           appendTo(dict, value[0], value[1]);
         }
       } else if (query.forEach) {
-        query.forEach(addEach, dict);
+        query.forEach((k, v) => { appendTo(dict, k, v) });
       } else {
         for (key in query) {
           appendTo(dict, key, query[key]);
@@ -110,11 +110,6 @@ let find = /[!'\(\)~]|%20|%00/g,
   replacer = function (match) {
     return replace[match];
   };
-
-function addEach(value, key) {
-  /* jshint validthis:true */
-  appendTo(this, key, value);
-}
 
 function appendTo(dict, name, value) {
   let res = Array.isArray(value) ? value.join(",") : value;

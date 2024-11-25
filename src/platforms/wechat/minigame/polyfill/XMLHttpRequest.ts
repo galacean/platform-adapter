@@ -6,17 +6,6 @@ const _requestHeader = new WeakMap();
 const _responseHeader = new WeakMap();
 const _requestTask = new WeakMap();
 
-function _triggerEvent(type, ...args) {
-  if (typeof this[`on${type}`] === 'function') {
-    this[`on${type}`].apply(this, args);
-  }
-}
-
-function _changeReadyState(readyState) {
-  this.readyState = readyState;
-  _triggerEvent.call(this, 'readystatechange');
-}
-
 function _isRelativePath(path) {
   return !/^(http|https|ftp|wxfile):\/\/.*/i.test(path);
 }
@@ -81,7 +70,7 @@ export default class XMLHttpRequest {
   open(method, url/* async, user, password 这几个参数在小程序内不支持*/) {
     _method.set(this, method);
     _url.set(this, url);
-    _changeReadyState.call(this, XMLHttpRequest.OPENED);
+    this._changeReadyState(XMLHttpRequest.OPENED);
   }
 
   overrideMimeType() {
@@ -105,9 +94,9 @@ export default class XMLHttpRequest {
 
         this.status = statusCode ?? 200;
         _responseHeader.set(this, header);
-        _triggerEvent.call(this, 'loadstart');
-        _changeReadyState.call(this, XMLHttpRequest.HEADERS_RECEIVED);
-        _changeReadyState.call(this, XMLHttpRequest.LOADING);
+        this._triggerEvent('loadstart');
+        this._changeReadyState(XMLHttpRequest.HEADERS_RECEIVED);
+        this._changeReadyState(XMLHttpRequest.LOADING);
 
         this.response = data;
 
@@ -125,19 +114,19 @@ export default class XMLHttpRequest {
         } else {
           this.responseText = data;
         }
-        _changeReadyState.call(this, XMLHttpRequest.DONE);
-        _triggerEvent.call(this, 'load');
-        _triggerEvent.call(this, 'loadend');
+        this._changeReadyState(XMLHttpRequest.DONE);
+        this._triggerEvent('load');
+        this._triggerEvent('loadend');
       };
 
       const fail = ({ errMsg }) => {
         // TODO 规范错误
         if (errMsg.indexOf('abort') !== -1) {
-          _triggerEvent.call(this, 'abort');
+          this._triggerEvent('abort');
         } else {
-          _triggerEvent.call(this, 'error', errMsg);
+          this._triggerEvent('error', errMsg);
         }
-        _triggerEvent.call(this, 'loadend');
+        this._triggerEvent('loadend');
       };
 
       const relative = _isRelativePath(url);
@@ -174,4 +163,16 @@ export default class XMLHttpRequest {
     myHeader[header] = value;
     _requestHeader.set(this, myHeader);
   }
+
+  private _triggerEvent(type, ...args) {
+    if (typeof this[`on${type}`] === 'function') {
+      this[`on${type}`].apply(this, args);
+    }
+  }
+
+  private _changeReadyState(readyState) {
+    this.readyState = readyState;
+    this._triggerEvent('readystatechange');
+  }
+
 }
