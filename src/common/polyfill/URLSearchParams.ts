@@ -1,22 +1,4 @@
 // copy by https://github.com/WebReflection/url-search-params/blob/master/src/url-search-params.js
-const isArray = Array.isArray,
-  URLSearchParamsProto = URLSearchParams.prototype,
-  find = /[!'\(\)~]|%20|%00/g,
-  plus = /\+/g,
-  replace = {
-    "!": "%21",
-    "'": "%27",
-    "(": "%28",
-    ")": "%29",
-    "~": "%7E",
-    "%20": "+",
-    "%00": "\x00"
-  },
-  replacer = function (match) {
-    return replace[match];
-  },
-  secret = "__URLSearchParams__:" + Math.random();
-
 export function URLSearchParams(query) {
   let index;
   let key;
@@ -55,6 +37,24 @@ export function URLSearchParams(query) {
     }
   }
 }
+
+const isArray = Array.isArray,
+  URLSearchParamsProto = URLSearchParams.prototype,
+  find = /[!'\(\)~]|%20|%00/g,
+  plus = /\+/g,
+  replace = {
+    "!": "%21",
+    "'": "%27",
+    "(": "%28",
+    ")": "%29",
+    "~": "%7E",
+    "%20": "+",
+    "%00": "\x00"
+  },
+  replacer = function (match) {
+    return replace[match];
+  },
+  secret = "__URLSearchParams__:" + Math.random();
 
 function addEach(value, key) {
   /* jshint validthis:true */
