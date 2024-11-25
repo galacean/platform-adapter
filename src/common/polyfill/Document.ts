@@ -28,7 +28,7 @@ interface Document {
 }
 
 // @ts-ignore
-var document: Document = {
+let document: Document = {
   readyState: 'complete',
   visibilityState: 'visible',
   hidden: false,

@@ -46,7 +46,7 @@ interface Window {
 }
 
 // @ts-ignore
-var window: Window = {
+let window: Window = {
   document: document,
   FileReader: FileReader,
   HTMLImageElement: HTMLImageElement,

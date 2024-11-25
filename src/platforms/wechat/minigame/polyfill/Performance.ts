@@ -1,5 +1,4 @@
 import Performance from "common/polyfill/Performance";
-import utils from "utils/utils";
 
 let performance;
 if (wx.getPerformance) {

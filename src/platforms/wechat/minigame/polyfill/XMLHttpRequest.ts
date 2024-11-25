@@ -144,7 +144,7 @@ export default class XMLHttpRequest {
       if (relative) {
         const fs = wx.getFileSystemManager();
 
-        var options = {
+        let options = {
           filePath: url,
           success: success,
           fail: fail

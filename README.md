@@ -18,7 +18,6 @@ npm install
   - 单独打包Adapter，可以使用以下命令
     ``` shell
     npm run build:adapter
-    npm run build:engine
     ```
 
   - 单独打包引擎，可以使用以下命令

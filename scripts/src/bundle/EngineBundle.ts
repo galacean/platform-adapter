@@ -1,8 +1,7 @@
 import path from "path";
-import ts from '@rollup/plugin-typescript';
 import chalk from "chalk";
 
-import { BundleInfo, createBundleInfo, PlatformType } from "./BundleInfo.js";
+import { BundleInfo, PlatformType } from "./BundleInfo.js";
 import { rootDir } from "../cli.js";
 import { getPlatformsFromPath, normalizePath } from "../utils/utils.js";
 import { pluginReplaceGalaceanLogic, pluginReplaceGalaceanImports } from '../plugins/plugin-replace-engine.js';

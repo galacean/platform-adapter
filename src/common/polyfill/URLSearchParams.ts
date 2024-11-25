@@ -1,12 +1,30 @@
 // copy by https://github.com/WebReflection/url-search-params/blob/master/src/url-search-params.js
+const isArray = Array.isArray,
+  URLSearchParamsProto = URLSearchParams.prototype,
+  find = /[!'\(\)~]|%20|%00/g,
+  plus = /\+/g,
+  replace = {
+    "!": "%21",
+    "'": "%27",
+    "(": "%28",
+    ")": "%29",
+    "~": "%7E",
+    "%20": "+",
+    "%00": "\x00"
+  },
+  replacer = function (match) {
+    return replace[match];
+  },
+  secret = "__URLSearchParams__:" + Math.random();
+
 export function URLSearchParams(query) {
-  var index,
-    key,
-    value,
-    pairs,
-    i,
-    length,
-    dict = Object.create(null);
+  let index;
+  let key;
+  let value;
+  let pairs;
+  let i;
+  let length;
+  let dict = Object.create(null);
   this[secret] = dict;
   if (!query) return;
   if (typeof query === "string") {
@@ -38,30 +56,13 @@ export function URLSearchParams(query) {
   }
 }
 
-var isArray = Array.isArray,
-  URLSearchParamsProto = URLSearchParams.prototype,
-  find = /[!'\(\)~]|%20|%00/g,
-  plus = /\+/g,
-  replace = {
-    "!": "%21",
-    "'": "%27",
-    "(": "%28",
-    ")": "%29",
-    "~": "%7E",
-    "%20": "+",
-    "%00": "\x00"
-  },
-  replacer = function (match) {
-    return replace[match];
-  },
-  secret = "__URLSearchParams__:" + Math.random();
 function addEach(value, key) {
   /* jshint validthis:true */
   appendTo(this, key, value);
 }
 
 function appendTo(dict, name, value) {
-  var res = isArray(value) ? value.join(",") : value;
+  let res = isArray(value) ? value.join(",") : value;
   if (name in dict) dict[name].push(res);
   else dict[name] = [res];
 }
@@ -83,12 +84,12 @@ URLSearchParamsProto.delete = function del(name) {
 };
 
 URLSearchParamsProto.get = function get(name) {
-  var dict = this[secret];
+  let dict = this[secret];
   return name in dict ? dict[name][0] : null;
 };
 
 URLSearchParamsProto.getAll = function getAll(name) {
-  var dict = this[secret];
+  let dict = this[secret];
   return name in dict ? dict[name].slice(0) : [];
 };
 
@@ -101,7 +102,7 @@ URLSearchParamsProto.set = function set(name, value) {
 };
 
 URLSearchParamsProto.forEach = function forEach(callback, thisArg) {
-  var dict = this[secret];
+  let dict = this[secret];
   Object.getOwnPropertyNames(dict).forEach(function (name) {
     dict[name].forEach(function (value) {
       callback.call(thisArg, value, name, this);
@@ -123,7 +124,7 @@ URLSearchParamsProto.toJSON = function toJSON() {
 };
 
 URLSearchParamsProto.toString = function toString() {
-  var dict = this[secret],
+  let dict = this[secret],
     query = [],
     i,
     key,
