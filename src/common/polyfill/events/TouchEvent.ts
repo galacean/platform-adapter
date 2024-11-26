@@ -8,10 +8,7 @@ export default class TouchEvent {
   changedTouches = [];
   preventDefault = noop;
   stopPropagation = noop;
-  type: string;
   timeStamp: number;
 
-  constructor(type) {
-    this.type = type;
-  }
+  constructor(public type: string) { }
 }

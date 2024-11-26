@@ -7,9 +7,6 @@ export default class Event {
   timestampe: number = Date.now();
   preventDefault = noop;
   stopPropagation = noop;
-  type: string;
 
-  constructor(type: string) {
-    this.type = type;
-  }
+  constructor(public type: string) { }
 }
