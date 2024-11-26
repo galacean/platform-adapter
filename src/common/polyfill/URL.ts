@@ -17,7 +17,7 @@ export class URL {
   static revokeObjectURL(url: string) {
     // Do nothing
   }
-
+  
   public href: string;
   public origin: string;
   public pathname: string;

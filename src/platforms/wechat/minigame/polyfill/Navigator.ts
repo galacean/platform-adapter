@@ -16,6 +16,6 @@ const navigator: Navigator = {
     clearWatch: noop
   }
 };
-navigator[platform] = platform;
+navigator['platform'] = platform;
 
 export default navigator;

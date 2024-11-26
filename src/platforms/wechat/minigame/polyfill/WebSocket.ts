@@ -1,10 +1,11 @@
-const _socketTask = new WeakMap();
 
 class WebSocket {
   static CONNECTING: number = 0; // The connection is not yet open.
   static OPEN: number = 1; // The connection is open and ready to communicate.
   static CLOSING: number = 2; // The connection is in the process of closing.
   static CLOSED: number = 3; // The connection is closed or couldn't be opened.
+
+  static readonly socketTask = new WeakMap();
 
   binaryType: string = ''; // TODO 更新 binaryType
   bufferedAmount: number = 0; // TODO 更新 bufferedAmount
@@ -33,7 +34,7 @@ class WebSocket {
       protocols: Array.isArray(protocols) ? protocols : [protocols]
     });
 
-    _socketTask.set(this, socketTask);
+    WebSocket.socketTask.set(this, socketTask);
 
     socketTask.onClose((res) => {
       this.readyState = WebSocket.CLOSED;
@@ -66,7 +67,7 @@ class WebSocket {
 
   close(code: number, reason: string) {
     this.readyState = WebSocket.CLOSING;
-    const socketTask = _socketTask.get(this);
+    const socketTask = WebSocket.socketTask.get(this);
 
     socketTask.close({
       code,
@@ -79,7 +80,7 @@ class WebSocket {
       throw new TypeError(`Failed to send message: The data ${data} is invalid`);
     }
 
-    const socketTask = _socketTask.get(this);
+    const socketTask = WebSocket.socketTask.get(this);
 
     socketTask.send({
       data

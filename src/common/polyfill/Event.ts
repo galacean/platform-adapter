@@ -1,4 +1,4 @@
-import {noop} from './utils/Noop';
+import { noop } from './utils/Noop';
 
 export default class Event {
   cancelBubble: boolean = false;

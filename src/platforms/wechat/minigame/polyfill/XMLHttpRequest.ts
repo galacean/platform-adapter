@@ -1,11 +1,5 @@
 import { Blob } from 'common/polyfill/Blob';
 
-const _url = new WeakMap();
-const _method = new WeakMap();
-const _requestHeader = new WeakMap();
-const _responseHeader = new WeakMap();
-const _requestTask = new WeakMap();
-
 function _isRelativePath(path) {
   return !/^(http|https|ftp|wxfile):\/\/.*/i.test(path);
 }
@@ -17,6 +11,12 @@ export default class XMLHttpRequest {
   static HEADERS_RECEIVED = 2;
   static LOADING = 3;
   static DONE = 4;
+
+  private static readonly _url = new WeakMap();
+  private static readonly _method = new WeakMap();
+  private static readonly _requestHeader = new WeakMap();
+  private static readonly _responseHeader = new WeakMap();
+  private static readonly _requestTask = new WeakMap();
 
   /*
    * TODO 这一批事件应该是在 XMLHttpRequestEventTarget.prototype 上面的
@@ -41,14 +41,14 @@ export default class XMLHttpRequest {
   withCredentials = false;
 
   constructor() {
-    _requestHeader.set(this, {
+    XMLHttpRequest._requestHeader.set(this, {
       'content-type': 'application/x-www-form-urlencoded'
     });
-    _responseHeader.set(this, {});
+    XMLHttpRequest._responseHeader.set(this, {});
   }
 
   abort() {
-    const myRequestTask =  _requestTask.get(this);
+    const myRequestTask = XMLHttpRequest._requestTask.get(this);
 
     if (myRequestTask) {
       myRequestTask.abort();
@@ -56,7 +56,7 @@ export default class XMLHttpRequest {
   }
 
   getAllResponseHeaders() {
-    const responseHeader = _responseHeader.get(this);
+    const responseHeader = XMLHttpRequest._responseHeader.get(this);
 
     return Object.keys(responseHeader).map((header) => {
       return `${header}: ${responseHeader[header]}`;
@@ -64,12 +64,12 @@ export default class XMLHttpRequest {
   }
 
   getResponseHeader(header) {
-    return _responseHeader.get(this)[header];
+    return XMLHttpRequest._responseHeader.get(this)[header];
   }
 
   open(method, url/* async, user, password 这几个参数在小程序内不支持*/) {
-    _method.set(this, method);
-    _url.set(this, url);
+    XMLHttpRequest._method.set(this, method);
+    XMLHttpRequest._url.set(this, url);
     this._changeReadyState(XMLHttpRequest.OPENED);
   }
 
@@ -80,7 +80,7 @@ export default class XMLHttpRequest {
     if (this.readyState !== XMLHttpRequest.OPENED) {
       throw new Error("Failed to execute 'send' on 'XMLHttpRequest': The object's state must be OPENED.");
     } else {
-      const url = _url.get(this);
+      const url = XMLHttpRequest._url.get(this);
       const responseType = this.responseType;
 
       const success = ({ data, statusCode, header }) => {
@@ -93,7 +93,7 @@ export default class XMLHttpRequest {
         }
 
         this.status = statusCode ?? 200;
-        _responseHeader.set(this, header);
+        XMLHttpRequest._responseHeader.set(this, header);
         this._triggerEvent('loadstart');
         this._changeReadyState(XMLHttpRequest.HEADERS_RECEIVED);
         this._changeReadyState(XMLHttpRequest.LOADING);
@@ -147,8 +147,8 @@ export default class XMLHttpRequest {
         wx.request({
           data,
           url: url,
-          method: _method.get(this),
-          header: _requestHeader.get(this),
+          method: XMLHttpRequest._method.get(this),
+          header: XMLHttpRequest._requestHeader.get(this),
           responseType: responseType === "blob" ? "arraybuffer" : responseType,
           success: success,
           fail: fail
@@ -158,10 +158,10 @@ export default class XMLHttpRequest {
   }
 
   setRequestHeader(header, value) {
-    const myHeader = _requestHeader.get(this);
+    const myHeader = XMLHttpRequest._requestHeader.get(this);
 
     myHeader[header] = value;
-    _requestHeader.set(this, myHeader);
+    XMLHttpRequest._requestHeader.set(this, myHeader);
   }
 
   private _triggerEvent(type, ...args) {

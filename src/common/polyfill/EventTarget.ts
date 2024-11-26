@@ -1,16 +1,16 @@
-const _events = new WeakMap();
-
 class EventTarget {
+  protected static readonly _events = new WeakMap();
+
   constructor() {
-    _events.set(this, {});
+    EventTarget._events.set(this, {});
   }
 
   addEventListener(type: string, listener: any, options = {}) {
-    let events = _events.get(this);
+    let events = EventTarget._events.get(this);
 
     if (!events) {
       events = {};
-      _events.set(this, events);
+      EventTarget._events.set(this, events);
     }
     if (!events[type]) {
       events[type] = [];
@@ -29,7 +29,7 @@ class EventTarget {
   }
 
   removeEventListener(type: string, listener: any) {
-    const listeners = _events.get(this)[type];
+    const listeners = EventTarget._events.get(this)[type];
 
     if (listeners && listeners.length > 0) {
       for (let i = listeners.length; i--; i > 0) {
@@ -42,7 +42,7 @@ class EventTarget {
   }
 
   dispatchEvent(event = {}) {
-    const listeners = _events.get(this)[event.type];
+    const listeners = EventTarget._events.get(this)[event.type];
 
     if (listeners) {
       for (let i = 0; i < listeners.length; i++) {
