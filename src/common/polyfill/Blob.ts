@@ -1,6 +1,5 @@
 export class Blob {
   /**
-   *
    * @param buffers only support zero index
    * @param type mimetype image/png image/webp...
    */

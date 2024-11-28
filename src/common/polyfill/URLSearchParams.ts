@@ -2,6 +2,36 @@
 export class URLSearchParams {
   private dict = Object.create(null);
 
+  static find = /[!'\(\)~]|%20|%00/g;
+  static plus = /\+/g;
+  static replace = {
+    "!": "%21",
+    "'": "%27",
+    "(": "%28",
+    ")": "%29",
+    "~": "%7E",
+    "%20": "+",
+    "%00": "\x00"
+  };
+
+  static replacer = function (match) {
+    return this.replace[match];
+  };
+
+  static appendTo(dict, name, value) {
+    let res = Array.isArray(value) ? value.join(",") : value;
+    if (name in dict) dict[name].push(res);
+    else dict[name] = [res];
+  }
+
+  static decode(str) {
+    return decodeURIComponent(str.replace(this.plus, " "));
+  }
+
+  static encode(str) {
+    return encodeURIComponent(str).replace(this.find, this.replacer);
+  }
+
   constructor(query) {
     const dict = this.dict;
     let index;
@@ -19,22 +49,22 @@ export class URLSearchParams {
         value = pairs[i];
         index = value.indexOf("=");
         if (-1 < index) {
-          appendTo(dict, decode(value.slice(0, index)), decode(value.slice(index + 1)));
+          URLSearchParams.appendTo(dict, URLSearchParams.decode(value.slice(0, index)), URLSearchParams.decode(value.slice(index + 1)));
         } else if (value.length) {
-          appendTo(dict, decode(value), "");
+          URLSearchParams.appendTo(dict, URLSearchParams.decode(value), "");
         }
       }
     } else {
       if (Array.isArray(query)) {
         for (i = 0, length = query.length; i < length; i++) {
           value = query[i];
-          appendTo(dict, value[0], value[1]);
+          URLSearchParams.appendTo(dict, value[0], value[1]);
         }
       } else if (query.forEach) {
-        query.forEach((k, v) => { appendTo(dict, k, v) });
+        query.forEach((k, v) => { URLSearchParams.appendTo(dict, k, v) });
       } else {
         for (key in query) {
-          appendTo(dict, key, query[key]);
+          URLSearchParams.appendTo(dict, key, query[key]);
         }
       }
     }
@@ -45,7 +75,7 @@ export class URLSearchParams {
   }
 
   append(name, value) {
-    appendTo(this.dict, name, value);
+    URLSearchParams.appendTo(this.dict, name, value);
   }
 
   delete(name) {
@@ -87,40 +117,11 @@ export class URLSearchParams {
     const dict = this.dict;
     let query = [], i, key, name, value;
     for (key in dict) {
-      name = encode(key);
+      name = URLSearchParams.encode(key);
       for (i = 0, value = dict[key]; i < value.length; i++) {
-        query.push(name + "=" + encode(value[i]));
+        query.push(name + "=" + URLSearchParams.encode(value[i]));
       }
     }
     return query.join("&");
   }
-}
-
-let find = /[!'\(\)~]|%20|%00/g,
-  plus = /\+/g,
-  replace = {
-    "!": "%21",
-    "'": "%27",
-    "(": "%28",
-    ")": "%29",
-    "~": "%7E",
-    "%20": "+",
-    "%00": "\x00"
-  },
-  replacer = function (match) {
-    return replace[match];
-  };
-
-function appendTo(dict, name, value) {
-  let res = Array.isArray(value) ? value.join(",") : value;
-  if (name in dict) dict[name].push(res);
-  else dict[name] = [res];
-}
-
-function decode(str) {
-  return decodeURIComponent(str.replace(plus, " "));
-}
-
-function encode(str) {
-  return encodeURIComponent(str).replace(find, replacer);
 }

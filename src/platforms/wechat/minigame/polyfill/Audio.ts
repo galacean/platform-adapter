@@ -1,19 +1,6 @@
 import HTMLAudioElement from 'common/polyfill/HTMLAudioElement';
 
-enum AudioState {
-  HAVE_NOTHING = 0,
-  HAVE_METADATA = 1,
-  HAVE_CURRENT_DATA = 2,
-  HAVE_FUTURE_DATA = 3,
-  HAVE_ENOUGH_DATA = 4
-};
-
 export default class Audio extends HTMLAudioElement {
-  HAVE_NOTHING = AudioState.HAVE_NOTHING;
-  HAVE_METADATA = AudioState.HAVE_METADATA;
-  HAVE_CURRENT_DATA = AudioState.HAVE_CURRENT_DATA;
-  HAVE_FUTURE_DATA = AudioState.HAVE_FUTURE_DATA;
-  HAVE_ENOUGH_DATA = AudioState.HAVE_ENOUGH_DATA;
   readyState = AudioState.HAVE_NOTHING;
 
   private static readonly _innerAudioContext = new WeakMap();
@@ -123,3 +110,11 @@ export default class Audio extends HTMLAudioElement {
     return newAudio;
   }
 }
+
+export enum AudioState {
+  HAVE_NOTHING = 0,
+  HAVE_METADATA = 1,
+  HAVE_CURRENT_DATA = 2,
+  HAVE_FUTURE_DATA = 3,
+  HAVE_ENOUGH_DATA = 4
+};

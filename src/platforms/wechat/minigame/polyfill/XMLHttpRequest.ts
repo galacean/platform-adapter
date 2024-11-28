@@ -1,9 +1,5 @@
 import { Blob } from 'common/polyfill/Blob';
 
-function _isRelativePath(path) {
-  return !/^(http|https|ftp|wxfile):\/\/.*/i.test(path);
-}
-
 export default class XMLHttpRequest {
   // TODO 没法模拟 HEADERS_RECEIVED 和 LOADING 两个状态
   static UNSEND = 0;
@@ -17,6 +13,10 @@ export default class XMLHttpRequest {
   private static readonly _requestHeader = new WeakMap();
   private static readonly _responseHeader = new WeakMap();
   private static readonly _requestTask = new WeakMap();
+
+  static _isRelativePath(path) {
+    return !/^(http|https|ftp|wxfile):\/\/.*/i.test(path);
+  }
 
   /*
    * TODO 这一批事件应该是在 XMLHttpRequestEventTarget.prototype 上面的
@@ -129,7 +129,7 @@ export default class XMLHttpRequest {
         this._triggerEvent('loadend');
       };
 
-      const relative = _isRelativePath(url);
+      const relative = XMLHttpRequest._isRelativePath(url);
       if (relative) {
         const fs = wx.getFileSystemManager();
 

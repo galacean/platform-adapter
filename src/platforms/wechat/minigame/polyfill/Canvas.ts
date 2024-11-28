@@ -10,13 +10,12 @@ export default function Canvas() {
   canvas.__proto__.__proto__ = new $HTMLElement('canvas');
 
   canvas.getBoundingClientRect = () => {
-    const ret = {
+    return {
       top: 0,
       left: 0,
       width: window.innerWidth,
       height: window.innerHeight
     };
-    return ret;
   };
 
   Object.defineProperty(canvas, 'style', {
