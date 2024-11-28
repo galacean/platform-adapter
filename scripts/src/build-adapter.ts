@@ -2,7 +2,7 @@ import BundleTaskFactory from './bundle/BundleTask.js';
 
 (async function bundleAdapter() {
   try {
-    let tasks = BundleTaskFactory.createBundleTask(['PlatformAdapter', 'GalaceanAdapter']);
+    let tasks = BundleTaskFactory.createBundleTask(['PlatformAdapter']);
     for (const task of tasks) {
       await task.run();
     }

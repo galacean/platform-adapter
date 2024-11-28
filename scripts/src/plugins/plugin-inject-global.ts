@@ -1,17 +1,8 @@
-// @ts-nocheck
-
-/// <reference types="node" />
-
-/**
- * "globalThis.document.URL"
- */
-
 import path from 'path';
 import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
-import { attachScopes, createFilter, makeLegalIdentifier } from '@rollup/pluginutils';
-
-import { isReference, flatten } from '../utils/plugin-utils.js';
+import { attachScopes, createFilter } from '@rollup/pluginutils';
+import { isReference, flatten } from '../utils/PluginUtils.js';
 
 export type Injectment =
   | string
@@ -27,7 +18,7 @@ export interface RollupInjectOptions {
    * All other options are treated as `string: injectment` injectrs,
    * or `string: (id) => injectment` functions.
    */
-  [str: string]: Injectment | RollupInjectOptions['include'] | RollupInjectOptions['modules'];
+  [str: string]: Injectment | RollupInjectOptions['include'] | RollupInjectOptions['modules'] | boolean;
 
   /**
    * A minimatch pattern, or array of patterns, of files that should be
@@ -44,13 +35,18 @@ export interface RollupInjectOptions {
    * You can separate values to inject from other options.
    */
   modules?: { [str: string]: Injectment };
+
+  /**
+   * 
+   */
+  sourceMap?: boolean;
 }
 
 const sep = path.sep;
 
 const escape = str => str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 
-export default function inject(options: RollupInjectOptions) {
+export default function injectGlobalVars(options: RollupInjectOptions) {
   if (!options) throw new Error('Missing options');
 
   const filter = createFilter(options.include, options.exclude);
@@ -58,7 +54,7 @@ export default function inject(options: RollupInjectOptions) {
   let { modules } = options;
 
   if (!modules) {
-    modules = Object.assign({}, options);
+    modules = Object.assign({}, options) as { [str: string]: Injectment };
     delete modules.include;
     delete modules.exclude;
     delete modules.sourceMap;
@@ -70,18 +66,23 @@ export default function inject(options: RollupInjectOptions) {
   // Fix paths on Windows
   if (sep !== '/') {
     modulesMap.forEach((mod, key) => {
-      if (typeof mod === 'string') mod = [mod];
-      if (Array.isArray(mod)) mod = {
-          globalVarName: mod[0],
+      let parseMod: Injectment | string[] = mod;
+      if (typeof parseMod === 'string') {
+        parseMod = [parseMod] as string[];
+      }
+      if (Array.isArray(parseMod)) {
+        parseMod = {
+          globalVarName: parseMod[0],
         };
+      }
 
-      mod.globalVarName = mod.globalVarName.split(sep).join('/');
-      modulesMap.set(key, mod);
+      parseMod.globalVarName = parseMod.globalVarName.split(sep).join('/');
+      modulesMap.set(key, parseMod);
     });
   }
 
   const firstpass = new RegExp(`(?:${Array.from(modulesMap.keys()).map(escape).join('|')})`, 'g');
-  const sourceMap = options.sourceMap !== false && options.sourcemap !== false;
+  const sourceMap = options.sourceMap !== false;
 
   return {
     name: 'inject',
@@ -107,30 +108,33 @@ export default function inject(options: RollupInjectOptions) {
       const magicString = new MagicString(code);
 
       function handleReference(node, name, keypath) {
-        let modCfg = modulesMap.get(keypath);
-        if (modCfg && modCfg.overwrite && !scope.contains(name)) {
-          if (typeof modCfg === 'string') modCfg = [modCfg];
-          if (Array.isArray(modCfg))
+        let modCfg: string[] | Injectment = modulesMap.get(keypath);
+        if (modCfg) {
+          // If the value is a string, it's a global variable name.
+          if (typeof modCfg === 'string') {
+            modCfg = [modCfg];
+          }
+          // If the value is an array, wrap it in an Injectment object.
+          if (Array.isArray(modCfg)) {
             modCfg = {
               globalVarName: modCfg[0],
             };
-
-          let { globalVarName, localName, localNamePostfix = '', overwrite } = modCfg;
-
-          if (name !== keypath || overwrite || localName) {
-            magicString.overwrite(node.start, node.end, globalVarName + localName + localNamePostfix, {
-              storeName: true,
-            });
           }
-
-          return true;
+          if (modCfg.overwrite && !scope.contains(name)) {
+            let { globalVarName, localName, localNamePostfix = '', overwrite } = modCfg;
+            if (name !== keypath || overwrite || localName) {
+              magicString.overwrite(node.start, node.end, globalVarName + localName + localNamePostfix, {
+                storeName: true,
+              });
+            }
+            return true;
+          }
         }
-
         return false;
       }
 
       walk(ast, {
-        enter(node, parent) {
+        enter(node: any, parent) {
           if (sourceMap) {
             magicString.addSourcemapLocation(node.start);
             magicString.addSourcemapLocation(node.end);
@@ -157,7 +161,7 @@ export default function inject(options: RollupInjectOptions) {
             }
           }
         },
-        leave(node) {
+        leave(node: any) {
           if (node.scope) {
             scope = scope.parent;
           }

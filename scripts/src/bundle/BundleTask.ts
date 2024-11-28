@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import gulp from 'gulp';
 import buffer from 'vinyl-buffer';
 import source from 'vinyl-source-stream';
@@ -9,10 +10,11 @@ import commonjs from '@rollup/plugin-commonjs';
 import chalk from 'chalk';
 
 import { BundleInfo } from './BundleInfo.js';
-import { getMinigameAdapterBundle, getGalaceanAdapterBundle } from "./AdapterBundle.js";
-import { getEngineBundle, getLitePhysicsBundle, getPhysXPhysicsBundle, getShaderLabBundle, getSpineBundle, getToolkitBundle } from './EngineBundle.js';
+import { getMinigameAdapterBundle } from "./AdapterBundle.js";
+import { getEngineBundle } from './EngineBundle.js';
+import { rootDir } from '../cli.js';
 
-export type BundleTaskType = 'PlatformAdapter' | 'GalaceanAdapter' | 'Engine';
+export type BundleTaskType = 'PlatformAdapter' | 'Engine';
 
 export class BundleTask {
   public taskType: BundleTaskType;
@@ -34,7 +36,7 @@ export class BundleTask {
       plugins: [
         resolve(),
         commonjs(),
-        ...rollupPlugins
+        ...rollupPlugins,
       ],
     })
     .pipe(source(targetFileName))
@@ -72,11 +74,14 @@ export default class BundleTaskFactory {
     function getBundleInfo(taskType: string): BundleTask | BundleTask[] {
       switch (taskType) {
         case 'PlatformAdapter':
-          return new BundleTask(taskType, getMinigameAdapterBundle('minigame'));
-        case 'GalaceanAdapter':
-          return new BundleTask(taskType, getGalaceanAdapterBundle('minigame'));
+          return new BundleTask(taskType, getMinigameAdapterBundle('polyfill', 'minigame'));
         case 'Engine':
-          return new BundleTask(taskType, [ ...getEngineBundle('minigame'), ...getLitePhysicsBundle('minigame'), ...getPhysXPhysicsBundle('minigame'), ...getShaderLabBundle('minigame'), ...getSpineBundle('minigame'), ...getToolkitBundle('minigame') ])
+          const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'scripts/package.json'), 'utf-8'));
+          const bundles = Object.keys(packageJson['peerDependencies']);
+          const result = bundles.map((bundle) => {
+            return getEngineBundle(bundle, 'minigame');
+          }).flat();
+          return new BundleTask(taskType, result);
       }
     }
 

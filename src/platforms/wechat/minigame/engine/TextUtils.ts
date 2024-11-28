@@ -1,6 +1,6 @@
 import { Vector2, TextUtils } from '@galacean/engine';
 
-TextUtils._measureFontOrChar = function _measureFontOrChar(fontString: string, measureString: string, isChar: boolean) {
+function _measureFontOrChar(fontString, measureString, isChar) {
   const { canvas, context } = TextUtils.textContext();
   context.font = fontString;
   // Safari gets data confusion through getImageData when the canvas width is not an integer.

@@ -1,7 +1,7 @@
-import inject from './plugin-inject-global.js';
+import injectGlobalVars from './plugin-inject-global.js';
 
 export function pluginReplaceWebAPI(entry: string, injectName: string, injectNamePostfix: string, apiList: string[]) {
-  return inject(
+  return injectGlobalVars(
     {
       modules: apiList.reduce((acc, curr) => {
         const injectSetting = {

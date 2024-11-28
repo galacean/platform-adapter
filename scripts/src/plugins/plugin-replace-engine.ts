@@ -1,13 +1,10 @@
-// @ts-nocheck
-
 /// <reference types="node" />
 
-import inject, { RollupInjectOptions } from './plugin-inject-global.js';
+import { Identifier } from 'estree';
 import { walk } from 'estree-walker';
-import { generate } from 'escodegen';
 import MagicString from 'magic-string';
-import { attachScopes, createFilter, makeLegalIdentifier } from '@rollup/pluginutils';
-import { isReference, flatten } from '../utils/plugin-utils.js';
+import { attachScopes } from '@rollup/pluginutils';
+import { isReference, flatten } from '../utils/PluginUtils.js';
 
 export function pluginReplaceGalaceanLogic() {
   return {
@@ -78,7 +75,7 @@ export function pluginReplaceGalaceanImports(options: any = {}) {
           const magicString = new MagicString(code);
 
           function handleReference(node, name, keypath) {
-            let modCfg = modulesMap.get(keypath);
+            let modCfg = modulesMap.get(keypath) as any;
             if (modCfg && modCfg.overwrite && !scope.contains(name)) {
               let { refName, localNamePostfix = '', overwrite } = modCfg;
 
@@ -96,19 +93,20 @@ export function pluginReplaceGalaceanImports(options: any = {}) {
 
           walk(ast, {
             enter(node, parent) {
+              const { start, end, scope: nodeScope } = node as any;
               if (sourceMap) {
-                magicString.addSourcemapLocation(node.start);
-                magicString.addSourcemapLocation(node.end);
+                magicString.addSourcemapLocation(start);
+                magicString.addSourcemapLocation(end);
               }
 
-              if (node.scope) {
-                scope = node.scope; // eslint-disable-line prefer-destructuring
+              if (nodeScope) {
+                scope = nodeScope; // eslint-disable-line prefer-destructuring
               }
 
               // special case – shorthand properties. because node.key === node.value,
               // we can't differentiate once we've descended into the node
               if (node.type === 'Property' && node.shorthand) {
-                const { name } = node.key;
+                const { name } = node.key as Identifier;
                 handleReference(node, name, name);
                 this.skip();
                 return;
@@ -122,7 +120,7 @@ export function pluginReplaceGalaceanImports(options: any = {}) {
                 }
               }
             },
-            leave(node) {
+            leave(node: any) {
               if (node.scope) {
                 scope = scope.parent;
               }
