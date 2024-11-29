@@ -1,4 +1,4 @@
-import { Node, ClassDeclaration, FunctionDeclaration, Identifier, VariableDeclarator } from 'estree';
+import { Node, FunctionExpression, Identifier } from 'estree';
 import { generate } from 'escodegen';
 
 function isReference(node, parent) {
@@ -28,21 +28,6 @@ function isReference(node, parent) {
   }
 
   return false;
-};
-
-function flatten(startNode) {
-  const parts = [];
-  let node = startNode;
-
-  while (node.type === 'MemberExpression') {
-    parts.unshift(node.property.name);
-    node = node.object;
-  }
-
-  const { name } = node;
-  parts.unshift(name);
-
-  return { name, keypath: parts.join('.') };
 };
 
 function isStatement(type) {
@@ -98,6 +83,29 @@ function isExpression(type) {
   return expressionTypes.includes(type);
 }
 
+function isCJSPrototype(name: string) {
+  return name === 'prototype' || name === '_proto';
+}
+
+function renameFunctionNode(node: FunctionExpression, name: string) {
+  node.id = { type: 'Identifier', name } as Identifier;
+}
+
+function flatten(startNode) {
+  const parts = [];
+  let node = startNode;
+
+  while (node.type === 'MemberExpression') {
+    parts.unshift(node.property.name);
+    node = node.object;
+  }
+
+  const { name } = node;
+  parts.unshift(name);
+
+  return { name, keypath: parts.join('.') };
+};
+
 function generateCode(node: Node, start: number, end: number): string {
   if (isStatement(node.type) || isExpression(node.type)) {
     return generate(node);
@@ -110,10 +118,12 @@ function generateCode(node: Node, start: number, end: number): string {
         break;
       case 'MethodDefinition':
         return generate(node.value);
+      case 'Identifier':
+        return node.name;
       default:
         return '';
     }
   }
 }
 
-export { isReference, flatten, generateCode };
+export { isReference, isStatement, isExpression, isCJSPrototype, flatten, generateCode, renameFunctionNode };

@@ -31,12 +31,12 @@
     "yargs": "^17.7.2"
   },
   "peerDependencies": {
-    "@galacean/engine": "^1.3.8",
-    "@galacean/engine-physics-lite": "^1.3.8",
-    "@galacean/engine-physics-physx": "^1.3.8",
-    "@galacean/engine-shader-lab": "^1.3.8",
-    "@galacean/engine-spine": "^4.2.0-beta.1",
-    "@galacean/engine-toolkit": "^1.3.8",
-    "@galacean/engine-xr": "^1.3.8"
+    "@galacean/engine": "../node_modules/@galacean/engine",
+    "@galacean/engine-physics-lite": "../node_modules/@galacean/engine-physics-lite",
+    "@galacean/engine-physics-physx": "../node_modules/@galacean/engine-physics-physx",
+    "@galacean/engine-shader-lab": "../node_modules/@galacean/engine-shader-lab",
+    "@galacean/engine-spine": "../node_modules/@galacean/engine-spine",
+    "@galacean/engine-toolkit": "../node_modules/@galacean/engine-toolkit",
+    "@galacean/engine-xr": "../node_modules/@galacean/engine-xr"
   }
 }

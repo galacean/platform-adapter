@@ -1,10 +1,7 @@
 import path from 'path';
 import fs from 'fs';
-import gulp from 'gulp';
-import buffer from 'vinyl-buffer';
-import source from 'vinyl-source-stream';
-import uglify from 'gulp-uglify';
-import rollup from '@rollup/stream';
+import { rollup } from 'rollup';
+import { swc, minify } from 'rollup-plugin-swc3';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import chalk from 'chalk';
@@ -13,6 +10,7 @@ import { BundleInfo } from './BundleInfo.js';
 import { getMinigameAdapterBundle } from "./AdapterBundle.js";
 import { getEngineBundle } from './EngineBundle.js';
 import { rootDir } from '../cli.js';
+import RebuildPlugin from '../plugins/plugin-rebuild-engine.js';
 
 export type BundleTaskType = 'PlatformAdapter' | 'Engine';
 
@@ -25,29 +23,23 @@ export class BundleTask {
     Array.isArray(bundles) ? this.bundles = bundles : this.bundles = [bundles];
   }
 
-  async createTask(bundle: BundleInfo): Promise<void> {
-    const targetFileName = path.basename(bundle.output);
-    const targetDirection = path.dirname(bundle.output);
-    let rollupPlugins: any[] = bundle.rollupPlugins ?? [];
-
-    let task = rollup({
+  async createTask(bundle: BundleInfo, resolved?: () => void) {
+    await rollup({
       input: bundle.entry,
-      output: bundle.rollupOutput ?? { format: 'cjs' },
+      output: bundle.output,
       plugins: [
         resolve(),
         commonjs(),
-        ...rollupPlugins,
-      ],
-    })
-    .pipe(source(targetFileName))
-    .pipe(buffer());
-
-    bundle.needUglify && (task = task.pipe(uglify()));
-
-    task = task.pipe(gulp.dest(targetDirection));
-    return new Promise((resolve) => {
-      task.on('end', resolve);
-      task.on('error', (err) => { throw err; });
+        ...(bundle.rollupPlugins || []),
+        swc(),
+        bundle.needUglify && minify(),
+      ]
+    }).then(async (bundled) => {
+      await bundled.write(bundle.output);
+      await bundled.close();
+      resolved && resolved();
+    }).catch((err) => {
+      throw err;
     });
   }
 
@@ -61,7 +53,7 @@ export class BundleTask {
       let platformType = bundle.platformType;
       console.log(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${platformType}: ${bundleName}`));
       console.time(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${platformType}: ${bundleName} complete, cost time`));
-      return this.createTask(bundle).then(() => {
+      return this.createTask(bundle, () => {
         console.timeEnd(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${platformType}: ${bundleName} complete, cost time`));
       });
     }));

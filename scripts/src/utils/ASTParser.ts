@@ -1,4 +1,5 @@
-import { Node, Identifier } from 'estree';
+import { Node, Identifier, VariableDeclarator, FunctionExpression } from 'estree';
+import { isCJSPrototype, renameFunctionNode } from './PluginUtils.js';
 
 interface NodeWrapper {
   name: string,
@@ -12,10 +13,7 @@ enum ASTType {
 type ASTNode = {
   name: string,
   type: string,
-  /**
-   * The class members
-   */
-  nodes: Record<string, Node>,
+  node: Node,
   astType: ASTType,
 }
 
@@ -38,7 +36,7 @@ class ClassParser extends ASTParser {
     return this._isClass;
   }
 
-  parsePropertyAndMethodAsESNext(node: Node): NodeWrapper | NodeWrapper[] {
+  static parsePropertyAndMethodAsESNext(node: Node): NodeWrapper | NodeWrapper[] {
     switch (node.type) {
       case 'PropertyDefinition':
       case 'MethodDefinition':
@@ -57,7 +55,7 @@ class ClassParser extends ASTParser {
     }
   }
 
-  parsePropertyAndMethodAsCommonJS(node: Node): NodeWrapper | NodeWrapper[] {
+  static parsePropertyAndMethodAsCommonJS(node: Node): NodeWrapper | NodeWrapper[] {
     // This may be a class declaration
     const members = [];
     let parsed;
@@ -96,13 +94,32 @@ class ClassParser extends ASTParser {
                 left.property.type === 'Identifier') {
               // Return class property.
               members.push({ name: left.property.name, node: left.property });
+            } else if (left.object.type === 'MemberExpression') {
+              let curLeft = left.object;
+              while (curLeft.object.type === 'MemberExpression') {
+                curLeft = curLeft.object;
+              }
+              if (curLeft.property.type === 'Identifier' &&
+                  isCJSPrototype(curLeft.property.name) &&
+                  left.property.type === 'Identifier') {
+                // Return class method.
+                let member = { name: left.property.name, node: node.expression.right };
+                if (!(node.expression.right as FunctionExpression).id) {
+                  renameFunctionNode(member.node as FunctionExpression, member.name);
+                }
+                members.push(member);
+              }
             } else if (
               left.object.type === 'Identifier' &&
-              left.object.name === '_proto' &&
+              isCJSPrototype(left.object.name) &&
               left.property.type === 'Identifier'
             ) {
               // Return class method.
-              members.push({ name: left.property.name, node: node.expression.right });
+              let member = { name: left.property.name, node: node.expression.right };
+              if (!(node.expression.right as FunctionExpression).id) {
+                renameFunctionNode(member.node as FunctionExpression, member.name);
+              }
+              members.push(member);
             }
           }
           if (right.type === 'FunctionExpression') {
@@ -119,36 +136,51 @@ class ClassParser extends ASTParser {
     return members.length > 0 ? members.flat() : undefined;
   }
 
+  parseVariableDeclarator(node: VariableDeclarator): NodeWrapper[] {
+    let members = ClassParser.parsePropertyAndMethodAsCommonJS(node);
+    // Only if members is an array and members is not empty,
+    // it means that the class has prototypes, and parse the members and methods from the class. 
+    if (Array.isArray(members) && members.length > 0) {
+      return members;
+    }
+  }
+
   parse(): ASTNode[] {
     const node = this.astNode;
 
-    let parsed = [];
+    let parsed;
     let className;
     let members;
     switch(node.type) {
       case 'ClassDeclaration':
         this._isClass = true;
         className = node.id.name;
-        members = this.parsePropertyAndMethodAsESNext(node);
-        members && (parsed = parsed.concat(members));
+        members = ClassParser.parsePropertyAndMethodAsESNext(node);
+        members && (parsed = node);
         break;
-      case 'VariableDeclarator':
-        members = this.parsePropertyAndMethodAsCommonJS(node);
-        // Only if members is an array and members is not empty,
-        // it means that the class has prototypes, and parse the members and methods from the class. 
-        if (Array.isArray(members) && members.length > 0) {
+      case 'VariableDeclaration':
+        const declarator = node.declarations[0];
+        members = this.parseVariableDeclarator(declarator);
+        if (members.length > 0) {
           this._isClass = true;
-          className = (node.id as Identifier).name;
-          parsed = parsed.concat(members);
+          className = (declarator.id as Identifier).name;
+          parsed = declarator;
         }
         break;
+      case 'VariableDeclarator':
+        members = this.parseVariableDeclarator(node);
+        if (members.length > 0) {
+          this._isClass = true;
+          className = (node.id as Identifier).name;
+          parsed = node;
+        }
+        break;
+      default:
+        this._isClass = false;
+        return undefined;
     }
 
     const astType = this.isClass ? ASTType.Class : ASTType.Other;
-    const parsedWrapper = parsed.reduce((acc, cur) => {
-      acc[cur.name] = cur.node;
-      return acc;
-    }, {} as Record<string, Node>);
     const result = ([
       {
         type: 'ClassDeclaration',
@@ -159,12 +191,12 @@ class ClassParser extends ASTParser {
       {
         type: 'VariableDeclarator',
       }
-    ] as ASTNode[]).map(node => {
-      node.name = className;
-      node.astType = astType;
-      node.nodes = parsedWrapper;
-      return node;
-    })
+    ] as ASTNode[]).map(astNode => {
+      astNode.name = className;
+      astNode.astType = astType;
+      astNode.node = parsed;
+      return astNode;
+    });
     return result;
   }
 }
@@ -178,22 +210,19 @@ class FunctionParser extends ASTParser {
 
   parse(): ASTNode[] {
     const node = this.astNode;
-    let parsed = [];
     let functionName;
     switch (node.type) {
       case 'FunctionDeclaration':
       case 'FunctionExpression':
         this._isFunction = true;
         functionName = node.id?.name;
-        parsed.push(node);
         break;
+      default:
+        this._isFunction = false;
+        return undefined;
     }
 
     const astType = this.isFunction ? ASTType.Function : ASTType.Other;
-    const parsedWrapper = parsed.reduce((acc, cur) => {
-      acc[cur.id.name] = cur;
-      return acc;
-    });
     const result = ([
       {
         type: 'FunctionDeclaration',
@@ -201,11 +230,11 @@ class FunctionParser extends ASTParser {
       {
         type: 'FunctionExpression',
       }
-    ] as ASTNode[]).map(node => {
-      node.name = functionName;
-      node.astType = astType;
-      node.nodes = parsedWrapper;
-      return node;
+    ] as ASTNode[]).map(astNode => {
+      astNode.name = functionName;
+      astNode.astType = astType;
+      astNode.node = node;
+      return astNode;
     });
     return result;
   }

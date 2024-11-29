@@ -1,5 +1,4 @@
 import path from "path";
-import ts from '@rollup/plugin-typescript';
 import chalk from "chalk";
 
 import { BundleInfo, PlatformType } from "./BundleInfo.js";
@@ -20,12 +19,14 @@ export function getMinigameAdapterBundle(bundleName, platformType: PlatformType)
     bundles.push({
       bundleName: bundleName,
       entry: normalizePath(path.join(platformsPath, `${platform}/${platformType}/polyfill/index.ts`)),
-      output: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/${bundleName}.js`)),
+      output: {
+        file: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/${bundleName}.js`)),
+        format: 'cjs',
+      },
       platformName: platform,
       platformType: platformType,
       bundleType: 'Adapter',
       needUglify: true,
-      rollupPlugins: [ ts() ]
     });
   }
   console.log(`Prepare minigame adapter bundle info complete.`);

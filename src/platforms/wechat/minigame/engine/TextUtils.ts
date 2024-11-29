@@ -1,5 +1,3 @@
-import { Vector2, TextUtils } from '@galacean/engine';
-
 function _measureFontOrChar(fontString, measureString, isChar) {
   const { canvas, context } = TextUtils.textContext();
   context.font = fontString;

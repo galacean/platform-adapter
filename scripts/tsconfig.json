@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ESNext",          // 或 "ES6"
-    "module": "ESNext",          // 设置模块为 ESNext
-    "moduleResolution": "node",   // 使用 Node.js 的模块解析
-    "outDir": "./dist",          // 输出目录
-    "rootDir": "./src",          // 源文件目录
-    "esModuleInterop": true,      // 使 CommonJS 的模块可以良好地与 ESModule 交互
-    // "strict": true,              // 启用所有严格类型检查选项
-    "skipLibCheck": true,        // 跳过库文件的类型检查（可选）
-    "forceConsistentCasingInFileNames": true, // 确保文件名一致性
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    // "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
   },
-  "include": ["**/*"],      // 包含的文件
-  "exclude": ["node_modules"]   // 排除的文件
+  "include": ["**/*"],
+  "exclude": ["node_modules"]
 }

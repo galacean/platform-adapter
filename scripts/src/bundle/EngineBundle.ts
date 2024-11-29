@@ -8,7 +8,8 @@ import { getPlatformsFromPath, getScriptsFromPath, normalizePath } from "../util
 import { pluginReplaceGalaceanLogic, pluginReplaceGalaceanImports } from '../plugins/plugin-replace-engine.js';
 import { pluginReplaceWebAPI } from "../plugins/plugin-replace-webapi.js";
 import { pluginReplaceSIMDSupported } from "../plugins/plugin-replace-simd.js";
-import RebuildPlugin from '../plugins/plugin-rebuild-engine.js';
+import ts from 'typescript';
+import RebuildPlugin from "../plugins/plugin-rebuild-engine.js";
 
 const Platform_GlobalVars_Map = {
   'alipay': 'global',
@@ -59,25 +60,36 @@ export function getEngineBundle(dependencie: string, platformType: PlatformType)
       continue;
     }
 
-    const galaceanAdapters: string[] = [];
     const scriptsPath = path.join(rootDir, `src/platforms/${platform}/${platformType}/engine`);
     const scripts = getScriptsFromPath(scriptsPath);
+    const uniqueBundleInfo = [];
     for (const script of scripts) {
-      galaceanAdapters.push(fs.readFileSync(normalizePath(path.join(scriptsPath, script)), { encoding: 'utf-8' }));
+      uniqueBundleInfo.push(ts.transpileModule(
+        fs.readFileSync(normalizePath(path.join(scriptsPath, script)), { encoding: 'utf-8' }),
+          {
+            compilerOptions: {
+              module: ts.ModuleKind.CommonJS
+            }
+          }
+        ).outputText
+      );
     }
 
     bundles.push({
       bundleName: bundleName,
       entry: entry,
-      output: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/${bundleName}.js`)),
+      output: {
+        file: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/${bundleName}.js`)),
+        format: 'cjs',
+      },
       platformName: platform,
       platformType: platformType,
       bundleType: 'GalaceanEngine',
-      needUglify: false,
+      needUglify: true,
       rollupPlugins: [
+        RebuildPlugin.getPlugins(uniqueBundleInfo),
         pluginReplaceGalaceanLogic(),
         pluginReplaceSIMDSupported(),
-        RebuildPlugin.getPlugins(galaceanAdapters),
         pluginReplaceWebAPI(Platform_GlobalVars_Map[platform], '.platformAdapter', ``, GE_REF_API_LIST), pluginReplaceGalaceanImports(),
       ],
     });

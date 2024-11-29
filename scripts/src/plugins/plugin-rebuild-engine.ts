@@ -1,8 +1,8 @@
 import { Node } from 'estree';
 import { walk } from 'estree-walker';
-import { generateCode } from '../utils/PluginUtils.js';
 import { ASTNode, ASTType, ClassParser, FunctionParser } from '../utils/ASTParser.js';
-import ts from '@rollup/plugin-typescript'
+import MagicString from 'magic-string';
+import { generate } from 'escodegen';
 
 /**
  * A parser for galacean adapter code
@@ -11,28 +11,39 @@ class GalaceanAdapterParser {
   constructor(protected ast: Node) { }
 
   parseNode(node: Node): ASTNode[] {
-    switch (node.type) {
-      case 'ClassDeclaration':
-        return new ClassParser(node).parse();
-      case 'FunctionDeclaration':
-        return new FunctionParser(node).parse();
-      default:
-        return undefined;
+    if (node.type === 'Program' && node.body) {
+      let parsed = [];
+      for (const subNode of node.body) {
+        switch (subNode.type) {
+          case 'ClassDeclaration':
+          case 'VariableDeclaration':
+            parsed.push(new ClassParser(subNode).parse());
+            break;
+          case 'FunctionDeclaration':
+            parsed.push(new FunctionParser(subNode).parse());
+            break;
+          default:
+            break;
+        }
+      }
+      return parsed.length > 0 ? parsed.flat() : undefined;
     }
+    return undefined;
   }
 
   parse(): ASTNode[] {
     const parseNode = this.parseNode;
-    let parsed = [];
+    let parsed;
     walk(this.ast, {
       enter(node) {
         const astNode = parseNode(node);
         if (astNode) {
-          parsed.push(astNode);
+          parsed = astNode;
+          this.skip();
         }
       }
     });
-    return parsed.flat();
+    return parsed;
   }
 }
 
@@ -52,7 +63,10 @@ export default class RebuildPlugin {
           const galaceanAdapters: ASTNode[] = [];
           sourcecode.forEach(sc => {
             const parser = new GalaceanAdapterParser(this.parse(sc));
-            galaceanAdapters.push(...parser.parse());
+            const result = parser.parse();
+            if (result) {
+              galaceanAdapters.push(...result);
+            }
           });
           const gaMap = galaceanAdapters.reduce((acc, cur) => {
             !acc[cur.name] && (acc[cur.name] = {});
@@ -60,6 +74,7 @@ export default class RebuildPlugin {
             return acc;
           }, {} as Record<string, Record<string, ASTNode>>);
 
+          const magicString = new MagicString(code);
           function rebuildCode(node: Node): boolean {
             if (node) {
               let gaWrapper;
@@ -75,21 +90,22 @@ export default class RebuildPlugin {
               switch (ga.astType) {
                 case ASTType.Class:
                   let classParser = new ClassParser(node);
-                  let parsed = classParser.parse();
+                  classParser.parse();
                   if (classParser.isClass) {
-                    for (const k in ga.nodes) {
-                      const p = parsed[0].nodes[k];
-                      adapterNode = ga.nodes[k];
+                      adapterNode = ga.node;
                       // @ts-ignore
-                      code = code.replace(code.slice(p.start, p.end), generateCode(adapterNode));
-                    }
-                    return true;
+                      magicString.overwrite(node.start, node.end, generate(adapterNode), {
+                        storeName: true
+                      });
+                      return true;
                   }
                   return false;
                 case ASTType.Function:
-                  adapterNode = ga.nodes;
+                  adapterNode = ga.node;
                   // @ts-ignore
-                  code = code.replace(code.slice(node.start, node.end), generateCode(adapterNode));
+                  magicString.overwrite(node.start, node.end, generate(adapterNode), {
+                    storeName: true
+                  });
                   return true;;
                 default:
                   return false;
@@ -104,7 +120,7 @@ export default class RebuildPlugin {
             },
           });
           return {
-            code,
+            code: magicString.toString(),
             map: null
           }
         }
