@@ -183,9 +183,3 @@ export class PhysXPhysics implements IPhysics {
     this._pxPhysics = pxPhysics;
   }
 }
-
-enum InitializeState {
-  Uninitialized,
-  Initializing,
-  Initialized
-}
