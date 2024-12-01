@@ -32,6 +32,7 @@
   },
   "peerDependencies": {
     "@galacean/engine": "../node_modules/@galacean/engine",
+    "@galacean/engine-lottie": "../node_modules/@galacean/engine-lottie",
     "@galacean/engine-physics-lite": "../node_modules/@galacean/engine-physics-lite",
     "@galacean/engine-physics-physx": "../node_modules/@galacean/engine-physics-physx",
     "@galacean/engine-shader-lab": "../node_modules/@galacean/engine-shader-lab",

@@ -3,6 +3,7 @@ import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
 import { attachScopes, createFilter } from '@rollup/pluginutils';
 import { isReference, flatten } from '../utils/PluginUtils.js';
+import { Plugin } from 'rollup';
 
 export type Injectment =
   | string
@@ -46,7 +47,7 @@ const sep = path.sep;
 
 const escape = str => str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 
-export default function injectGlobalVars(options: RollupInjectOptions) {
+export default function injectGlobalVars(options: RollupInjectOptions): Plugin {
   if (!options) throw new Error('Missing options');
 
   const filter = createFilter(options.include, options.exclude);

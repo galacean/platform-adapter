@@ -1,8 +1,9 @@
 import { Identifier, MemberExpression } from 'estree';
 import { walk } from 'estree-walker';
 import { generate } from 'escodegen';
+import { Plugin } from 'rollup';
 
-export function pluginReplaceSIMDSupported() {
+export function pluginReplaceSIMDSupported(): Plugin {
   return {
     name: 'replaceSIMDSupported',
     transform(code: string, id: string) {

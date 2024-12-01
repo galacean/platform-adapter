@@ -2,15 +2,12 @@ import path from 'path';
 import fs from 'fs';
 import { rollup } from 'rollup';
 import { swc, minify } from 'rollup-plugin-swc3';
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
 import chalk from 'chalk';
 
 import { BundleInfo } from './BundleInfo.js';
-import { getMinigameAdapterBundle } from "./AdapterBundle.js";
-import { getEngineBundle } from './EngineBundle.js';
+import { getPolyfillBundle } from "./PolyfillBundle.js";
+import { getEngineBundle, getPhysXWASMLoaderBundle } from './EngineBundle.js';
 import { rootDir } from '../cli.js';
-import RebuildPlugin from '../plugins/plugin-rebuild-engine.js';
 
 export type BundleTaskType = 'PlatformAdapter' | 'Engine';
 
@@ -28,8 +25,6 @@ export class BundleTask {
       input: bundle.entry,
       output: bundle.output,
       plugins: [
-        resolve(),
-        commonjs(),
         ...(bundle.rollupPlugins || []),
         swc(),
         bundle.needUglify && minify(),
@@ -66,13 +61,14 @@ export default class BundleTaskFactory {
     function getBundleInfo(taskType: string): BundleTask | BundleTask[] {
       switch (taskType) {
         case 'PlatformAdapter':
-          return new BundleTask(taskType, getMinigameAdapterBundle('polyfill', 'minigame'));
+          return new BundleTask(taskType, getPolyfillBundle('polyfill', 'minigame'));
         case 'Engine':
           const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'scripts/package.json'), 'utf-8'));
           const bundles = Object.keys(packageJson['peerDependencies']);
           const result = bundles.map((bundle) => {
             return getEngineBundle(bundle, 'minigame');
           }).flat();
+          result.push(...getPhysXWASMLoaderBundle('minigame'));
           return new BundleTask(taskType, result);
       }
     }

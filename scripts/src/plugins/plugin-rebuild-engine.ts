@@ -3,6 +3,7 @@ import { walk } from 'estree-walker';
 import { ASTNode, ASTType, ClassParser, FunctionParser } from '../utils/ASTParser.js';
 import MagicString from 'magic-string';
 import { generate } from 'escodegen';
+import { Plugin } from 'rollup';
 
 /**
  * A parser for galacean adapter code
@@ -48,7 +49,7 @@ class GalaceanAdapterParser {
 }
 
 export default class RebuildPlugin {
-  static getPlugins(sourcecode: string | string[]) {
+  static getPlugins(sourcecode: string | string[]): Plugin[] {
     return [
       {
         name: 'inject-galacean-adapter-code',

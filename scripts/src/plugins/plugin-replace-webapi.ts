@@ -1,6 +1,7 @@
+import { Plugin } from 'rollup';
 import injectGlobalVars from './plugin-inject-global.js';
 
-export function pluginReplaceWebAPI(entry: string, injectName: string, injectNamePostfix: string, apiList: string[]) {
+export function pluginReplaceWebAPI(entry: string, injectName: string, injectNamePostfix: string, apiList: string[]): Plugin {
   return injectGlobalVars(
     {
       modules: apiList.reduce((acc, curr) => {

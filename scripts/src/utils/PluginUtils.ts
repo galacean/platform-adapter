@@ -1,7 +1,54 @@
 import { Node, FunctionExpression, Identifier } from 'estree';
 import { generate } from 'escodegen';
 
-function isReference(node, parent) {
+const statementTypes = [
+  'BlockStatement',
+  'BreakStatement',
+  'ContinueStatement',
+  'DebuggerStatement',
+  'DoWhileStatement',
+  'EmptyStatement',
+  'ExpressionStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'ForStatement',
+  'FunctionDeclaration',
+  'IfStatement',
+  'LabeledStatement',
+  'ReturnStatement',
+  'SwitchStatement',
+  'ThrowStatement',
+  'TryStatement',
+  'VariableDeclaration',
+  'WhileStatement',
+  'WithStatement'
+];
+
+const expressionTypes = [
+  'ArrayExpression',
+  'ObjectExpression',
+  'NewExpression',
+  'CallExpression',
+  'ThisExpression',
+  'AwaitExpression',
+  'ChainExpression',
+  'ClassExpression',
+  'UnaryExpression',
+  'YieldExpression',
+  'BinaryExpression',
+  'ImportExpression',
+  'MemberExpression',
+  'UpdateExpression',
+  'LogicalExpression',
+  'ConditionalExpression',
+  'AssignmentExpression',
+  'SequenceExpression',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+  'TaggedTemplateExpression'
+];
+
+function isReference(node, parent): boolean {
   if (node.type === 'MemberExpression') {
     return !node.computed && isReference(node.object, node);
   }
@@ -30,83 +77,39 @@ function isReference(node, parent) {
   return false;
 };
 
-function isStatement(type) {
-  const statementTypes = [
-    'BlockStatement',
-    'BreakStatement',
-    'ContinueStatement',
-    'DebuggerStatement',
-    'DoWhileStatement',
-    'EmptyStatement',
-    'ExpressionStatement',
-    'ForInStatement',
-    'ForOfStatement',
-    'ForStatement',
-    'FunctionDeclaration',
-    'IfStatement',
-    'LabeledStatement',
-    'ReturnStatement',
-    'SwitchStatement',
-    'ThrowStatement',
-    'TryStatement',
-    'VariableDeclaration',
-    'WhileStatement',
-    'WithStatement'
-  ];
+function isStatement(type: string): boolean {
   return statementTypes.includes(type);
 }
 
-function isExpression(type) {
-  const expressionTypes = [
-    'ArrayExpression',
-    'ObjectExpression',
-    'NewExpression',
-    'CallExpression',
-    'ThisExpression',
-    'AwaitExpression',
-    'ChainExpression',
-    'ClassExpression',
-    'UnaryExpression',
-    'YieldExpression',
-    'BinaryExpression',
-    'ImportExpression',
-    'MemberExpression',
-    'UpdateExpression',
-    'LogicalExpression',
-    'ConditionalExpression',
-    'AssignmentExpression',
-    'SequenceExpression',
-    'FunctionExpression',
-    'ArrowFunctionExpression',
-    'TaggedTemplateExpression'
-  ];
+function isExpression(type: string): boolean {
   return expressionTypes.includes(type);
 }
 
-function isCJSPrototype(name: string) {
+function isCJSPrototype(name: string): boolean {
   return name === 'prototype' || name === '_proto';
 }
 
-function renameFunctionNode(node: FunctionExpression, name: string) {
+function renameFunctionNode(node: FunctionExpression, name: string): void {
   node.id = { type: 'Identifier', name } as Identifier;
 }
 
-function flatten(startNode) {
+type MemberExpressionResult = { name: string, keypath: string};
+function flatten(startNode: Node): MemberExpressionResult {
   const parts = [];
   let node = startNode;
 
   while (node.type === 'MemberExpression') {
-    parts.unshift(node.property.name);
+    parts.unshift((node.property as Identifier).name);
     node = node.object;
   }
 
-  const { name } = node;
+  const { name } = node as Identifier;
   parts.unshift(name);
 
   return { name, keypath: parts.join('.') };
 };
 
-function generateCode(node: Node, start: number, end: number): string {
+function generateCode(node: Node): string {
   if (isStatement(node.type) || isExpression(node.type)) {
     return generate(node);
   } else {

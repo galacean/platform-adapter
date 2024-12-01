@@ -1,21 +1,23 @@
 import path from "path";
 import chalk from "chalk";
 
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import { BundleInfo, PlatformType } from "./BundleInfo.js";
 import { rootDir } from "../cli.js";
 import { getPlatformsFromPath, normalizePath } from "../utils/Utils.js";
 
-export function getMinigameAdapterBundle(bundleName, platformType: PlatformType): BundleInfo[] {
+export function getPolyfillBundle(bundleName, platformType: PlatformType): BundleInfo[] {
   const platformsPath = path.join(rootDir, `src/platforms`);
   const platforms = getPlatformsFromPath(platformsPath);
-  console.log(`Found minigame adapters, including: ${chalk.green(platforms)}.`);
+  console.log(`Found polyfill, including: ${chalk.green(platforms)}.`);
 
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
     if (platform === 'alipay') {
       continue;
     }
-    console.log(`Prepare minigame adapter bundle info for ${chalk.green(platform)}.`);
+    console.log(`Prepare polyfill bundle info for ${chalk.green(platform)}.`);
     bundles.push({
       bundleName: bundleName,
       entry: normalizePath(path.join(platformsPath, `${platform}/${platformType}/polyfill/index.ts`)),
@@ -26,9 +28,13 @@ export function getMinigameAdapterBundle(bundleName, platformType: PlatformType)
       platformName: platform,
       platformType: platformType,
       bundleType: 'Adapter',
-      needUglify: true,
+      rollupPlugins: [
+        resolve(),
+        commonjs()
+      ],
+      needUglify: false,
     });
   }
-  console.log(`Prepare minigame adapter bundle info complete.`);
+  console.log(`Prepare polyfill bundle info complete.`);
   return bundles;
 }

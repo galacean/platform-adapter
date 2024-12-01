@@ -1,12 +1,11 @@
-/// <reference types="node" />
-
 import { Identifier } from 'estree';
 import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
 import { attachScopes } from '@rollup/pluginutils';
 import { isReference, flatten } from '../utils/PluginUtils.js';
+import { Plugin } from 'rollup';
 
-export function pluginReplaceGalaceanLogic() {
+export function pluginReplaceGalaceanLogic(): Plugin {
   return {
     name: 'replaceGalaceanLogic',
     transform(code: string, id: string) {
@@ -19,9 +18,6 @@ export function pluginReplaceGalaceanLogic() {
           `this._requireResult = {};`,
           `this._requireResult = Object.assign({}, $defaultWebGLExtensions)`,
         );
-
-        code = code.replace(/WebAssembly/g, `WXWebAssembly`);
-        code = code.replace(/typeof WebAssembly/g, `typeof WXWebAssembly`);
       }
       return { code, map: null };
     }

@@ -1,4 +1,6 @@
 import { walk } from 'estree-walker';
+import { Plugin } from 'rollup';
+import MagicString from 'magic-string';
 
 function instantiateArrayBuffer(receiver) {
   // @ts-ignore
@@ -13,13 +15,19 @@ function instantiateAsync() {
   return instantiateArrayBuffer(receiveInstantiationResult);
 }
 
-export function injectWASM(injectModules: string[]) {
+/**
+ * @param wasmName The name of the WebAssembly API. All WebAssembly strings will be replaced with this name.
+ * @param modulesInjectWASM An array of modules that need to be injected with new WebAssembly function.
+ * @returns Rollup plugin.
+ */
+export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plugin {
   return {
     name: 'inject-wasm',
     transform(code: string, id: string) {
-      if (injectModules.find(module => {
+      if (modulesInjectWASM && modulesInjectWASM.find(module => {
         return id.endsWith(module);
       })) {
+        const magicString = new MagicString(code);
         const ast = this.parse(code);
         walk(ast, {
           enter(node) {
@@ -32,14 +40,24 @@ export function injectWASM(injectModules: string[]) {
             ) {
               if (node.id.name === 'instantiateAsync') {
                 // @ts-ignore
-                code = code.replace(code.slice(node.start, node.end), instantiateAsync.toString());
+                magicString.overwrite(node.start, node.end, instantiateAsync.toString());
               } else if (node.id.name === 'instantiateArrayBuffer') {
                 // @ts-ignore
-                code = code.replace(code.slice(node.start, node.end), instantiateArrayBuffer.toString());
+                magicString.overwrite(node.start, node.end, instantiateArrayBuffer.toString());
               }
             }
+          },
+          leave(node) {
+            code = magicString.toString();
+            code = code.replace(`wasmBinaryFile="physx.release.wasm"`, `wasmBinaryFile="/galacean-js/physx.release.wasm"`);
+            code = code.concat(`window.PHYSX = PHYSX`);
           }
         });
+      }
+
+      if (wasmName) {
+        code = code.replace(/WebAssembly/g, wasmName);
+        code = code.replace(/typeof WebAssembly/g, `typeof ${wasmName}`);
       }
       return { code, map: null };
     }

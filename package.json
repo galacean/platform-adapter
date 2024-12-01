@@ -2,13 +2,12 @@
   "type": "module",
   "scripts": {
     "postinstall": "pnpm --filter ./scripts install && pnpm run build:cli",
-    "build:adapter": "node ./scripts/dist/build-adapter.js",
-    "build:engine": "node ./scripts/dist/build-engine.js",
-    "build": "pnpm run build:adapter && pnpm run build:engine",
+    "build": "node ./scripts/dist/build.js",
     "build:cli": "pnpm --filter=./scripts run build"
   },
   "dependencies": {
     "@galacean/engine": "^1.4.0-alpha.0",
+    "@galacean/engine-lottie": "^1.1.1",
     "@galacean/engine-physics-lite": "^1.4.0-alpha.0",
     "@galacean/engine-physics-physx": "^1.4.0-alpha.0",
     "@galacean/engine-shader-lab": "^1.4.0-alpha.0",
