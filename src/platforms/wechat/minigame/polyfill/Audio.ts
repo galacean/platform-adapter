@@ -46,11 +46,9 @@ export default class Audio extends HTMLAudioElement {
   constructor(url?: string) {
     super();
 
-    Audio._src.set(this, '');
-
     const innerAudioContext = wx.createInnerAudioContext();
-
     Audio._innerAudioContext.set(this, innerAudioContext);
+    this.src = url;
 
     innerAudioContext.onCanplay(() => {
       this.dispatchEvent({ type: 'load' });
@@ -73,10 +71,6 @@ export default class Audio extends HTMLAudioElement {
     innerAudioContext.onError(() => {
       this.dispatchEvent({ type: 'error' });
     })
-
-    if (url) {
-      Audio._innerAudioContext.get(this).src = url;
-    }
   }
 
   load() {
