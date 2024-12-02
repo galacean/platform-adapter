@@ -1,4 +1,3 @@
-import platformAdapter from 'common/global/PlatformAdapter';
 import { innerWidth, innerHeight } from './WindowProperties';
 import $HTMLElement from './HTMLElement'
 import EventTarget from 'common/polyfill/EventTarget';
@@ -14,8 +13,8 @@ export default function Canvas() {
     return {
       top: 0,
       left: 0,
-      width: platformAdapter.window.innerWidth,
-      height: platformAdapter.window.innerHeight
+      width: innerWidth,
+      height: innerHeight
     };
   };
 
