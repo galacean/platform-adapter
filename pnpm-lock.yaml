@@ -31,9 +31,6 @@ dependencies:
     version: 1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0)
 
 devDependencies:
-  '@types/estree':
-    specifier: ^1.0.6
-    version: 1.0.6
   '@types/node':
     specifier: ^22.5.5
     version: 22.5.5
@@ -250,10 +247,6 @@ packages:
       '@galacean/engine-math': 1.4.0-alpha.0
       '@galacean/engine-rhi-webgl': 1.4.0-alpha.0
     dev: false
-
-  /@types/estree@1.0.6:
-    resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
-    dev: true
 
   /@types/node@22.5.5:
     resolution: {integrity: sha512-Xjs4y5UPO/CLdzpgR6GirZJx36yScjh73+2NlLlkFRSoQN8B0DpfXPdZGnvVmLRLOsqDpOfTNv7D9trgGhmOIA==}
