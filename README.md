@@ -1,72 +1,70 @@
-# Galacean引擎适配多平台
+# Galacean Engine Multi-Platform Adaptation
 
-Galacean生态建设，向小游戏、小程序等多平台应用适配
+Building the Galacean ecosystem to support adaption for mini-games, applets, and other multi-platform applications.
 
-## 使用
+## Usage
 
-- 安装环境
-``` shell
+- **Set Up Environment**
+```shell
 npm install
 ```
 
-- 打包
-  - 运行Build命令，会同时打包 `Polyfill` 和引擎
-    ``` shell
+- **Build**
+  - Run the build command to package both `Polyfill` and the engine simultaneously:
+    ```shell
     npm run build
     ```
 
-  - 产物结构
-    - 小游戏平台
-      ``` shell
+  - **Output Structure**
+    - Mini-game Platform
+      ```shell
       dist/
-        - ${platformName}/ # 平台名，微信：wechat
-          - minigame/ # 小游戏平台
-            - galacean-js # 引擎产物
+        - ${platformName}/ # Platform name, e.g., WeChat: wechat
+          - minigame/ # Mini-game platform
+            - galacean-js # Engine output
               - engine.js
               - ...
-            - polyfill.js # 平台定制的WebAPI
+            - polyfill.js # Platform-specific WebAPI
       ```
 
-- 打包脚本说明
+- **Build Script Description**
   
-  `scripts`目录下提供了打包脚本，用于生成平台适配器和引擎适配器
-    - build.ts: 生成 `Polyfill` 和引擎适配代码
+  The `scripts` directory contains build scripts used to generate platform adapters and engine adapters:
+    - `build.ts`: Generates the `Polyfill` and engine adaptation code.
   
-  修改打包脚本后，需要执行 `npm run build:cli` 重新构建打包脚本
+  After modifying the build scripts, execute `npm run build:cli` to rebuild the packaging scripts.
 
+- **Platform Global Variable Injection Code Description**
+  
+  Currently, a global variable `platformAdapter` is added to the platform's global scope. This variable contains the `WebAPI` adaptation code for `Galacean` on the corresponding running platform, avoiding potential global variable conflicts that may arise when using multiple different engines and plugins.
+  - `platformAdapter`
+    - Adapts WebAPI for the platform, such as `canvas`, `document`, etc.
 
-- 平台全局变量注入代码说明
+- **Engine Customization Code Description**
+  - On different platforms, the engine may require different logic customizations. For instance, the WeChat mini-game environment lacks implementations for methods like `TextMetrics`'s `actualBoundingBoxLeft` and `actualBoundingBoxRight`. Therefore, these custom classes and functions need to be implemented in the `engine` directory specific to the platform, and during packaging, this code will replace the corresponding sections in the engine source.
 
-  目前会在平台的全局变量中添加 `platformAdapter` 变量，该变量包含`Galacean`在对应运行平台的`WebAPI`适配代码，避免使用多个不同引擎、插件时，出现可能的全局变量冲突问题。
-  - platformAdapter
-    - 适配平台的WebAPI，如 `canvas` 、 `document` 等。
-
-- 引擎定制代码说明
-  - 在不同平台上，引擎可能需要定制不同的逻辑，如微信小游戏真机没有实现`TextMetrics`的`actualBoundingBoxLeft`、`actualBoundingBoxRight`等方法。需要在平台的`engine`目录下实现定制化的类和函数的实现，打包时会将这些代码在引擎源码中进行替换。
-
-- 使用
-  - 模板
-    ``` javascript
-    // 加载平台 API 适配代码
+- **Using the Engine**
+  - **Template**
+    ```javascript
+    // Load platform API adaptation code
     require('polyfill');
     ```
 
-  - 用户代码中导入引擎代码
-    ``` javascript
-    import { WebGLEngine, } from "galacean-js/engine";
+  - **User Code for Importing Engine Modules**
+    ```javascript
+    import { WebGLEngine } from "galacean-js/engine";
     import { LitePhysics } from "galacean-js/engine-physics-lite";
     import { ShaderLab } from "galacean-js/engine-shader-lab";
     ```
 
-  - 用户初始化引擎画布
-
-    在`polyfill`代码加载后，会准备一个全局画布，可以通过全局变量获取
-    - 微信小游戏通过 `GameGlobal.platformAdapter.canvas` 获取到引擎画布
-      ``` javascript
-      // 引擎画布，以微信平台为例
-      const canvas = GameGlobal.platformAdapter.canvas;
-      WebGLEngine.create({ canvas: canvas }).then(engine => {
-        engine.canvas.resizeByClientSize();
-        engine.run();
-      });
-      ```
+  - **User Initializes the Engine Canvas**
+  
+    After loading the `polyfill`, a global canvas will be prepared and can be accessed through the global variable. For example, in the WeChat mini-game, you can access the engine canvas through `GameGlobal.platformAdapter.canvas`:
+    ```javascript
+    // Engine canvas, as an example for WeChat platform
+    const canvas = GameGlobal.platformAdapter.canvas;
+    WebGLEngine.create({ canvas: canvas }).then(engine => {
+      engine.canvas.resizeByClientSize();
+      engine.run();
+    });
+    ```
