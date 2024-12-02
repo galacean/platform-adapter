@@ -1,5 +1,4 @@
-import window from 'common/polyfill/Window'
-import document from 'common/polyfill/Document'
+import platformAdapter from 'common/global/PlatformAdapter';
 import PointerEvent from 'common/polyfill/events/PointerEvent';
 
 function typeToButtons(type: string) {
@@ -13,11 +12,12 @@ function typeToButtons(type: string) {
 function touchEventHandlerFactory(type: string) {
   return (event) => {
     const changedTouches = event.changedTouches || event.touches;
+    const canvas = platformAdapter.window.canvas;
     for (let i = 0, len = changedTouches.length; i < len; ++i) {
       const touch = changedTouches[i];
       const touchEvent = new PointerEvent(type);
-      touchEvent.target = window.canvas;
-      touchEvent.currentTarget = window.canvas;
+      touchEvent.target = canvas;
+      touchEvent.currentTarget = canvas;
       touchEvent.buttons = typeToButtons(type);
       touchEvent.which = touchEvent.buttons;
       touchEvent.pointerId = touch.identifier;
@@ -30,7 +30,7 @@ function touchEventHandlerFactory(type: string) {
       touchEvent.pressure = touch.force;
       touchEvent.timeStamp = event.timeStamp;
       touchEvent.pointerType = 'touch';
-      document.dispatchEvent(touchEvent);
+      platformAdapter.document.dispatchEvent(touchEvent);
     }
   }
 };

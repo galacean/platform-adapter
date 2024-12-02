@@ -7,78 +7,66 @@ import Image from './Image';
 import Audio from './Audio';
 import HTMLElement from './HTMLElement';
 import OffscreenCanvas from './OffscreenCanvas';
+import './Performance';
 
-import window from 'common/polyfill/Window';
+import platformAdapter from 'common/global/PlatformAdapter';
 import { devicePixelRatio, innerWidth, innerHeight, performance } from './WindowProperties';
 
-window.canvas = Canvas();
-window.navigator = navigator;
-window.XMLHttpRequest = XMLHttpRequest;
-window.WebSocket = WebSocket;
-window.Image = Image;
-window.Audio = Audio;
-window.HTMLElement = HTMLElement;
-
-window.localStorage = {
-  get length() {
-    const { keys } = wx.getStorageInfoSync();
-    return keys.length;
+Object.assign(platformAdapter.window, {
+  canvas: Canvas(),
+  navigator: navigator,
+  XMLHttpRequest: XMLHttpRequest,
+  WebSocket: WebSocket,
+  Image: Image,
+  Audio: Audio,
+  HTMLElement: HTMLElement,
+  localStorage: {
+    get length() {
+      const { keys } = wx.getStorageInfoSync();
+      return keys.length;
+    },
+  
+    key(n) {
+      const { keys } = wx.getStorageInfoSync();
+      return keys[n];
+    },
+  
+    getItem(key) {
+      return wx.getStorageSync(key);
+    },
+  
+    setItem(key, value) {
+      return wx.setStorageSync(key, value);
+    },
+  
+    removeItem(key) {
+      wx.removeStorageSync(key);
+    },
+  
+    clear() {
+      wx.clearStorageSync();
+    }
   },
-
-  key(n) {
-    const { keys } = wx.getStorageInfoSync();
-    return keys[n];
+  location: {
+    href: 'game.js',
+    reload() { }
   },
-
-  getItem(key) {
-    return wx.getStorageSync(key);
+  OffscreenCanvas: OffscreenCanvas,
+  innerWidth: innerWidth,
+  innerHeight: innerHeight,
+  devicePixelRatio: devicePixelRatio,
+  screen: {
+    availWidth: innerWidth,
+    availHeight: innerHeight
   },
-
-  setItem(key, value) {
-    return wx.setStorageSync(key, value);
-  },
-
-  removeItem(key) {
-    wx.removeStorageSync(key);
-  },
-
-  clear() {
-    wx.clearStorageSync();
-  }
-};
-
-window.location = {
-  href: 'game.js',
-  reload() { }
-};
-
-window.OffscreenCanvas = OffscreenCanvas;
-
-window.innerWidth = innerWidth;
-window.innerHeight = innerHeight;
-window.devicePixelRatio = devicePixelRatio;
-window.screen = {
-  availWidth: innerWidth,
-  availHeight: innerHeight,
-};
-window.ontouchstart = null;
-window.ontouchmove = null;
-window.ontouchend = null;
-
-window.performance = performance;
-
-const {
-  setTimeout,
-  setInterval,
-  clearTimeout,
-  clearInterval,
-  requestAnimationFrame,
-  cancelAnimationFrame,
-} = GameGlobal;
-
-window.setTimeout = setTimeout;
-window.setInterval = setInterval;
-window.clearTimeout = clearTimeout;
-window.clearInterval = clearInterval;
-window.requestAnimationFrame = requestAnimationFrame;
-window.cancelAnimationFrame = cancelAnimationFrame;
+  ontouchstart: null,
+  ontouchmove: null,
+  ontouchend: null,
+  performance: performance,
+  setTimeout: GameGlobal.setTimeout,
+  setInterval: GameGlobal.setInterval,
+  clearTimeout: GameGlobal.clearTimeout,
+  clearInterval: GameGlobal.clearInterval,
+  requestAnimationFrame: GameGlobal.requestAnimationFrame,
+  cancelAnimationFrame: GameGlobal.cancelAnimationFrame
+});

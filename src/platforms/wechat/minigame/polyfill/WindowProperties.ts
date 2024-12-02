@@ -1,4 +1,4 @@
-const { screenWidth, screenHeight, devicePixelRatio } = wx.getSystemInfoSync()
+const { screenWidth, screenHeight, devicePixelRatio } = wx.getSystemInfoSync();
 
 export const innerWidth = screenWidth;
 export const innerHeight = screenHeight;

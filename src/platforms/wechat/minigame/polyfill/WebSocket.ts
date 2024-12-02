@@ -1,4 +1,3 @@
-
 class WebSocket {
   static CONNECTING: number = 0; // The connection is not yet open.
   static OPEN: number = 1; // The connection is open and ready to communicate.

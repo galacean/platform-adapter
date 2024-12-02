@@ -1,5 +1,4 @@
 import platformAdapter from 'common/global/PlatformAdapter';
-import _window from 'common/polyfill/Window';
 import './Window';
 import './Document';
 import utils from 'common/utils/Utils';
@@ -9,44 +8,23 @@ declare global {
   const GameGlobal;
 }
 
-GameGlobal.platformAdapter = platformAdapter;
-const global = platformAdapter;
+(function inject () {
+  GameGlobal.platformAdapter = platformAdapter;
+  Object.assign(platformAdapter.window, {
+    addEventListener: (type, listener) => {
+      platformAdapter.document.addEventListener(type, listener);
+    },
+    removeEventListener: (type, listener) => {
+      platformAdapter.document.removeEventListener(type, listener);
+    }
+  });
+  Object.assign(platformAdapter.window.canvas, {
+    addEventListener: platformAdapter.window.addEventListener,
+    removeEventListener: platformAdapter.window.removeEventListener
+  })
+  utils.cloneProperty(platformAdapter, platformAdapter.window);
 
-function inject () {
-  utils.cloneProperty(global.window, _window);
-
-  const myWindow = global.window;
-  myWindow.addEventListener = (type, listener) => {
-    myWindow.document.addEventListener(type, listener);
+  if (!GameGlobal.__isAdapterInjected) {
+    GameGlobal.__isAdapterInjected = true;
   }
-  myWindow.removeEventListener = (type, listener) => {
-    myWindow.document.removeEventListener(type, listener);
-  }
-
-  if (myWindow.canvas) {
-    myWindow.canvas.addEventListener = myWindow.addEventListener;
-    myWindow.canvas.removeEventListener = myWindow.removeEventListener;
-  }
-
-  const { platform } = wx.getSystemInfoSync();
-
-  // 开发者工具无法重定义 window
-  if (platform === 'devtools') {
-
-    utils.cloneProperty(global, myWindow);
-    utils.cloneProperty(global.document, myWindow.document);
-
-    window.parent = window;
-  } else {
-    utils.cloneProperty(global, myWindow);
-    utils.cloneProperty(global.document, myWindow.document);
-    GameGlobal.window = myWindow;
-    window = GameGlobal;
-    window.top = window.parent = window;
-  }
-}
-
-if (!GameGlobal.__isAdapterInjected) {
-  GameGlobal.__isAdapterInjected = true;
-  inject();
-}
+})();

@@ -1,13 +1,13 @@
+import platformAdapter from "common/global/PlatformAdapter";
 import Performance from "common/polyfill/Performance";
 
-let performance;
 if (wx.getPerformance) {
   const { platform } = wx.getSystemInfoSync();
   const wxPerf = wx.getPerformance();
   const initTime = wxPerf.now();
 
   if (platform === 'devtools') {
-    performance = wxPerf;
+    platformAdapter.performance = wxPerf;
   } else {
     const clientPerfAdapter: Performance = {
       now: function() {
@@ -15,8 +15,8 @@ if (wx.getPerformance) {
       }
     };
 
-    performance = clientPerfAdapter;
+    platformAdapter.performance = clientPerfAdapter;
   }
 }
 
-export default performance;
+export default platformAdapter.performance;

@@ -32,7 +32,7 @@ export function getPolyfillBundle(bundleName, platformType: PlatformType): Bundl
         resolve(),
         commonjs()
       ],
-      needUglify: false,
+      needUglify: true,
     });
   }
   console.log(`Prepare polyfill bundle info complete.`);

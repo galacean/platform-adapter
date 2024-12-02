@@ -1,78 +1,62 @@
-import document from 'common/polyfill/Document';
-import window from 'common/polyfill/Window';
+import platformAdapter from 'common/global/PlatformAdapter';
 import $HTMLElement from './HTMLElement';
 import Image from './Image';
 import Audio from './Audio';
 import Canvas from './Canvas';
 import './events';
 
-document.documentElement = window;
-document.location = window.location;
-
-document.head = new $HTMLElement('head');
-document.body = new $HTMLElement('body');
-
-document.createElement = (tagName) => {
-  if (tagName === 'canvas') {
-    return Canvas();
-  } else if (tagName === 'audio') {
-    return new Audio();
-  } else if (tagName === 'img') {
-    return Image();
-  }
-
-  return new $HTMLElement(tagName);
-};
-
-document.getElementById = (id) => {
-  if (id === window.canvas.id) {
-    return window.canvas;
-  }
-  return null;
-};
-
-document.getElementsByTagName = (tagName) => {
-  if (tagName === 'head') {
-    return [document.head];
-  } else if (tagName === 'body') {
-    return [document.body];
-  } else if (tagName === 'canvas') {
-    return [window.canvas];
-  }
-  return [];
-};
-
-document.getElementsByName = (tagName) => {
-  if (tagName === 'head') {
-    return [document.head];
-  } else if (tagName === 'body') {
-    return [document.body];
-  } else if (tagName === 'canvas') {
-    return [window.canvas];
-  }
-  return [];
-};
-
-document.querySelector = (query) => {
-  if (query === 'head') {
-    return document.head;
-  } else if (query === 'body') {
-    return document.body;
-  } else if (query === 'canvas') {
-    return window.canvas;
-  } else if (query === `#${window.canvas.id}`) {
-    return window.canvas;
-  }
-  return null;
-};
-
-document.querySelectorAll = (query) => {
-  if (query === 'head') {
-    return [document.head];
-  } else if (query === 'body') {
-    return [document.body];
-  } else if (query === 'canvas') {
-    return [window.canvas];
-  }
-  return [];
-};
+Object.assign(platformAdapter.document, {
+  documentElement: platformAdapter.window,
+  location: platformAdapter.window.location,
+  head: new $HTMLElement('head'),
+  body: new $HTMLElement('body'),
+  createElement: (tagName) => {
+    if (tagName === 'canvas') {
+      return Canvas();
+    } else if (tagName === 'audio') {
+      return new Audio();
+    } else if (tagName === 'img') {
+      return Image();
+    }
+  
+    return new $HTMLElement(tagName);
+  },
+  getElementById: (id) => {
+    if (id === platformAdapter.window.canvas.id) {
+      return platformAdapter.window.canvas;
+    }
+    return null;
+  },
+  getElementsByTagName: (tagName) => {
+    if (tagName === 'head') {
+      return [platformAdapter.document.head];
+    } else if (tagName === 'body') {
+      return [platformAdapter.document.body];
+    } else if (tagName === 'canvas') {
+      return [platformAdapter.window.canvas];
+    }
+    return [];
+  },
+  querySelector: (query) => {
+    if (query === 'head') {
+      return platformAdapter.document.head;
+    } else if (query === 'body') {
+      return platformAdapter.document.body;
+    } else if (query === 'canvas') {
+      return platformAdapter.window.canvas;
+    } else if (query === `#${platformAdapter.window.canvas.id}`) {
+      return platformAdapter.window.canvas;
+    }
+    return null;
+  },
+  querySelectorAll: (query) => {
+    if (query === 'head') {
+      return [platformAdapter.document.head];
+    } else if (query === 'body') {
+      return [platformAdapter.document.body];
+    } else if (query === 'canvas') {
+      return [platformAdapter.window.canvas];
+    }
+    return [];
+  },
+});

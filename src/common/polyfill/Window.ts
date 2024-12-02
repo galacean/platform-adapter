@@ -1,4 +1,3 @@
-import document from "./Document";
 import { Blob } from "./Blob";
 import FileReader from "./FileReader";
 import HTMLElement from "./HTMLElement";
@@ -8,9 +7,8 @@ import { HTMLCanvasElement } from "./HTMLCanvasElement";
 import { HTMLImageElement } from "./HTMLImageElement";
 import Performance from "./Performance";
 import Navigator from "./Navigator";
-import TextDecoder from "./TextDecoder";
 
-interface Window {
+export default interface Window {
   canvas: HTMLElement,
   document,
   navigator: Navigator,
@@ -44,17 +42,3 @@ interface Window {
   OffscreenCanvas,
   TextDecoder,
 }
-
-// @ts-ignore
-const window: Window = {
-  document: document,
-  FileReader: FileReader,
-  HTMLImageElement: HTMLImageElement,
-  HTMLCanvasElement: HTMLCanvasElement,
-  Blob: Blob,
-  URL: URL,
-  URLSearchParams: URLSearchParams,
-  TextDecoder: TextDecoder,
-};
-
-export default window;

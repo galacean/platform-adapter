@@ -1,17 +1,17 @@
-import window from 'common/polyfill/Window'
-import document from 'common/polyfill/Document'
+import platformAdapter from 'common/global/PlatformAdapter';
 import TouchEvent from 'common/polyfill/events/TouchEvent';
 
 function touchEventHandlerFactory(type: string) {
   return (event) => {
     const touchEvent = new TouchEvent(type);
-    touchEvent.target = window.canvas;
-    touchEvent.currentTarget = window.canvas;
+    const canvas = platformAdapter.window.canvas;
+    touchEvent.target = canvas;
+    touchEvent.currentTarget = canvas;
     touchEvent.touches = event.touches;
     touchEvent.targetTouches = Array.prototype.slice.call(event.touches);
     touchEvent.changedTouches = event.changedTouches;
     touchEvent.timeStamp = event.timeStamp;
-    document.dispatchEvent(touchEvent);
+    platformAdapter.document.dispatchEvent(touchEvent);
   }
 };
 
