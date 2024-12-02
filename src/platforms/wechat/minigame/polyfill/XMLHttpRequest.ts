@@ -1,5 +1,7 @@
 import { Blob } from 'common/polyfill/Blob';
 
+type ResponseType = 'text' | 'arraybuffer';
+type DataType = 'json' | string;
 export default class XMLHttpRequest {
   // TODO 没法模拟 HEADERS_RECEIVED 和 LOADING 两个状态
   static UNSEND = 0;
@@ -33,7 +35,8 @@ export default class XMLHttpRequest {
   readyState = 0;
   response = null;
   responseText = null;
-  responseType = '';
+  responseType: ResponseType = 'text';
+  dataType: DataType = 'string';
   responseXML = null;
   status = 0;
   statusText = '';
@@ -81,10 +84,15 @@ export default class XMLHttpRequest {
       throw new Error("Failed to execute 'send' on 'XMLHttpRequest': The object's state must be OPENED.");
     } else {
       const url = XMLHttpRequest._url.get(this);
-      const responseType = this.responseType;
+      let responseType = this.responseType;
+      let dataType = this.dataType;
+      if (responseType as string === 'json') {
+        dataType = 'json';
+        responseType = 'text';
+      }
 
       const success = ({ data, statusCode, header }) => {
-        if (typeof data !== 'string' && !(data instanceof ArrayBuffer)) {
+        if (typeof data !== 'string' && !(data instanceof ArrayBuffer) && dataType !== 'json') {
           try {
             data = JSON.stringify(data);
           } catch (e) {
@@ -108,7 +116,7 @@ export default class XMLHttpRequest {
           for (let i = 0; i < len; i++) {
             this.responseText += String.fromCharCode(bytes[i]);
           }
-          if (responseType === 'blob') {
+          if (responseType as string === 'blob') {
             this.response = new Blob([<ArrayBuffer>this.response], { type: "image/png" });
           }
         } else {
@@ -149,7 +157,8 @@ export default class XMLHttpRequest {
           url: url,
           method: XMLHttpRequest._method.get(this),
           header: XMLHttpRequest._requestHeader.get(this),
-          responseType: responseType === "blob" ? "arraybuffer" : responseType,
+          dataType: dataType,
+          responseType: responseType as string === "blob" ? "arraybuffer" : responseType,
           success: success,
           fail: fail
         });
