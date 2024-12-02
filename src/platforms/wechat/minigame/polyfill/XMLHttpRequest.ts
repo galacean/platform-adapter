@@ -95,9 +95,7 @@ export default class XMLHttpRequest {
         if (typeof data !== 'string' && !(data instanceof ArrayBuffer) && dataType !== 'json') {
           try {
             data = JSON.stringify(data);
-          } catch (e) {
-            data = data;
-          }
+          } catch (e) { }
         }
 
         this.status = statusCode ?? 200;
