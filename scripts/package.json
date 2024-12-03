@@ -18,15 +18,5 @@
     "rollup": "^4.22.1",
     "rollup-plugin-swc3": "^0.12.1",
     "typescript": "^5.6.2"
-  },
-  "peerDependencies": {
-    "@galacean/engine": "../node_modules/@galacean/engine",
-    "@galacean/engine-lottie": "../node_modules/@galacean/engine-lottie",
-    "@galacean/engine-physics-lite": "../node_modules/@galacean/engine-physics-lite",
-    "@galacean/engine-physics-physx": "../node_modules/@galacean/engine-physics-physx",
-    "@galacean/engine-shader-lab": "../node_modules/@galacean/engine-shader-lab",
-    "@galacean/engine-spine": "../node_modules/@galacean/engine-spine",
-    "@galacean/engine-toolkit": "../node_modules/@galacean/engine-toolkit",
-    "@galacean/engine-xr": "../node_modules/@galacean/engine-xr"
   }
 }

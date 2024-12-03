@@ -4,32 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  '@galacean/engine':
-    specifier: ../node_modules/@galacean/engine
-    version: link:../node_modules/@galacean/engine
-  '@galacean/engine-lottie':
-    specifier: ../node_modules/@galacean/engine-lottie
-    version: link:../node_modules/@galacean/engine-lottie
-  '@galacean/engine-physics-lite':
-    specifier: ../node_modules/@galacean/engine-physics-lite
-    version: link:../node_modules/@galacean/engine-physics-lite
-  '@galacean/engine-physics-physx':
-    specifier: ../node_modules/@galacean/engine-physics-physx
-    version: link:../node_modules/@galacean/engine-physics-physx
-  '@galacean/engine-shader-lab':
-    specifier: ../node_modules/@galacean/engine-shader-lab
-    version: link:../node_modules/@galacean/engine-shader-lab
-  '@galacean/engine-spine':
-    specifier: ../node_modules/@galacean/engine-spine
-    version: link:../node_modules/@galacean/engine-spine
-  '@galacean/engine-toolkit':
-    specifier: ../node_modules/@galacean/engine-toolkit
-    version: link:../node_modules/@galacean/engine-toolkit
-  '@galacean/engine-xr':
-    specifier: ../node_modules/@galacean/engine-xr
-    version: link:../node_modules/@galacean/engine-xr
-
 devDependencies:
   '@rollup/plugin-commonjs':
     specifier: ^26.0.1

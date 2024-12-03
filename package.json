@@ -5,16 +5,6 @@
     "build": "node ./scripts/dist/build.js",
     "build:cli": "pnpm --filter=./scripts run build"
   },
-  "dependencies": {
-    "@galacean/engine": "^1.4.0-alpha.0",
-    "@galacean/engine-lottie": "^1.1.1",
-    "@galacean/engine-physics-lite": "^1.4.0-alpha.0",
-    "@galacean/engine-physics-physx": "^1.4.0-alpha.0",
-    "@galacean/engine-shader-lab": "^1.4.0-alpha.0",
-    "@galacean/engine-spine": "^4.2.0-beta.1",
-    "@galacean/engine-toolkit": "^1.4.0-alpha.0",
-    "@galacean/engine-xr": "^1.4.0-alpha.0"
-  },
   "devDependencies": {
     "@types/node": "^22.5.5",
     "typescript": "^5.6.2"

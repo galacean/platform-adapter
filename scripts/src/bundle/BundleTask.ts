@@ -1,13 +1,16 @@
-import path from 'path';
-import fs from 'fs';
 import { rollup } from 'rollup';
 import { swc, minify } from 'rollup-plugin-swc3';
 import chalk from 'chalk';
 
 import { BundleInfo } from './BundleInfo.js';
 import { getPolyfillBundle } from "./PolyfillBundle.js";
-import { getEngineBundle, getPhysXWASMLoaderBundle } from './EngineBundle.js';
-import { rootDir } from '../cli.js';
+import { getEngineBundle, getJSWASMLoaderBundle } from './EngineBundle.js';
+
+interface BundleTaskSettings {
+  polyfill: boolean,
+  engine: string[],
+  jsWASMLoader: string[],
+}
 
 export type BundleTaskType = 'PlatformAdapter' | 'Engine';
 
@@ -57,29 +60,45 @@ export class BundleTask {
 }
 
 export default class BundleTaskFactory {
-  static createBundleTask(taskType: BundleTaskType[]): BundleTask[] {
+  static isArray(arr: any[]) {
+    return arr && arr.length > 0;
+  }
+
+  static createBundleTask(bundleTaskSettings?: BundleTaskSettings): BundleTask[] {
     function getBundleInfo(taskType: string): BundleTask | BundleTask[] {
       switch (taskType) {
-        case 'PlatformAdapter':
-          return new BundleTask(taskType, getPolyfillBundle('polyfill', 'minigame'));
-        case 'Engine':
-          const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'scripts/package.json'), 'utf-8'));
-          const bundles = Object.keys(packageJson['peerDependencies']);
-          const result = bundles.map((bundle) => {
-            return getEngineBundle(bundle, 'minigame');
-          }).flat();
-          result.push(...getPhysXWASMLoaderBundle('minigame'));
-          return new BundleTask(taskType, result);
+        case 'polyfill':
+          if (bundleTaskSettings.polyfill) {
+            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame'));
+          }
+          return undefined;
+        case 'engine':
+          if (BundleTaskFactory.isArray(bundleTaskSettings.engine)) {
+            let result = bundleTaskSettings.engine.flatMap((engine) => {
+              return getEngineBundle(engine, 'minigame');
+            });
+            return new BundleTask('Engine', result);
+          }
+          return undefined;
+        case 'jsWASMLoader':
+          if (BundleTaskFactory.isArray(bundleTaskSettings.jsWASMLoader)) {
+            let result = bundleTaskSettings.jsWASMLoader.flatMap((loader) => {
+              return getJSWASMLoaderBundle(loader, 'minigame');
+            });
+            return new BundleTask('Engine', result);
+          }
+          return undefined;
       }
     }
 
-    return taskType.reduce((acc, cur) => {
+    if (!bundleTaskSettings) {
+      return undefined;
+    }
+
+    return Object.keys(bundleTaskSettings).reduce((acc, cur) => {
       let tasks = getBundleInfo(cur);
-      if (tasks instanceof BundleTask) {
-        tasks = [tasks];
-      }
-      acc.push(...tasks);
+      acc.push(tasks);
       return acc;
-    }, [] as BundleTask[]);
+    }, []).flat();
   }
 }

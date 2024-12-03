@@ -45,19 +45,19 @@ const GE_REF_API_LIST = [
   'URLSearchParams'
 ];
 
-export function getEngineBundle(dependencies: string, platformType: PlatformType): BundleInfo[] {
+const matchGalaceanName = /@galacean\/([^\/]+)/;
+
+export function getEngineBundle(dependence: string, platformType: PlatformType): BundleInfo[] {
   const platformsPath = path.join(rootDir, `src/platforms`);
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Found engine, including: ${platforms}.`));
 
-  const lastIndex = dependencies.lastIndexOf('/');
-  const bundleName = dependencies.substring(lastIndex == -1 ? 0 : lastIndex + 1, dependencies.length);
-  let entry;
-  if (bundleName === 'engine-toolkit') {
-    entry = normalizePath(path.join(rootDir, `node_modules/@galacean/${bundleName}/dist/es/index.js`));
-  } else {
-    entry = normalizePath(path.join(rootDir, `node_modules/@galacean/${bundleName}/dist/module.js`));
+  const match = dependence.match(matchGalaceanName);
+  let bundleName;
+  if (match) {
+    bundleName = match[1];
   }
+  let entry = normalizePath(dependence);
 
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
@@ -109,26 +109,28 @@ export function getEngineBundle(dependencies: string, platformType: PlatformType
   return bundles;
 }
 
-export function getPhysXWASMLoaderBundle(platformType: PlatformType): BundleInfo[] {
+export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType): BundleInfo[] {
   const platformsPath = path.join(rootDir, `src/platforms`);
   const platforms = getPlatformsFromPath(platformsPath);
-  console.log(chalk.green(`Found physx webassembly, including: ${platforms}.`));
+  console.log(chalk.green(`Found webassembly loader, including: ${platforms}.`));
 
-  let entry = normalizePath(path.join(rootDir, `node_modules/@galacean/engine-physics-physx/libs/physx.release.js`));
+  let entry = normalizePath(loader);
+  let lastIndex = loader.lastIndexOf('/');
+  let bundleName = loader.substring(lastIndex == -1 ? 0 : lastIndex + 1, loader.length);
 
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
-    console.log(`Prepare physx webassembly bundle info for ${chalk.green(platform)}.`);
+    console.log(`Prepare webassembly bundle info for ${chalk.green(platform)}.`);
 
     if (platform === 'alipay') {
       continue;
     }
 
     bundles.push({
-      bundleName: 'physx.release',
+      bundleName: bundleName,
       entry: entry,
       output: {
-        file: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/galacean-js/${'physx.release'}.js`)),
+        file: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/galacean-js/${bundleName}`)),
         format: 'cjs',
       },
       platformName: platform,
@@ -137,11 +139,11 @@ export function getPhysXWASMLoaderBundle(platformType: PlatformType): BundleInfo
       needUglify: true,
       rollupPlugins: [
         resolve(),
-        injectWASM(Platform_WASM_API[platform], ['physx.release.js']),
+        injectWASM(Platform_WASM_API[platform], [bundleName]),
         pluginReplaceWebAPI(Platform_GlobalVars_Map[platform], '.platformAdapter', ``, GE_REF_API_LIST)
       ],
     });
   }
-  console.log(`Prepare physx webassembly bundle info complete.`);
+  console.log(`Prepare webassembly bundle info complete.`);
   return bundles;
 }
