@@ -1,9 +1,10 @@
 {
   "type": "module",
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
     "build": "tsc"
   },
-  "private": true,
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",

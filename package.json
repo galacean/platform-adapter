@@ -1,12 +1,17 @@
 {
   "type": "module",
+  "version": "0.0.1",
+  "packageManager": "pnpm@9.3.0",
+  "private": true,
   "scripts": {
-    "postinstall": "pnpm --filter ./scripts install && pnpm run build:cli",
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "pnpm -r install && pnpm run build:cli",
     "build": "node ./scripts/dist/build.js",
     "build:cli": "pnpm --filter=./scripts run build"
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
     "typescript": "^5.6.2"
-  }
+  },
+  "repository": "https://github.com/jtabibito/platform-adapter.git"
 }
