@@ -100,7 +100,7 @@ npm install
 
   - **Description**
     - `polyfill`: Whether to bundle the polyfill, if using custom engine components, this option can be set to false.
-    - `engine`: The engine modules to bundle, specified as a list of engine module file paths.
-    - `jsWASMLoader`: The wasm loader for the engine.
+    - `engine`: The engine modules to bundle, specified as a list of engine module file paths, if array is empty, the engine will not be bundled.
+    - `jsWASMLoader`: The wasm loader for the engine, if array is empty, the jsWASMLoader will not be bundled.
     - `outputDir`: The output directory for the bundled files, if not specified, the bundled files will be placed in the same directory as the action.yaml.
     ** Note: The engine modules and jsWASMLoader should contains `@galacean/xxx/' as name, otherwise the build will fail. **

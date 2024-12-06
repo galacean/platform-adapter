@@ -5,7 +5,8 @@ import BundleTaskFactory from './bundle/BundleTask.js';
   try {
     buildSettings = JSON.parse(process.env['ADAPTER_BUNDLE_SETTINGS']);
   } catch (e) {
-    buildSettings = undefined;
+    console.warn("The environment variable ADAPTER_BUNDLE_SETTINGS is not a valid JSON string.");
+    process.exit(1);
   }
 
   try {
@@ -18,7 +19,7 @@ import BundleTaskFactory from './bundle/BundleTask.js';
 
     process.exit(0);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     process.exit(1);
   }
 }());
