@@ -6,7 +6,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { BundleInfo, PlatformType } from "./BundleInfo.js";
 import { rootDir } from "../cli.js";
-import { getPlatformsFromPath, getScriptsFromPath, normalizePath } from "../utils/Utils.js";
+import { getOutputDir, getPlatformsFromPath, getScriptsFromPath, normalizePath } from "../utils/Utils.js";
 import { pluginReplaceGalaceanLogic, pluginReplaceGalaceanImports } from '../plugins/plugin-replace-engine.js';
 import { pluginReplaceWebAPI } from "../plugins/plugin-replace-webapi.js";
 import { pluginReplaceSIMDSupported } from "../plugins/plugin-replace-simd.js";
@@ -47,7 +47,7 @@ const GE_REF_API_LIST = [
 
 const matchGalaceanName = /@galacean\/([^\/]+)/;
 
-export function getEngineBundle(dependence: string, platformType: PlatformType): BundleInfo[] {
+export function getEngineBundle(dependence: string, platformType: PlatformType, outputDir?: string): BundleInfo[] {
   const platformsPath = path.join(rootDir, `src/platforms`);
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Found engine, including: ${platforms}.`));
@@ -86,7 +86,7 @@ export function getEngineBundle(dependence: string, platformType: PlatformType):
       bundleName: bundleName,
       entry: entry,
       output: {
-        file: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/galacean-js/${bundleName}.js`)),
+        file: normalizePath(path.join(getOutputDir(outputDir), `dist/${platform}/${platformType}/galacean-js/${bundleName}.js`)),
         format: 'cjs',
       },
       platformName: platform,
@@ -109,7 +109,7 @@ export function getEngineBundle(dependence: string, platformType: PlatformType):
   return bundles;
 }
 
-export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType): BundleInfo[] {
+export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType, outputDir?): BundleInfo[] {
   const platformsPath = path.join(rootDir, `src/platforms`);
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(chalk.green(`Found webassembly loader, including: ${platforms}.`));
@@ -130,7 +130,7 @@ export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType
       bundleName: bundleName,
       entry: entry,
       output: {
-        file: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/galacean-js/${bundleName}`)),
+        file: normalizePath(path.join(getOutputDir(outputDir), `dist/${platform}/${platformType}/galacean-js/${bundleName}`)),
         format: 'cjs',
       },
       platformName: platform,

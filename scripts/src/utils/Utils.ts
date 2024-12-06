@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { rootDir } from '../cli.js';
 
 /**
  * @param path Directory path of platforms
@@ -24,8 +25,12 @@ function getScriptsFromPath(path: string): string[] {
  * @param path Path that need to be normalized, e.g. C:\Users\user\Documents\project -> C:/Users/user/Documents/project
  * @returns normalized path
  */
-function normalizePath (path: string): string {
+function normalizePath(path: string): string {
   return path.replace(/\\/g, '/');
 }
 
-export { getPlatformsFromPath, getScriptsFromPath, normalizePath };
+function getOutputDir(path?: string | undefined): string {
+  return path ?? rootDir;
+}
+
+export { getOutputDir, getPlatformsFromPath, getScriptsFromPath, normalizePath };

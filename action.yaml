@@ -1,0 +1,13 @@
+name: CI Platform Adapter Bundle
+description: CI Platform Adapter Bundle
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Bundle platform adapters
+      shell: bash
+      run: |
+        cd ${{ github.action_path }}
+        pnpm install
+        pnpm run build:cli
+        pnpm run build

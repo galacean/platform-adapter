@@ -4,6 +4,32 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+dependencies:
+  '@galacean/engine':
+    specifier: 1.4.0-alpha.0
+    version: 1.4.0-alpha.0
+  '@galacean/engine-lottie':
+    specifier: 1.1.1
+    version: 1.1.1(@galacean/engine@1.4.0-alpha.0)
+  '@galacean/engine-physics-lite':
+    specifier: 1.4.0-alpha.0
+    version: 1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0)
+  '@galacean/engine-physics-physx':
+    specifier: 1.4.0-alpha.0
+    version: 1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0)
+  '@galacean/engine-shader-lab':
+    specifier: 1.4.0-alpha.0
+    version: 1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0)
+  '@galacean/engine-spine':
+    specifier: 4.2.0-beta.0
+    version: 4.2.0-beta.0(@galacean/engine@1.4.0-alpha.0)
+  '@galacean/engine-toolkit':
+    specifier: 1.4.0-alpha.1
+    version: 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+  '@galacean/engine-xr':
+    specifier: 1.4.0-alpha.0
+    version: 1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0)
+
 devDependencies:
   '@types/node':
     specifier: ^22.5.5
@@ -14,11 +40,223 @@ devDependencies:
 
 packages:
 
+  /@esotericsoftware/spine-core@4.2.66:
+    resolution: {integrity: sha512-B1HLyxn0K0K4PcL+5zYkl2iNVI3qwi0PJvEdTJ9vFHrykNBbQ8m3babUDW5ckD4lLD/qF9XeY/h3FoWGZ1KQLw==}
+    dev: false
+
+  /@galacean/engine-core@1.4.0-alpha.0:
+    resolution: {integrity: sha512-v164iDRirK5JymPAA9Q0U7I3nexyQNemzASCstWbqb4zGK0hWL2tadyzxJymuy7bCgxHUTS/Du+3FoeM/g2NoQ==}
+    dependencies:
+      '@galacean/engine-math': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-loader@1.4.0-alpha.0:
+    resolution: {integrity: sha512-DUGk7dlsNOKGvGGDDk4lRwKjeS4W2SlEYjoG2ywMuthpXbjhCexKanAe31xO8H8EleP4pgdA00xJ6F7mOHZKkA==}
+    dependencies:
+      '@galacean/engine-core': 1.4.0-alpha.0
+      '@galacean/engine-math': 1.4.0-alpha.0
+      '@galacean/engine-rhi-webgl': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-lottie@1.1.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-vu+LuWQE60vNbRDlBCNlcM1cuyCK8y2xL7OFgw0ys/1eJdJ/TgPRjNzdIDmdKivGcAmIUwBH/+rObCCT/dp/jA==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.24
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+      bezier-easing: 2.1.0
+    dev: false
+
+  /@galacean/engine-math@1.4.0-alpha.0:
+    resolution: {integrity: sha512-AqT1w7Ol3B/2S+H1uP6ag3pf21j/OdpJOi+i5rjGPBKREUTuqMfnd+sYxTs2CUCBGdPUWT0rjNcuZYv4ZLTvcQ==}
+    dev: false
+
+  /@galacean/engine-physics-lite@1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-c24c/RO9NUMa6dv0LJH6U7e/WAasWIsLB54lhOEwvLPS9l/cFpRDk7T8FEJyqHxn+0iHQBl6Niba3Ff+UQD/SQ==}
+    peerDependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-physics-physx@1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-qjOLasxRbOkP7A7YGiFuqsBtgwH/9CiJgqFhx4U3KWlaHlm3iZtsd72jWlLYZ1TO7TieAHATl3lFCe80/zkFlg==}
+    peerDependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-rhi-webgl@1.4.0-alpha.0:
+    resolution: {integrity: sha512-QHYfPgSRwcaGsEWQd1iVVRMV6FlrWN1EqpCG8aNrdzfcjZ0UQo0Bzpe6rxOzoemsLhpzotKLkp/+r78ktQYN3A==}
+    dependencies:
+      '@galacean/engine-core': 1.4.0-alpha.0
+      '@galacean/engine-math': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-shader-lab@1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-Hwd30+br9iFd+5fIBDs5fS+kMh/k4RuJzTi/a98GLYaw3tiWngfmvzpsw0cqcmUDirTxeZWblxwOQbK9L8U6fw==}
+    peerDependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-spine@4.2.0-beta.0(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-7bDTaetyEY9P6K2zL7Ji5HxTUUXvk2/PRSudgSDb0MjIUeyQeU2hkAV3ZNlROyrx1FTzsEqpm2IKmcF3E7NXUg==}
+    peerDependencies:
+      '@galacean/engine': '>=1.3.0-alpha.0'
+    dependencies:
+      '@esotericsoftware/spine-core': 4.2.66
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-auxiliary-lines@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-u2deCCR3WmnbGsIxk0fS/fQF57cFDR603ZO1L65b9e657qnET3mLaX0UpPSA0d9yFHNDIg/YZ6O9jfs6bjLfWw==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+      '@galacean/engine-toolkit-custom-material': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+    dev: false
+
+  /@galacean/engine-toolkit-controls@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-NQS+v/1NKoOXthr8Q1YDJA8PEeMHTRuM/bPRFyNORU0yFfHlVwZcV3OoR0eYgRDAtarvteWJBPsLmbGlZNY9Lg==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-custom-material@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-d6cJkgDsAhub5sjsWt8CnhL6QyNaKew/8cLjg7rR2L2js3Iz3ENqkIa+JhMExwT1RYt8/8sbCzBx84q2vy5ScA==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-framebuffer-picker@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-7iIM5ZpSSam61U4cBEuJcI7SfQEfHQbmqMLgUcLxu52vJHem8Mt/87S30BI+PUIwwOldu9jdTGizoEJabm+LQg==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-geometry-sketch@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-ZqTGefxiBp8SKsprPs5+411LYWx4F/gkXy0Ax4SCaOF6I+3RiRcV/gc/iwgyoGobNJfoZa7uWsto5duPaPE9Qw==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-gizmo@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-IDtVe4f4oU3ryJ6uCAY0UTIsjc6gozSNvH6yBPA17GTiZu3jWtO/Y6gqHh9GXxw1+ro5Xnn5DkrllWVbm5CO+A==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+      '@galacean/engine-toolkit-custom-material': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-framebuffer-picker': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+    dev: false
+
+  /@galacean/engine-toolkit-lines@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-dfMgkarPvTxfSy11hahKxtc1KlZRxnALcr3M3nrzHItHU7Lu9ajRsEjtBu4ls3gxwhcenMqo/Ke5Tj4Piow6OQ==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-navigation-gizmo@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-AylyrckrNb79fofvTxedBLBbNq/q5gysnV0AbnvZlJORIfcHPfePmmxiIMo1KypSucXCqqQpUTX0djO378xanA==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+      '@galacean/engine-toolkit-controls': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-custom-material': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+    dev: false
+
+  /@galacean/engine-toolkit-outline@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-WlpxSX/alwFQ2nCSAiiUTzhHrF3Pe45isN68CY57gfeM+JsZtDhDijghPrPXv03yq8lp7nN86qECAxgb3YRlNg==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-shader-lab@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-/eAbrGsZZPT7QPrLpYI9UWIl65Mq8t6XDSCtSDVKv1sjO9iU8UV4DK4ABY7W3wPqmXCp8lznwRCBEFWBtpEimw==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-skeleton-viewer@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-fMM6uT+6If61L+btUXQ7fPlwkebv5L4chV6keVF0bRzt4aVodQdUOOQpEIFolnttsz1/J0KcNnWoSRGHPsji/w==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit-stats@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-J56Tiluy/EF1N5L0le437XACLhIde6IEwiefk6p4SrOpKVbjcChQ6PRMgzjKoC+bjdlGrf643MFVJol3DWrRgA==}
+    peerDependencies:
+      '@galacean/engine': ^1.3.0-beta.6
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine-toolkit@1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-5jf/pHcwg9l2N+fw18y7UCSRgSxtXTE/g26jQACwwRgRVKsE5iY9ecr+yfHe2u/MTCfoikZv+YBulFpGY3KQpA==}
+    dependencies:
+      '@galacean/engine-toolkit-auxiliary-lines': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-controls': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-custom-material': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-framebuffer-picker': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-geometry-sketch': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-gizmo': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-lines': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-navigation-gizmo': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-outline': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-shader-lab': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-skeleton-viewer': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+      '@galacean/engine-toolkit-stats': 1.4.0-alpha.1(@galacean/engine@1.4.0-alpha.0)
+    transitivePeerDependencies:
+      - '@galacean/engine'
+    dev: false
+
+  /@galacean/engine-xr@1.4.0-alpha.0(@galacean/engine@1.4.0-alpha.0):
+    resolution: {integrity: sha512-GSBvCOfMkKo1n803bhrVWJkcapKAsNa1MJx4qE5nCwSFNYzOVVsElZwnPOqpOgPlGdyEcIbJLDeIPM2WZ70VUg==}
+    peerDependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dependencies:
+      '@galacean/engine': 1.4.0-alpha.0
+    dev: false
+
+  /@galacean/engine@1.4.0-alpha.0:
+    resolution: {integrity: sha512-/JNM8IpNpYJlnskP4aoTVPPFFq7WHuJP2jmSIY6NQ+QmdY8TVg0fQ49m36U6lIecswQ08Geek4Q0DeHqEg+MSQ==}
+    dependencies:
+      '@galacean/engine-core': 1.4.0-alpha.0
+      '@galacean/engine-loader': 1.4.0-alpha.0
+      '@galacean/engine-math': 1.4.0-alpha.0
+      '@galacean/engine-rhi-webgl': 1.4.0-alpha.0
+    dev: false
+
   /@types/node@22.5.5:
     resolution: {integrity: sha512-Xjs4y5UPO/CLdzpgR6GirZJx36yScjh73+2NlLlkFRSoQN8B0DpfXPdZGnvVmLRLOsqDpOfTNv7D9trgGhmOIA==}
     dependencies:
       undici-types: 6.19.8
     dev: true
+
+  /bezier-easing@2.1.0:
+    resolution: {integrity: sha512-gbIqZ/eslnUFC1tjEvtz0sgx+xTK20wDnYMIA27VA04R7w6xxXQPZDbibjA9DTWZRA2CXtwHykkVzlCaAJAZig==}
+    dev: false
 
   /typescript@5.6.3:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}

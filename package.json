@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "pnpm -r install && pnpm run build:cli",
+    "postinstall": "pnpm --filter=./scripts install && pnpm run build:cli",
     "build": "node ./scripts/dist/build.js",
     "build:cli": "pnpm --filter=./scripts run build"
   },

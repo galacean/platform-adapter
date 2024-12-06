@@ -5,9 +5,9 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { BundleInfo, PlatformType } from "./BundleInfo.js";
 import { rootDir } from "../cli.js";
-import { getPlatformsFromPath, normalizePath } from "../utils/Utils.js";
+import { getOutputDir, getPlatformsFromPath, normalizePath } from "../utils/Utils.js";
 
-export function getPolyfillBundle(bundleName, platformType: PlatformType): BundleInfo[] {
+export function getPolyfillBundle(bundleName, platformType: PlatformType, outputDir?: string): BundleInfo[] {
   const platformsPath = path.join(rootDir, `src/platforms`);
   const platforms = getPlatformsFromPath(platformsPath);
   console.log(`Found polyfill, including: ${chalk.green(platforms)}.`);
@@ -22,7 +22,7 @@ export function getPolyfillBundle(bundleName, platformType: PlatformType): Bundl
       bundleName: bundleName,
       entry: normalizePath(path.join(platformsPath, `${platform}/${platformType}/polyfill/index.ts`)),
       output: {
-        file: normalizePath(path.join(rootDir, `dist/${platform}/${platformType}/${bundleName}.js`)),
+        file: normalizePath(path.join(getOutputDir(outputDir), `dist/${platform}/${platformType}/${bundleName}.js`)),
         format: 'cjs',
       },
       platformName: platform,

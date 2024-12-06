@@ -10,6 +10,7 @@ interface BundleTaskSettings {
   polyfill: boolean,
   engine: string[],
   jsWASMLoader: string[],
+  outputDir?: string
 }
 
 export type BundleTaskType = 'PlatformAdapter' | 'Engine';
@@ -69,13 +70,13 @@ export default class BundleTaskFactory {
       switch (taskType) {
         case 'polyfill':
           if (bundleTaskSettings.polyfill) {
-            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame'));
+            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame', bundleTaskSettings.outputDir));
           }
           return undefined;
         case 'engine':
           if (BundleTaskFactory.isArray(bundleTaskSettings.engine)) {
             let result = bundleTaskSettings.engine.flatMap((engine) => {
-              return getEngineBundle(engine, 'minigame');
+              return getEngineBundle(engine, 'minigame', bundleTaskSettings.outputDir);
             });
             return new BundleTask('Engine', result);
           }
@@ -83,10 +84,12 @@ export default class BundleTaskFactory {
         case 'jsWASMLoader':
           if (BundleTaskFactory.isArray(bundleTaskSettings.jsWASMLoader)) {
             let result = bundleTaskSettings.jsWASMLoader.flatMap((loader) => {
-              return getJSWASMLoaderBundle(loader, 'minigame');
+              return getJSWASMLoaderBundle(loader, 'minigame', bundleTaskSettings.outputDir);
             });
             return new BundleTask('Engine', result);
           }
+          return undefined;
+        default:
           return undefined;
       }
     }
@@ -97,7 +100,9 @@ export default class BundleTaskFactory {
 
     return Object.keys(bundleTaskSettings).reduce((acc, cur) => {
       let tasks = getBundleInfo(cur);
-      acc.push(tasks);
+      if (tasks) {
+        acc.push(tasks);
+      }
       return acc;
     }, []).flat();
   }
