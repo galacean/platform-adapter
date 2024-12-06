@@ -68,3 +68,39 @@ npm install
       engine.run();
     });
     ```
+
+- **Github Workflow**
+
+  The repo provide an `action.yaml` for github workflow, which will automatically build and bundle the engine and polyfill to the enviorment.
+
+  - **Usage**
+  ``` yaml
+  - name: Bundle polyfill and engine
+    uses: galacean/platform-adapter@tag
+    env:
+      ADAPTER_BUNDLE_SETTINGS: |
+        {
+          "polyfill": true,
+          "engine": [
+            "${{ github.workspace }}/node_modules/@galacean/engine/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-lottie/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-physics-lite/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-physics-physx/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-shader-lab/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-spine/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-toolkit/dist/es/index.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-xr/dist/module.js"
+          ],
+          "jsWASMLoader": [
+            "${{ github.workspace }}/node_modules/@galacean/engine-physics-physx/libs/physx.release.js"
+          ],
+          "outputDir": "${{ github.workspace }}"
+        }
+  ```
+
+  - **Description**
+    - `polyfill`: Whether to bundle the polyfill, if using custom engine components, this option can be set to false.
+    - `engine`: The engine modules to bundle, specified as a list of engine module file paths.
+    - `jsWASMLoader`: The wasm loader for the engine.
+    - `outputDir`: The output directory for the bundled files.
+    ** Note: The engine modules and jsWASMLoader should contains `@galacean/xxx/' as name, otherwise the build will fail. **
