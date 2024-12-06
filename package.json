@@ -4,6 +4,13 @@
   "version": "0.0.1",
   "packageManager": "pnpm@9.3.0",
   "private": true,
+  "exports": {
+    ".": "./scripts/dist/build.js"
+  },
+  "files": [
+    "src/**/*",
+    "scripts/**/*"
+  ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "postinstall": "pnpm --filter=./scripts install && pnpm run build:cli",
