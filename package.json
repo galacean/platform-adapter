@@ -1,0 +1,25 @@
+{
+  "name": "@galacean/platform-adapter",
+  "type": "module",
+  "version": "0.0.0-alpha.1",
+  "packageManager": "pnpm@9.3.0",
+  "private": true,
+  "exports": {
+    ".": "./scripts/dist/build.js"
+  },
+  "files": [
+    "src/**/*",
+    "scripts/**/*"
+  ],
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "pnpm --filter=./scripts install && pnpm run build:cli",
+    "build": "node ./scripts/dist/build.js",
+    "build:cli": "pnpm --filter=./scripts run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "typescript": "^5.6.2"
+  },
+  "repository": "https://github.com/galacean/platform-adapter.git"
+}
