@@ -130,7 +130,8 @@ After modifying the build scripts, execute `npm run build:cli` to rebuild the pa
 
   Currently, a global variable `platformAdapter` is added to the platform's global scope. This variable contains the `WebAPI` adaptation code for `Galacean` on the corresponding running platform, avoiding potential global variable conflicts that may arise when using multiple different engines and plugins.
   - `platformAdapter`
-    - Adapts WebAPI for the platform, such as `canvas`, `document`, etc.
+  Adapts WebAPI for the platform, such as `canvas`, `document`, etc.
 
 - **Engine Customization Code Description**
-  - On different platforms, the engine may require different logic customizations. For instance, the WeChat mini-game environment lacks implementations for methods like `TextMetrics`'s `actualBoundingBoxLeft` and `actualBoundingBoxRight`. Therefore, these custom classes and functions need to be implemented in the `engine` directory specific to the platform, and during packaging, this code will replace the corresponding sections in the engine source.
+
+  On different platforms, the engine may require different logic customizations. For instance, the WeChat mini-game environment lacks implementations for methods like `TextMetrics`'s `actualBoundingBoxLeft` and `actualBoundingBoxRight`. Therefore, these custom classes and functions need to be implemented in the `engine` directory specific to the platform, and during packaging, this code will replace the corresponding sections in the engine source.
