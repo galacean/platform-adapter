@@ -1,7 +1,7 @@
 {
   "name": "@galacean/platform-adapter-bundletool",
   "type": "module",
-  "version": "0.0.0-alpha.2",
+  "version": "0.0.0-alpha.1",
   "private": true,
   "scripts": {
     "build": "tsc"
