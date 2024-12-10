@@ -115,3 +115,28 @@ Different platforms may require specific customizations in the engine logic. For
 ### Github Workflow
 
 The repo has provide `action.yaml` for github workflow, which will automatically build and bundle the engine and polyfill to the enviorment.
+
+- **Usage**
+  ``` yaml
+  - name: Bundle polyfill and engine
+    uses: galacean/platform-adapter@tag
+    env:
+      ADAPTER_BUNDLE_SETTINGS: |
+        {
+          "polyfill": true,
+          "engine": [
+            "${{ github.workspace }}/node_modules/@galacean/engine/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-lottie/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-physics-lite/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-physics-physx/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-shader-lab/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-spine/dist/module.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-toolkit/dist/es/index.js",
+            "${{ github.workspace }}/node_modules/@galacean/engine-xr/dist/module.js"
+          ],
+          "jsWASMLoader": [
+            "${{ github.workspace }}/node_modules/@galacean/engine-physics-physx/libs/physx.release.js"
+          ],
+          "outputDir": "${{ github.workspace }}"
+        }
+  ```
