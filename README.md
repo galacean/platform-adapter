@@ -4,37 +4,8 @@ Building the Galacean ecosystem to support adaption for mini-games, applets, and
 
 ## Usage
 
-- **Template Code For Platform Entry File**
-  ```javascript
-  // Load platform API adaptation code
-  require('polyfill');
-
-  // Load users entry file
-  require('app');
-  ```
-
-- **Importing Engine Modules In User Code**
-  ```javascript
-  import { WebGLEngine } from "galacean-js/engine";
-  import { LitePhysics } from "galacean-js/engine-physics-lite";
-  import { ShaderLab } from "galacean-js/engine-shader-lab";
-  ```
-
-- **User Initializes the Engine Canvas**
-
-  After loading the `polyfill`, a global canvas will be prepared and can be accessed through the global variable. For example, in the WeChat mini-game, you can access the engine canvas through `GameGlobal.platformAdapter.canvas`:
-  ```javascript
-  // Engine canvas, as an example for WeChat platform
-  const canvas = GameGlobal.platformAdapter.canvas;
-  WebGLEngine.create({ canvas: canvas }).then(engine => {
-    engine.canvas.resizeByClientSize();
-    engine.run();
-  });
-  ```
-
-## Build
-
 ### CLI
+Before using the CLI, ensure that you have installed the engine dependencies of the supported version if needed, such as `@galacean/engine`.
 
 - **Install Dependencies**
   ```shell
@@ -67,38 +38,6 @@ Building the Galacean ecosystem to support adaption for mini-games, applets, and
     npm run build
     ```
 
-[Description of `ADAPTER_BUNDLE_SETTINGS`](#ADAPTER_BUNDLESETTINGS)
-
-### Github Workflow
-
-The repo has provide `action.yaml` for github workflow, which will automatically build and bundle the engine and polyfill to the enviorment.
-
-- **Usage**
-  ``` yaml
-  - name: Bundle polyfill and engine
-    uses: galacean/platform-adapter@tag
-    env:
-      ADAPTER_BUNDLE_SETTINGS: |
-        {
-          "polyfill": true,
-          "engine": [
-            "${{ github.workspace }}/node_modules/@galacean/engine/dist/module.js",
-            "${{ github.workspace }}/node_modules/@galacean/engine-lottie/dist/module.js",
-            "${{ github.workspace }}/node_modules/@galacean/engine-physics-lite/dist/module.js",
-            "${{ github.workspace }}/node_modules/@galacean/engine-physics-physx/dist/module.js",
-            "${{ github.workspace }}/node_modules/@galacean/engine-shader-lab/dist/module.js",
-            "${{ github.workspace }}/node_modules/@galacean/engine-spine/dist/module.js",
-            "${{ github.workspace }}/node_modules/@galacean/engine-toolkit/dist/es/index.js",
-            "${{ github.workspace }}/node_modules/@galacean/engine-xr/dist/module.js"
-          ],
-          "jsWASMLoader": [
-            "${{ github.workspace }}/node_modules/@galacean/engine-physics-physx/libs/physx.release.js"
-          ],
-          "outputDir": "${{ github.workspace }}"
-        }
-  ```
-
-<a id="ADAPTER_BUNDLESETTINGS"></a>
 **Description Of `ADAPTER_BUNDLE_SETTINGS`**
 - `polyfill`: Whether to bundle the polyfill, if using custom engine components, this option can be set to false.
 - `engine`: The engine modules to bundle, specified as a list of engine module file paths, if array is empty, the engine will not be bundled.
@@ -124,14 +63,55 @@ dist/
 The `scripts` directory contains build scripts used to generate platform adapters and engine adapters:
   - `build.ts`: Generates the `Polyfill` and engine adaptation code.
 
-After modifying the build scripts, execute `npm run build:cli` to rebuild the packaging scripts.
+After modifying the build scripts, execute following command to build the scripts:
+```shell
+npm run build:cli
+```
 
-- **Platform Global Variable Injection Code Description**
+### Platform Global Variable Injection Code Description
 
-  Currently, a global variable `platformAdapter` is added to the platform's global scope. This variable contains the `WebAPI` adaptation code for `Galacean` on the corresponding running platform, avoiding potential global variable conflicts that may arise when using multiple different engines and plugins.
-  - `platformAdapter`
-  Adapts WebAPI for the platform, such as `canvas`, `document`, etc.
+To ensure compatibility and avoid potential global variable conflicts, this project utilizes a global variable called `platformAdapter`. This variable is responsible for adapting the `WebAPI` for different running platforms. Users need to assign `platformAdapter` to the corresponding platform's global scope in the platform's `polyfill/index.js` file.
 
-- **Engine Customization Code Description**
+- **Purpose of `platformAdapter`**
 
-  On different platforms, the engine may require different logic customizations. For instance, the WeChat mini-game environment lacks implementations for methods like `TextMetrics`'s `actualBoundingBoxLeft` and `actualBoundingBoxRight`. Therefore, these custom classes and functions need to be implemented in the `engine` directory specific to the platform, and during packaging, this code will replace the corresponding sections in the engine source.
+  The primary purpose of `platformAdapter` is to provide adaptations for `WebAPI` specific to each platform, such as `canvas`, `document`, etc. By utilizing this global variable, we ensure that code execution remains conflict-free across different engines and plugins.
+
+- **Registering `platformAdapter` to the Global Variable**
+
+  To register `platformAdapter` in the global scope, add the following code in your `polyfill/index.js` file, like this:
+
+  ```javascript
+  // polyfill/index.js
+  import platformAdapter from 'common/global/PlatformAdapter';
+  // Define the platformAdapter to the global scope
+  globalThis.platformAdapter = platformAdapter;
+
+### Engine Customization Code Description
+
+Different platforms may require specific customizations in the engine logic. For example, the WeChat Mini Game environment lacks implementations for certain methods like `TextMetrics`'s `actualBoundingBoxLeft` and `actualBoundingBoxRight`. To address these discrepancies, you should implement the necessary custom classes and functions within the engine directory specific to that platform.
+
+- **Writing Engine Customization Code**
+
+  Follow these steps to write the engine customization code:
+
+  1. **Create or Open the Specific Platform's `engine` Directory**: Within this directory, create or edit the custom classes and functions as needed.
+
+  2. **Implement Missing Methods**: For instance, implement a custom version of `TextUtils._measureFontOrChar`. You would create the corresponding file in the `engine` directory:
+
+      ```javascript
+      // engine/TextUtils.js
+      function _measureFontOrChar(fontString, measureString, isChar) {
+        // ...
+
+        // Custom implementation for WeChat Mini Game
+        const { width: actualWidth } = context.measureText(measureString);
+
+        // ...
+      }
+      ```
+
+  3. **Code Replacement During Packaging**: During the packaging process, ensure that the custom code you've written is the corresponding sections in the engine's source code.
+
+### Github Workflow
+
+The repo has provide `action.yaml` for github workflow, which will automatically build and bundle the engine and polyfill to the enviorment.
