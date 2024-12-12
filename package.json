@@ -15,7 +15,8 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "node ./cli/scripts/build.js",
-    "build:cli": "tsc"
+    "build:cli": "tsc",
+    "prepublish": "pnpm run build:cli"
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",
