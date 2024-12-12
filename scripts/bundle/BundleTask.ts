@@ -10,7 +10,8 @@ export interface BundleTaskSettings {
   polyfill: boolean,
   engine: string[],
   jsWASMLoader: string[],
-  output?: string
+  output?: string,
+  outputDir?: string
 }
 
 export type BundleTaskType = 'PlatformAdapter' | 'Engine';

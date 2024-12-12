@@ -7,6 +7,7 @@ import { parseArgs } from './cli.js';
     const envCfg = process.env['ADAPTER_BUNDLE_SETTINGS'];
     if (envCfg) {
       buildSettings = JSON.parse(process.env['ADAPTER_BUNDLE_SETTINGS']);
+      !buildSettings.output && (buildSettings.output = buildSettings.outputDir);
     } else {
       if (!buildSettings) {
         const { polyfill, engine, jsWASMLoader, output } = parseArgs();
