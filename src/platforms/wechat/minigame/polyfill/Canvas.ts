@@ -1,8 +1,8 @@
 import { innerWidth, innerHeight } from './WindowProperties';
 import $HTMLElement from './HTMLElement'
-import EventTarget from 'common/polyfill/EventTarget';
+import EventTarget from 'src/common/polyfill/EventTarget';
 
-import utils from 'common/utils/Utils';
+import utils from 'src/common/utils/Utils';
 
 export default function Canvas() {
   const canvas = wx.createCanvas();

@@ -9,10 +9,22 @@ Before using the CLI, ensure that you have installed the engine dependencies of 
 
 - **Install Dependencies**
   ```shell
-  npm install
+  npm install @galacean/platform-adapter
   ```
 
+- **Run CLI**
+
+  If you more like to use the CLI, you can run the following command to bundle the engine and polyfill.
+
+  ```shell
+  npx platform-adapter --p true --e @galacean/engine/dist/module.js --wasm @galacean/engine-physics-physx/lib/physx.release.js --o ./dist
+  ```
+
+  Not all params need to option. Use the `--help` option to view the available commands and options.
+
 - **Set Up Node Environment Variables**
+
+  If you don't want to use the CLI, you can also set up the environment variables in your project's `package.json` file.
   ``` json
   "ADAPTER_BUNDLE_SETTINGS": {
     "polyfill": true,
@@ -29,21 +41,17 @@ Before using the CLI, ensure that you have installed the engine dependencies of 
     "jsWASMLoader": [
       "@galacean/engine-physics-physx/libs/physx.release.js"
     ],
-    "outputDir": "./"
+    "output": "./"
   }
   ```
 
-- **Build `Polyfill` And `Engine`**
-    ```shell
-    npm run build
-    ```
-
 **Description Of `ADAPTER_BUNDLE_SETTINGS`**
-- `polyfill`: Whether to bundle the polyfill, if using custom engine components, this option can be set to false.
-- `engine`: The engine modules to bundle, specified as a list of engine module file paths, if array is empty, the engine will not be bundled.
-- `jsWASMLoader`: The wasm loader for the engine, if array is empty, the jsWASMLoader will not be bundled.
-- `outputDir`: The output directory for the bundled files, if not specified, the bundled files will be placed in the same directory as the action.yaml.
-**Note: The engine modules and jsWASMLoader should contains `@galacean/xxx/' as name, otherwise the build will fail.**
+  - `polyfill`: Whether to bundle the polyfill, if using custom engine components, this option can be set to false.
+  - `engine`: The engine modules to bundle, specified as a list of engine module file paths, if array is empty, the engine will not be bundled.
+  - `jsWASMLoader`: The wasm loader for the engine, if array is empty, the jsWASMLoader will not be bundled.
+  - `output`: The output directory for the bundled files, if not specified, the bundled files will be placed in the same directory as the action.yaml.
+
+    **Note**: The engine modules and jsWASMLoader should contains `@galacean/xxx/' as name, otherwise the build will fail.
 
 ### Output
 ```shell

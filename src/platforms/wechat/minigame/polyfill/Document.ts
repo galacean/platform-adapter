@@ -1,4 +1,4 @@
-import platformAdapter from 'common/global/PlatformAdapter';
+import platformAdapter from 'src/common/global/PlatformAdapter';
 import $HTMLElement from './HTMLElement';
 import Image from './Image';
 import Audio from './Audio';
@@ -22,6 +22,7 @@ Object.assign(platformAdapter.document, {
     return new $HTMLElement(tagName);
   },
   getElementById: (id) => {
+    // @ts-ignore
     if (id === platformAdapter.window.canvas.id) {
       return platformAdapter.window.canvas;
     }
@@ -44,6 +45,7 @@ Object.assign(platformAdapter.document, {
       return platformAdapter.document.body;
     } else if (query === 'canvas') {
       return platformAdapter.window.canvas;
+    // @ts-ignore
     } else if (query === `#${platformAdapter.window.canvas.id}`) {
       return platformAdapter.window.canvas;
     }

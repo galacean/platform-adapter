@@ -17,12 +17,15 @@ class EventTarget {
     }
     events[type].push(listener);
 
+    // @ts-ignore
     if (options.capture) {
       console.warn('EventTarget.addEventListener: options.capture is not implemented.');
     }
+    // @ts-ignore
     if (options.once) {
       console.warn('EventTarget.addEventListener: options.once is not implemented.');
     }
+    // @ts-ignore
     if (options.passive) {
       console.warn('EventTarget.addEventListener: options.passive is not implemented.');
     }
@@ -42,6 +45,7 @@ class EventTarget {
   }
 
   dispatchEvent(event = {}) {
+    // @ts-ignore
     const listeners = EventTarget._events.get(this)[event.type];
 
     if (listeners) {

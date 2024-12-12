@@ -9,7 +9,7 @@ import HTMLElement from './HTMLElement';
 import OffscreenCanvas from './OffscreenCanvas';
 import './Performance';
 
-import platformAdapter from 'common/global/PlatformAdapter';
+import platformAdapter from 'src/common/global/PlatformAdapter';
 import { devicePixelRatio, innerWidth, innerHeight, performance } from './WindowProperties';
 
 Object.assign(platformAdapter.window, {
