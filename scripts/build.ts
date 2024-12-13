@@ -20,7 +20,7 @@ import { parseArgs } from './cli.js';
       }
     }
   } catch (e) {
-    console.warn("The environment variable ADAPTER_BUNDLE_SETTINGS is not a valid JSON string.");
+    console.warn("CLI arguments are not supported or environment variable ADAPTER_BUNDLE_SETTINGS not a valid JSON.");
     process.exit(1);
   }
 
