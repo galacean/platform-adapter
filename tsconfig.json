@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "declaration": true,
+    "sourceMap": false,
+    "outDir": "./cli",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "declarationDir": "./cli/types",
+    "allowJs": true,
+    "noEmit": false,
+    "noEmitOnError": false,
+    "esModuleInterop": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "scripts/src/**/*.ts", "scripts/build.ts", "scripts/cli.ts"],
+  "exclude": ["node_modules", "dist/**/*", "scripts/dist/**/*"]
+}
