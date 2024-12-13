@@ -1,5 +1,5 @@
-import platformAdapter from 'common/global/PlatformAdapter';
-import PointerEvent from 'common/polyfill/events/PointerEvent';
+import platformAdapter from 'src/common/global/PlatformAdapter';
+import PointerEvent from 'src/common/polyfill/events/PointerEvent';
 
 function typeToButtons(type: string) {
   let ret = 0;

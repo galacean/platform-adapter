@@ -20,7 +20,7 @@ export function getPolyfillBundle(bundleName, platformType: PlatformType, output
     console.log(`Prepare polyfill bundle info for ${chalk.green(platform)}.`);
     bundles.push({
       bundleName: bundleName,
-      entry: normalizePath(path.join(platformsPath, `${platform}/${platformType}/polyfill/index.ts`)),
+      entry: normalizePath(path.join(platformsPath, `${platform}/${platformType}/polyfill/index.js`)),
       output: {
         file: normalizePath(path.join(getOutputDir(outputDir), `dist/${platform}/${platformType}/${bundleName}.js`)),
         format: 'cjs',

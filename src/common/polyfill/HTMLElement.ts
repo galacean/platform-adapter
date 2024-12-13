@@ -25,12 +25,14 @@ export default class HTMLElement extends Element {
   }
 
   get clientWidth() {
+    // @ts-ignore
     const ret = parseInt(this.style.fontSize, 10) * this.innerHTML.length;
 
     return Number.isNaN(ret) ? 0 : ret;
   }
 
   get clientHeight() {
+    // @ts-ignore
     const ret = parseInt(this.style.fontSize, 10);
 
     return Number.isNaN(ret) ? 0 : ret;

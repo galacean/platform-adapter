@@ -10,7 +10,7 @@ import { getOutputDir, getPlatformsFromPath, getScriptsFromPath, normalizePath }
 import { pluginReplaceGalaceanLogic, pluginReplaceGalaceanImports } from '../plugins/plugin-replace-engine.js';
 import { pluginReplaceWebAPI } from "../plugins/plugin-replace-webapi.js";
 import { pluginReplaceSIMDSupported } from "../plugins/plugin-replace-simd.js";
-import ts from 'typescript';
+import ts from "typescript";
 import RebuildPlugin from "../plugins/plugin-rebuild-engine.js";
 import { injectWASM } from "../plugins/plugin-inject-wasm.js";
 
@@ -69,7 +69,7 @@ export function getEngineBundle(dependence: string, platformType: PlatformType, 
 
     const scriptsPath = path.join(rootDir, `src/platforms/${platform}/${platformType}/engine`);
     const scripts = getScriptsFromPath(scriptsPath);
-    const uniqueBundleInfo = [];
+    const uniqueBundleInfo: string[] = [];
     for (const script of scripts) {
       uniqueBundleInfo.push(ts.transpileModule(
         fs.readFileSync(normalizePath(path.join(scriptsPath, script)), { encoding: 'utf-8' }),

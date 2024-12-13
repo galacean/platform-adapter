@@ -30,7 +30,7 @@ function normalizePath(path: string): string {
 }
 
 function getOutputDir(path?: string | undefined): string {
-  return path ?? rootDir;
+  return path ?? process.cwd();
 }
 
 export { getOutputDir, getPlatformsFromPath, getScriptsFromPath, normalizePath };

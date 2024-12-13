@@ -1,5 +1,5 @@
-import platformAdapter from "common/global/PlatformAdapter";
-import Performance from "common/polyfill/Performance";
+import platformAdapter from "src/common/global/PlatformAdapter";
+import Performance from "src/common/polyfill/Performance";
 
 if (wx.getPerformance) {
   const { platform } = wx.getSystemInfoSync();

@@ -1,5 +1,5 @@
-import platformAdapter from 'common/global/PlatformAdapter';
-import TouchEvent from 'common/polyfill/events/TouchEvent';
+import platformAdapter from 'src/common/global/PlatformAdapter';
+import TouchEvent from 'src/common/polyfill/events/TouchEvent';
 
 function touchEventHandlerFactory(type: string) {
   return (event) => {

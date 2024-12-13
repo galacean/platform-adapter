@@ -1,4 +1,4 @@
-import HTMLAudioElement from 'common/polyfill/HTMLAudioElement';
+import HTMLAudioElement from 'src/common/polyfill/HTMLAudioElement';
 
 export default class Audio extends HTMLAudioElement {
   readyState = AudioState.HAVE_NOTHING;

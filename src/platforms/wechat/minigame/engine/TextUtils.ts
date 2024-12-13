@@ -1,3 +1,5 @@
+/// @ts-nocheck
+
 function _measureFontOrChar(fontString, measureString, isChar) {
   const { canvas, context } = TextUtils.textContext();
   context.font = fontString;

@@ -6,10 +6,11 @@ import { BundleInfo } from './BundleInfo.js';
 import { getPolyfillBundle } from "./PolyfillBundle.js";
 import { getEngineBundle, getJSWASMLoaderBundle } from './EngineBundle.js';
 
-interface BundleTaskSettings {
+export interface BundleTaskSettings {
   polyfill: boolean,
   engine: string[],
   jsWASMLoader: string[],
+  output?: string,
   outputDir?: string
 }
 
@@ -70,13 +71,13 @@ export default class BundleTaskFactory {
       switch (taskType) {
         case 'polyfill':
           if (bundleTaskSettings.polyfill) {
-            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame', bundleTaskSettings.outputDir));
+            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame', bundleTaskSettings.output));
           }
           return undefined;
         case 'engine':
           if (BundleTaskFactory.isArray(bundleTaskSettings.engine)) {
             let result = bundleTaskSettings.engine.flatMap((engine) => {
-              return getEngineBundle(engine, 'minigame', bundleTaskSettings.outputDir);
+              return getEngineBundle(engine, 'minigame', bundleTaskSettings.output);
             });
             return new BundleTask('Engine', result);
           }
@@ -84,7 +85,7 @@ export default class BundleTaskFactory {
         case 'jsWASMLoader':
           if (BundleTaskFactory.isArray(bundleTaskSettings.jsWASMLoader)) {
             let result = bundleTaskSettings.jsWASMLoader.flatMap((loader) => {
-              return getJSWASMLoaderBundle(loader, 'minigame', bundleTaskSettings.outputDir);
+              return getJSWASMLoaderBundle(loader, 'minigame', bundleTaskSettings.output);
             });
             return new BundleTask('Engine', result);
           }

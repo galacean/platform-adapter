@@ -240,4 +240,5 @@ class FunctionParser extends ASTParser {
   }
 }
 
-export { ASTNode, ASTParser, ASTType, ClassParser, FunctionParser }
+export { ASTParser, ASTType, ClassParser, FunctionParser };
+export type { ASTNode };
