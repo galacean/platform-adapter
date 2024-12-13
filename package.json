@@ -2,6 +2,10 @@
   "name": "@galacean/platform-adapter",
   "type": "module",
   "version": "0.0.0-alpha.2",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "packageManager": "pnpm@9.3.0",
   "exports": {
     ".": "./cli/scripts/build.js"
