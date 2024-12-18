@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "node ./cli/scripts/build.js",
+    "build": "node ./cli/scripts/build.js --p true",
     "build:cli": "tsc",
     "prepare": "pnpm run build:cli"
   },

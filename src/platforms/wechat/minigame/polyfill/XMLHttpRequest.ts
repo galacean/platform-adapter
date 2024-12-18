@@ -1,4 +1,4 @@
-import { Blob } from 'src/common/polyfill/Blob';
+import { Blob } from '../../../../common/polyfill/Blob';
 
 type ResponseType = 'text' | 'arraybuffer';
 type DataType = 'json' | string;

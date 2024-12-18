@@ -7,7 +7,6 @@
     "sourceMap": false,
     "outDir": "./cli",
     "rootDir": ".",
-    "baseUrl": ".",
     "declarationDir": "./cli/types",
     "allowJs": true,
     "noEmit": false,
