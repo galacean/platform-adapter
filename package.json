@@ -1,7 +1,7 @@
 {
   "name": "@galacean/platform-adapter",
   "type": "module",
-  "version": "0.0.0-alpha.2",
+  "version": "0.0.0-alpha.3",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "node ./cli/scripts/build.js",
+    "build": "node ./cli/scripts/build.js --p true",
     "build:cli": "tsc",
     "prepare": "pnpm run build:cli"
   },

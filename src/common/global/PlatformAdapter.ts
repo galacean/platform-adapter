@@ -1,14 +1,14 @@
-import { Blob } from "src/common/polyfill/Blob";
-import Document from 'src/common/polyfill/Document';
-import EventTarget from "src/common/polyfill/EventTarget";
-import FileReader from "src/common/polyfill/FileReader";
-import { HTMLCanvasElement } from "src/common/polyfill/HTMLCanvasElement";
-import { HTMLImageElement } from "src/common/polyfill/HTMLImageElement";
-import TextDecoder from "src/common/polyfill/TextDecoder";
-import { URL } from "src/common/polyfill/URL";
-import { URLSearchParams } from "src/common/polyfill/URLSearchParams";
-import Window from "src/common/polyfill/Window";
-import utils from "src/common/utils/Utils";
+import { Blob } from "../polyfill/Blob";
+import Document from '../polyfill/Document';
+import EventTarget from "../polyfill/EventTarget";
+import FileReader from "../polyfill/FileReader";
+import { HTMLCanvasElement } from "../polyfill/HTMLCanvasElement";
+import { HTMLImageElement } from "../polyfill/HTMLImageElement";
+import TextDecoder from "../polyfill/TextDecoder";
+import { URL } from "../polyfill/URL";
+import { URLSearchParams } from "../polyfill/URLSearchParams";
+import Window from "../polyfill/Window";
+import utils from "../utils/Utils";
 
 interface PlatformAdapter {
   document: Document;

@@ -1,4 +1,4 @@
-import platformAdapter from 'src/common/global/PlatformAdapter';
+import platformAdapter from '../../../../common/global/PlatformAdapter';
 import $HTMLElement from './HTMLElement';
 import Image from './Image';
 import Audio from './Audio';

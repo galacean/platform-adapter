@@ -1,7 +1,7 @@
-import platformAdapter from 'src/common/global/PlatformAdapter';
+import platformAdapter from '../../../../common/global/PlatformAdapter';
 import './Window';
 import './Document';
-import utils from 'src/common/utils/Utils';
+import utils from '../../../../common/utils/Utils';
 
 declare global {
   const wx;
