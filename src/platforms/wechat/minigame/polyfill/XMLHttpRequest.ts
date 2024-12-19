@@ -1,4 +1,5 @@
 import { Blob } from '../../../../common/polyfill/Blob';
+import TextEncoder from '../../../../common/polyfill/TextEncoder';
 
 type ResponseType = 'text' | 'arraybuffer';
 type DataType = 'json' | string;
@@ -139,9 +140,21 @@ export default class XMLHttpRequest {
       if (relative) {
         const fs = wx.getFileSystemManager();
 
+        const readSuccess = (result: any) => {
+          if (responseType as string === 'blob') {
+            result['data'] = new TextEncoder().encode(result['data']).buffer;
+          }
+          if (dataType === 'json') {
+            try {
+              result['data'] = JSON.parse(result['data']);
+            } catch (e) { }
+          }
+          success(result);
+        }
+
         let options = {
           filePath: url,
-          success: success,
+          success: readSuccess,
           fail: fail
         };
         if (responseType != 'arraybuffer') {
