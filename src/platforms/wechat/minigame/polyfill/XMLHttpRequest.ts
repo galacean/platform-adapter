@@ -141,7 +141,7 @@ export default class XMLHttpRequest {
         const fs = wx.getFileSystemManager();
 
         const readSuccess = (result: any) => {
-          if (responseType as string === 'blob') {
+          if (responseType as string === 'blob' || responseType === 'arraybuffer') {
             result['data'] = new TextEncoder().encode(result['data']).buffer;
           }
           if (dataType === 'json') {
