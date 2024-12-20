@@ -141,9 +141,6 @@ export default class XMLHttpRequest {
         const fs = wx.getFileSystemManager();
 
         const readSuccess = (result: any) => {
-          if (responseType as string === 'blob' || responseType === 'arraybuffer') {
-            result['data'] = new TextEncoder().encode(result['data']).buffer;
-          }
           if (dataType === 'json') {
             try {
               result['data'] = JSON.parse(result['data']);
@@ -157,7 +154,7 @@ export default class XMLHttpRequest {
           success: readSuccess,
           fail: fail
         };
-        if (responseType != 'arraybuffer') {
+        if (responseType as string != 'blob' && responseType != 'arraybuffer') {
           options["encoding"] = 'utf8';
         }
         fs.readFile(options);
