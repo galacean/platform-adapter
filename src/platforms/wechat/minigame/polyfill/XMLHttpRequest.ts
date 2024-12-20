@@ -1,5 +1,4 @@
 import { Blob } from '../../../../common/polyfill/Blob';
-import TextEncoder from '../../../../common/polyfill/TextEncoder';
 
 type ResponseType = 'text' | 'arraybuffer';
 type DataType = 'json' | string;
