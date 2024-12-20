@@ -139,12 +139,21 @@ export default class XMLHttpRequest {
       if (relative) {
         const fs = wx.getFileSystemManager();
 
+        const readSuccess = (result: any) => {
+          if (dataType === 'json') {
+            try {
+              result['data'] = JSON.parse(result['data']);
+            } catch (e) { }
+          }
+          success(result);
+        }
+
         let options = {
           filePath: url,
-          success: success,
+          success: readSuccess,
           fail: fail
         };
-        if (responseType != 'arraybuffer') {
+        if (responseType as string != 'blob' && responseType != 'arraybuffer') {
           options["encoding"] = 'utf8';
         }
         fs.readFile(options);
