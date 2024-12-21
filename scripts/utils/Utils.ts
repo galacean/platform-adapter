@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { rootDir } from '../cli.js';
 
 /**
  * @param path Directory path of platforms
