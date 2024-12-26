@@ -49,7 +49,7 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
           },
           leave(node) {
             code = magicString.toString();
-            code = code.replace(`wasmBinaryFile="physx.release.wasm"`, `wasmBinaryFile="/galacean-js/physx.release.wasm"`);
+            code = code.replace(`wasmBinaryFile="physx.release.wasm"`, `wasmBinaryFile="/adapters/galacean-engine-physics/physx.release.wasm"`);
             code = code.concat(`window.PHYSX = PHYSX`);
           }
         });
