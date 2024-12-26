@@ -1,187 +1,117 @@
 /// @ts-nocheck
-
 /**
- * PhysX object creation.
- */
-
-export class PhysXPhysics implements IPhysics {
-  /** @internal PhysX wasm object */
-  _physX: any;
-  /** @internal PhysX Foundation SDK singleton class */
-  _pxFoundation: any;
-  /** @internal PhysX physics object */
-  _pxPhysics: any;
-
-  private _runTimeMode: PhysXRuntimeMode;
-  private _initializeState: InitializeState = InitializeState.Uninitialized;
-  private _initializePromise: Promise<void>;
-
-  constructor(runtimeMode: PhysXRuntimeMode = PhysXRuntimeMode.Auto) {
+   * PhysX object creation.
+   */ var PhysXPhysics = /*#__PURE__*/ function() {
+  function PhysXPhysics(runtimeMode) {
+    if (runtimeMode === void 0) runtimeMode = PhysXRuntimeMode.Auto;
+    this._initializeState = 0;
     this._runTimeMode = runtimeMode;
   }
-
+  var _proto = PhysXPhysics.prototype;
   /**
    * Initialize PhysXPhysics.
    * @param runtimeMode - Runtime mode
    * @returns Promise object
-   */
-  initialize(): Promise<void> {
-    const initializePromise = new Promise((resolve, reject) => {
-      (window).PHYSX().then((PHYSX) => {
-        this._init(PHYSX);
-        this._initializeState = InitializeState.Initialized;
-        this._initializePromise = null;
-        console.log("PhysX loaded.");
-        resolve();
+   */ _proto.initialize = function initialize() {
+      const initializePromise = new Promise((resolve, reject) => {
+        (window).PHYSX().then((PHYSX) => {
+          this._init(PHYSX);
+          this._initializeState = 2;
+          this._initializePromise = null;
+          console.log("PhysX loaded.");
+          resolve();
+        });
       });
-    });
-  
-    this._initializePromise = initializePromise;
-    return initializePromise;
-  }
-
+    
+      this._initializePromise = initializePromise;
+      return initializePromise;
+  };
   /**
    * Destroy PhysXPhysics.
-   */
-  public destroy(): void {
-    this._physX.PxCloseExtensions();
-    this._pxPhysics.release();
-    this._pxFoundation.release();
-    this._physX = null;
-    this._pxFoundation = null;
-    this._pxPhysics = null;
-  }
-
+   */ _proto.destroy = function destroy() {
+      this._physX.PxCloseExtensions();
+      this._pxPhysics.release();
+      this._pxFoundation.release();
+      this._physX = null;
+      this._pxFoundation = null;
+      this._pxPhysics = null;
+  };
   /**
    * {@inheritDoc IPhysics.createPhysicsManager }
-   */
-  createPhysicsManager(): IPhysicsManager {
-    return new PhysXPhysicsManager();
-  }
-
+   */ _proto.createPhysicsManager = function createPhysicsManager() {
+      return new PhysXPhysicsManager();
+  };
   /**
    * {@inheritDoc IPhysics.createPhysicsScene }
-   */
-  createPhysicsScene(
-    physicsManager: PhysXPhysicsManager,
-    onContactBegin?: (obj1: number, obj2: number) => void,
-    onContactEnd?: (obj1: number, obj2: number) => void,
-    onContactStay?: (obj1: number, obj2: number) => void,
-    onTriggerBegin?: (obj1: number, obj2: number) => void,
-    onTriggerEnd?: (obj1: number, obj2: number) => void,
-    onTriggerStay?: (obj1: number, obj2: number) => void
-  ): IPhysicsScene {
-    const manager = new PhysXPhysicsScene(
-      this,
-      physicsManager,
-      onContactBegin,
-      onContactEnd,
-      onContactStay,
-      onTriggerBegin,
-      onTriggerEnd,
-      onTriggerStay
-    );
-    return manager;
-  }
-
+   */ _proto.createPhysicsScene = function createPhysicsScene(physicsManager, onContactBegin, onContactEnd, onContactStay, onTriggerBegin, onTriggerEnd, onTriggerStay) {
+      var manager = new PhysXPhysicsScene(this, physicsManager, onContactBegin, onContactEnd, onContactStay, onTriggerBegin, onTriggerEnd, onTriggerStay);
+      return manager;
+  };
   /**
    * {@inheritDoc IPhysics.createStaticCollider }
-   */
-  createStaticCollider(position: Vector3, rotation: Quaternion): IStaticCollider {
-    return new PhysXStaticCollider(this, position, rotation);
-  }
-
+   */ _proto.createStaticCollider = function createStaticCollider(position, rotation) {
+      return new PhysXStaticCollider(this, position, rotation);
+  };
   /**
    * {@inheritDoc IPhysics.createDynamicCollider }
-   */
-  createDynamicCollider(position: Vector3, rotation: Quaternion): IDynamicCollider {
-    return new PhysXDynamicCollider(this, position, rotation);
-  }
-
+   */ _proto.createDynamicCollider = function createDynamicCollider(position, rotation) {
+      return new PhysXDynamicCollider(this, position, rotation);
+  };
   /**
    * {@inheritDoc IPhysics.createCharacterController }
-   */
-  createCharacterController(): ICharacterController {
-    return new PhysXCharacterController(this);
-  }
-
+   */ _proto.createCharacterController = function createCharacterController() {
+      return new PhysXCharacterController(this);
+  };
   /**
    * {@inheritDoc IPhysics.createPhysicsMaterial }
-   */
-  createPhysicsMaterial(
-    staticFriction: number,
-    dynamicFriction: number,
-    bounciness: number,
-    frictionCombine: number,
-    bounceCombine: number
-  ): IPhysicsMaterial {
-    return new PhysXPhysicsMaterial(this, staticFriction, dynamicFriction, bounciness, frictionCombine, bounceCombine);
-  }
-
+   */ _proto.createPhysicsMaterial = function createPhysicsMaterial(staticFriction, dynamicFriction, bounciness, frictionCombine, bounceCombine) {
+      return new PhysXPhysicsMaterial(this, staticFriction, dynamicFriction, bounciness, frictionCombine, bounceCombine);
+  };
   /**
    * {@inheritDoc IPhysics.createBoxColliderShape }
-   */
-  createBoxColliderShape(uniqueID: number, size: Vector3, material: PhysXPhysicsMaterial): IBoxColliderShape {
-    return new PhysXBoxColliderShape(this, uniqueID, size, material);
-  }
-
+   */ _proto.createBoxColliderShape = function createBoxColliderShape(uniqueID, size, material) {
+      return new PhysXBoxColliderShape(this, uniqueID, size, material);
+  };
   /**
    * {@inheritDoc IPhysics.createSphereColliderShape }
-   */
-  createSphereColliderShape(uniqueID: number, radius: number, material: PhysXPhysicsMaterial): ISphereColliderShape {
-    return new PhysXSphereColliderShape(this, uniqueID, radius, material);
-  }
-
+   */ _proto.createSphereColliderShape = function createSphereColliderShape(uniqueID, radius, material) {
+      return new PhysXSphereColliderShape(this, uniqueID, radius, material);
+  };
   /**
    * {@inheritDoc IPhysics.createPlaneColliderShape }
-   */
-  createPlaneColliderShape(uniqueID: number, material: PhysXPhysicsMaterial): IPlaneColliderShape {
-    return new PhysXPlaneColliderShape(this, uniqueID, material);
-  }
-
+   */ _proto.createPlaneColliderShape = function createPlaneColliderShape(uniqueID, material) {
+      return new PhysXPlaneColliderShape(this, uniqueID, material);
+  };
   /**
    * {@inheritDoc IPhysics.createCapsuleColliderShape }
-   */
-  createCapsuleColliderShape(
-    uniqueID: number,
-    radius: number,
-    height: number,
-    material: PhysXPhysicsMaterial
-  ): ICapsuleColliderShape {
-    return new PhysXCapsuleColliderShape(this, uniqueID, radius, height, material);
-  }
-
+   */ _proto.createCapsuleColliderShape = function createCapsuleColliderShape(uniqueID, radius, height, material) {
+      return new PhysXCapsuleColliderShape(this, uniqueID, radius, height, material);
+  };
   /**
    * {@inheritDoc IPhysics.createFixedJoint }
-   */
-  createFixedJoint(collider: PhysXCollider): IFixedJoint {
-    return new PhysXFixedJoint(this, collider);
-  }
-
+   */ _proto.createFixedJoint = function createFixedJoint(collider) {
+      return new PhysXFixedJoint(this, collider);
+  };
   /**
    * {@inheritDoc IPhysics.createHingeJoint }
-   */
-  createHingeJoint(collider: PhysXCollider): IHingeJoint {
-    return new PhysXHingeJoint(this, collider);
-  }
-
+   */ _proto.createHingeJoint = function createHingeJoint(collider) {
+      return new PhysXHingeJoint(this, collider);
+  };
   /**
    * {@inheritDoc IPhysics.createSpringJoint }
-   */
-  createSpringJoint(collider: PhysXCollider): ISpringJoint {
-    return new PhysXSpringJoint(this, collider);
-  }
-
-  private _init(physX: any): void {
-    const version = physX.PX_PHYSICS_VERSION;
-    const defaultErrorCallback = new physX.PxDefaultErrorCallback();
-    const allocator = new physX.PxDefaultAllocator();
-    const pxFoundation = physX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-    const pxPhysics = physX.PxCreatePhysics(version, pxFoundation, new physX.PxTolerancesScale(), false, null);
-
-    physX.PxInitExtensions(pxPhysics, null);
-    this._physX = physX;
-    this._pxFoundation = pxFoundation;
-    this._pxPhysics = pxPhysics;
-  }
-}
+   */ _proto.createSpringJoint = function createSpringJoint(collider) {
+      return new PhysXSpringJoint(this, collider);
+  };
+  _proto._init = function _init(physX) {
+      var version = physX.PX_PHYSICS_VERSION;
+      var defaultErrorCallback = new physX.PxDefaultErrorCallback();
+      var allocator = new physX.PxDefaultAllocator();
+      var pxFoundation = physX.PxCreateFoundation(version, allocator, defaultErrorCallback);
+      var pxPhysics = physX.PxCreatePhysics(version, pxFoundation, new physX.PxTolerancesScale(), false, null);
+      physX.PxInitExtensions(pxPhysics, null);
+      this._physX = physX;
+      this._pxFoundation = pxFoundation;
+      this._pxPhysics = pxPhysics;
+  };
+  return PhysXPhysics;
+}();
