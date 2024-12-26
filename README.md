@@ -17,7 +17,7 @@ Before using the CLI, ensure that you have installed the engine dependencies of 
   If you more like to use the CLI, you can run the following command to bundle the engine and polyfill.
 
   ```shell
-  npx platform-adapter --p true --e @galacean/engine/dist/module.js @galacean/engine-spine/dist/module.js --wasm @galacean/engine-physics-physx/lib/physx.release.js --o ./dist
+  npx platform-adapter --p true --e @galacean/engine/dist/browser.js @galacean/engine-spine/dist/browser.js --wasm @galacean/engine-physics-physx/lib/physx.release.js --o ./dist
   ```
 
   Not all params need to option. Use the `--help` option to view the available commands and options.
