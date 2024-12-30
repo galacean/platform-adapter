@@ -3,11 +3,10 @@ import chalk from "chalk";
 import fs from 'fs';
 
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
 import { BundleInfo, PlatformType } from "./BundleInfo.js";
 import { rootDir } from "../cli.js";
 import { getOutputDir, getPlatformsFromPath, getScriptsFromPath, normalizePath } from "../utils/Utils.js";
-import { pluginReplaceGalaceanLogic, pluginReplaceGalaceanImports } from '../plugins/plugin-replace-engine.js';
+import { pluginReplaceGalaceanLogic } from '../plugins/plugin-replace-engine.js';
 import { pluginReplaceWebAPI } from "../plugins/plugin-replace-webapi.js";
 import { pluginReplaceSIMDSupported } from "../plugins/plugin-replace-simd.js";
 import ts from "typescript";
@@ -95,13 +94,11 @@ export function getEngineBundle(dependence: string, platformType: PlatformType, 
       needUglify: true,
       rollupPlugins: [
         resolve(),
-        commonjs(),
         RebuildPlugin.getPlugins(uniqueBundleInfo),
         pluginReplaceGalaceanLogic(),
         injectWASM(Platform_WASM_API[platform]),
         pluginReplaceSIMDSupported(),
         pluginReplaceWebAPI(Platform_GlobalVars_Map[platform], '.platformAdapter', ``, GE_REF_API_LIST),
-        pluginReplaceGalaceanImports(),
       ],
     });
   }

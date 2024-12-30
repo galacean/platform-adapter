@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { rootDir } from '../cli.js';
 
 /**
  * @param path Directory path of platforms
@@ -17,7 +16,7 @@ function getPlatformsFromPath(path: string): string[] {
  */
 function getScriptsFromPath(path: string): string[] {
   let scripts = fs.readdirSync(path);
-  scripts = scripts.filter((p) => p.endsWith('.ts'));
+  scripts = scripts.filter((p) => p.endsWith('.ts') || p.endsWith('.js'));
   return scripts;
 }
 
