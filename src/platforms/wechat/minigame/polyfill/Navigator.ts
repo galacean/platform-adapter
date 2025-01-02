@@ -1,5 +1,5 @@
-import Navigator from 'src/common/polyfill/Navigator';
-import { noop } from 'src/common/polyfill/utils/Noop'
+import Navigator from '../../../../common/polyfill/Navigator';
+import { noop } from '../../../../common/polyfill/utils/Noop'
 
 // TODO 需要 wx.getSystemInfo 获取更详细信息
 const { platform } = wx.getSystemInfoSync();

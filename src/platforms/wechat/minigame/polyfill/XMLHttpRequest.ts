@@ -1,4 +1,4 @@
-import { Blob } from 'src/common/polyfill/Blob';
+import { Blob } from '../../../../common/polyfill/Blob';
 
 type ResponseType = 'text' | 'arraybuffer';
 type DataType = 'json' | string;
@@ -16,7 +16,7 @@ export default class XMLHttpRequest {
   private static readonly _responseHeader = new WeakMap();
   private static readonly _requestTask = new WeakMap();
 
-  static _isRelativePath(path) {
+  static _isLocalPath(path) {
     return !/^(http|https|ftp|wxfile):\/\/.*/i.test(path);
   }
 
@@ -135,16 +135,25 @@ export default class XMLHttpRequest {
         this._triggerEvent('loadend');
       };
 
-      const relative = XMLHttpRequest._isRelativePath(url);
+      const relative = XMLHttpRequest._isLocalPath(url);
       if (relative) {
         const fs = wx.getFileSystemManager();
 
+        const readSuccess = (result: any) => {
+          if (dataType === 'json') {
+            try {
+              result['data'] = JSON.parse(result['data']);
+            } catch (e) { }
+          }
+          success(result);
+        }
+
         let options = {
           filePath: url,
-          success: success,
+          success: readSuccess,
           fail: fail
         };
-        if (responseType != 'arraybuffer') {
+        if (responseType as string != 'blob' && responseType != 'arraybuffer') {
           options["encoding"] = 'utf8';
         }
         fs.readFile(options);

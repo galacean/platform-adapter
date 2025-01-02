@@ -12,7 +12,7 @@ let utils = {
     if (source[methodName]) {
       target[targetMethodName || methodName] = source[methodName].bind(source);
     }
-  },
+  }
 };
 
 export default utils;
