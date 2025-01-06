@@ -106,6 +106,17 @@ export function getEngineBundle(dependence: string, platformType: PlatformType, 
   return bundles;
 }
 
+export function getWasmOutputs(wasm: string, platformType: PlatformType, outputDir?): string[] {
+  const platformsPath = path.join(rootDir, `src/platforms`);
+  const platforms = getPlatformsFromPath(platformsPath);
+
+  const outputs = [];
+  for (const platform of platforms) {
+    outputs.push(normalizePath(path.join(getOutputDir(outputDir), `dist/${platform}/${platformType}/galacean-js`)));
+  }
+  return outputs;
+}
+
 export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType, outputDir?): BundleInfo[] {
   const platformsPath = path.join(rootDir, `src/platforms`);
   const platforms = getPlatformsFromPath(platformsPath);
