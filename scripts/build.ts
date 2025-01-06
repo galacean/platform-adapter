@@ -10,10 +10,11 @@ import { parseArgs } from './cli.js';
       !buildSettings.output && (buildSettings.output = buildSettings.outputDir);
     } else {
       if (!buildSettings) {
-        const { polyfill, engine, jsWASMLoader, output } = parseArgs();
+        const { polyfill, engine, wasm, jsWASMLoader, output } = parseArgs();
         buildSettings = {
           polyfill: polyfill,
           engine: engine,
+          wasm: wasm,
           jsWASMLoader: jsWASMLoader,
           output: output
         } as BundleTaskSettings;
