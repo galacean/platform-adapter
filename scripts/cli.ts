@@ -20,8 +20,14 @@ export function parseArgs() {
       default: [],
       describe: 'Specify the engine modules\' path to target for your build.'
     },
+    wasm: {
+      alias: 'w',
+      type: 'array',
+      default: [],
+      describe: 'The wasm file to be upload'
+    },
     jsWASMLoader: {
-      alias: 'wasm',
+      alias: 'wl',
       type: 'array',
       default: [],
       describe: 'Specify the jsWASMLoader modules\' path to target for your build.'
@@ -34,5 +40,5 @@ export function parseArgs() {
     }
   })
   .help()
-  .argv as { polyfill?: boolean, engine?: string[], jsWASMLoader?: string[], output?: string };
+  .argv as { polyfill?: boolean, engine?: string[], wasm?: string[], jsWASMLoader?: string[], output?: string };
 }

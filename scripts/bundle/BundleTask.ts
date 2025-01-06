@@ -1,14 +1,16 @@
+import * as fs from 'fs';
 import { rollup } from 'rollup';
 import { swc, minify } from 'rollup-plugin-swc3';
 import chalk from 'chalk';
 
 import { BundleInfo } from './BundleInfo.js';
 import { getPolyfillBundle } from "./PolyfillBundle.js";
-import { getEngineBundle, getJSWASMLoaderBundle } from './EngineBundle.js';
+import { getEngineBundle, getJSWASMLoaderBundle, getWasmOutputs } from './EngineBundle.js';
 
 export interface BundleTaskSettings {
   polyfill: boolean,
   engine: string[],
+  wasm: string[],
   jsWASMLoader: string[],
   output?: string,
   outputDir?: string
@@ -80,6 +82,49 @@ export default class BundleTaskFactory {
               return getEngineBundle(engine, 'minigame', bundleTaskSettings.output);
             });
             return new BundleTask('Engine', result);
+          }
+          return undefined;
+        case 'wasm':
+          if (BundleTaskFactory.isArray(bundleTaskSettings.wasm)) {
+            const output = bundleTaskSettings.output;
+            bundleTaskSettings.wasm.flatMap((wasm) => {
+              const lastIndex = wasm.lastIndexOf('/');
+              const bundleName = wasm.substring(lastIndex == -1 ? 0 : lastIndex + 1, wasm.length);
+              const outputs = getWasmOutputs(wasm, 'minigame', output);
+              for (const output of outputs) {
+                const outputFile = `${output}/${bundleName}`;
+                console.log(`copy file ${wasm} to ${outputFile}`);
+                fs.stat(output, (err, stats) => {
+                  if (err) {
+                    if (err.code === "ENOENT") {
+                      fs.mkdir(output, {recursive: true}, (err) => {
+                        if (err) {
+                          console.log(`copy file error: ${err}`);
+                        } else {
+                          fs.copyFile(wasm, outputFile, (err) => {
+                            if (err) {
+                              console.log(`copy file error: ${err}`);
+                            } else {
+                              console.log(`copy file ${wasm} to ${outputFile} success`);
+                            }
+                          });
+                        }
+                      })
+                    } else {
+                      console.log(`copy file error: ${err}`);
+                    }
+                  } else {
+                    fs.copyFile(wasm, outputFile, (err) => {
+                      if (err) {
+                        console.log(`copy file error: ${err}`);
+                      } else {
+                        console.log(`copy file ${wasm} to ${outputFile} success`);
+                      }
+                    });
+                  }
+                });
+              }
+            });
           }
           return undefined;
         case 'jsWASMLoader':
