@@ -47,7 +47,7 @@ export class URL {
       this.origin = host.split("/")[0];
       this.pathname = url;
     } catch (err) {
-      throw new TypeError("Failed to construct 'URL': Invalid URL");
+      throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
     }
   }
 }
