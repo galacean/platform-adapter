@@ -31,20 +31,24 @@ export class URL {
   // todo: 完善URL对象
   constructor(url: string, host = "") {
     const match = URL.urlRegex.exec(url);
-    if (match) {
-      this.href = match[0];
-      this.origin = match[1] + match[2];
-      this.pathname = match[3];
-      this.protocol = match[1].split('//')[0];
-      this.host = match[2] ?? "";
-      const hostAndPort = this.host.split(':');
-      this.hostname = hostAndPort[0];
-      this.port = hostAndPort[1];
-      return;
+    try {
+      if (match) {
+          this.href = match[0];
+          this.origin = match[1] + match[2];
+          this.pathname = match[3];
+          this.protocol = match[1].split('//')[0];
+          this.host = match[2] ?? "";
+          const hostAndPort = this.host.split(':');
+          this.hostname = hostAndPort[0];
+          this.port = hostAndPort[1];
+          return;
+      }
+      this.href = host + url;
+      this.origin = host.split("/")[0];
+      this.pathname = url;
+    } catch (err) {
+      throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
     }
-    this.href = host + url;
-    this.origin = host.split("/")[0];
-    this.pathname = url;
   }
 }
 
