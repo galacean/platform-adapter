@@ -62,6 +62,7 @@ Object.assign(platformAdapter.document, {
     }
     return [];
   },
+
   onvisibilitychange(visible: boolean) {
     return () => {
       this.visibilityState = visible ? 'visible' : 'hidden';
@@ -78,10 +79,10 @@ Object.assign(platformAdapter.document, {
   }
 });
 
-if (wx.onHide) {
-  wx.onHide(platformAdapter.document.onvisibilitychange(false));
+if (my.onHide) {
+  my.onHide(platformAdapter.document.onvisibilitychange(false));
 }
 
-if (wx.onShow) {
-  wx.onShow(platformAdapter.document.onvisibilitychange(true));
+if (my.onShow) {
+  my.onShow(platformAdapter.document.onvisibilitychange(true));
 }

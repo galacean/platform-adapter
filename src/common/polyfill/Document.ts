@@ -5,6 +5,7 @@ import TouchEvent from "./events/TouchEvent";
 export default interface Document {
   readyState: string,
   visibilityState: string,
+  onvisibilitychange: ((this, visible) => any) | null,
   documentElement: object,
   hidden: boolean,
   style: {},
