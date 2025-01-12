@@ -14,12 +14,13 @@ import RebuildPlugin from "../plugins/plugin-rebuild-engine.js";
 import { injectWASM } from "../plugins/plugin-inject-wasm.js";
 
 const Platform_GlobalVars_Map = {
-  'alipay': 'global',
+  'alipay': 'globalThis',
   'wechat': 'GameGlobal',
 };
 
 const Platform_WASM_API = {
-  'wechat': 'WXWebAssembly'
+  'alipay': 'MYWebAssembly',
+  'wechat': 'WXWebAssembly',
 }
 
 const GE_REF_API_LIST = [
@@ -61,10 +62,6 @@ export function getEngineBundle(dependence: string, platformType: PlatformType, 
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
     console.log(`Prepare ${bundleName} bundle info for ${chalk.green(platform)}.`);
-
-    if (platform === 'alipay') {
-      continue;
-    }
 
     const scriptsPath = path.join(rootDir, `src/platforms/${platform}/${platformType}/engine`);
     const scripts = getScriptsFromPath(scriptsPath);
@@ -129,10 +126,6 @@ export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
     console.log(`Prepare webassembly bundle info for ${chalk.green(platform)}.`);
-
-    if (platform === 'alipay') {
-      continue;
-    }
 
     bundles.push({
       bundleName: bundleName,
