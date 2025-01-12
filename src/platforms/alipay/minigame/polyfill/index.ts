@@ -28,7 +28,7 @@ declare global {
   })
   utils.cloneProperty(platformAdapter, platformAdapter.window);
 
-  if (!GameGlobal.__isAdapterInjected) {
-    GameGlobal.__isAdapterInjected = true;
+  if (!globalThis.__isAdapterInjected) {
+    globalThis.__isAdapterInjected = true;
   }
 })();
