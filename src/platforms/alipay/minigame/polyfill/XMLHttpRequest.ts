@@ -163,7 +163,7 @@ export default class XMLHttpRequest {
           data,
           url: url,
           method: XMLHttpRequest._method.get(this),
-          header: XMLHttpRequest._requestHeader.get(this),
+          headers: XMLHttpRequest._requestHeader.get(this),
           dataType: dataType,
           responseType: responseType as string === "blob" ? "arraybuffer" : responseType,
           success: success,
