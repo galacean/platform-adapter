@@ -1,4 +1,4 @@
-const { screenWidth, screenHeight, devicePixelRatio } = my.getSystemInfoSync();
+const { screenWidth, screenHeight, pixelRatio: devicePixelRatio } = my.getSystemInfoSync();
 
 export const innerWidth = screenWidth;
 export const innerHeight = screenHeight;
