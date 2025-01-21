@@ -72,7 +72,7 @@ Object.assign(platformAdapter.document, {
       }
       this.hidden = hidden;
       const event = new Event('visibilitychange');
-      event.target = document;
+      event.target = this;
       event.timestampe = Date.now();
       this.dispatchEvent(event);
     }
