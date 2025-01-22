@@ -6,7 +6,7 @@ import Performance from "../../../../common/polyfill/Performance";
 
   const clientPerfAdapter: Performance = {
     now: function() {
-      return (Date.now() - initTime) / 1000;
+      return Date.now() - initTime;
     }
   };
 
