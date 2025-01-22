@@ -6,7 +6,7 @@ import fs from 'fs';
  */
 function getPlatformsFromPath(path: string): string[] {
   let platforms = fs.readdirSync(path);
-  platforms = platforms.filter((p) => !p.includes('.'));
+  platforms = platforms?.filter((p) => !p.includes('.'));
   return platforms;
 }
 
@@ -16,7 +16,7 @@ function getPlatformsFromPath(path: string): string[] {
  */
 function getScriptsFromPath(path: string): string[] {
   let scripts = fs.readdirSync(path);
-  scripts = scripts.filter((p) => p.endsWith('.ts') || p.endsWith('.js'));
+  scripts = scripts?.filter((p) => p.endsWith('.ts') || p.endsWith('.js'));
   return scripts;
 }
 
