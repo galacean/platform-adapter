@@ -89,6 +89,8 @@ export default class XMLHttpRequest {
       if (responseType as string === 'json') {
         dataType = 'json';
         responseType = 'text';
+      } else if (responseType as string === 'arraybuffer') {
+        dataType = 'arraybuffer';
       }
 
       const success = ({ data, statusCode, header }) => {
@@ -125,12 +127,12 @@ export default class XMLHttpRequest {
         this._triggerEvent('loadend');
       };
 
-      const fail = ({ errMsg }) => {
+      const fail = ({ errorMessage }) => {
         // TODO 规范错误
-        if (errMsg.indexOf('abort') !== -1) {
+        if (errorMessage.indexOf('abort') !== -1) {
           this._triggerEvent('abort');
         } else {
-          this._triggerEvent('error', errMsg);
+          this._triggerEvent('error', errorMessage);
         }
         this._triggerEvent('loadend');
       };
