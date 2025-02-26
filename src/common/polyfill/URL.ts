@@ -60,12 +60,19 @@ function parseProtocol(url: string, base: string, result: URL): string {
     return match[2]; // 返回协议后的内容
   }
 
-  // 处理协议相对路径 (//开头)
-  if (url.startsWith("//")) {
-    result.protocol = base ? new URL(base).protocol : "http:";
-    return url.slice(2);
+  if (!base) {
+    throw new Error(`Invalid URL format ${url} base url ${base}`);
   }
-  throw new Error("Invalid URL format");
+
+  // 处理协议相对路径 (//开头)
+  try {
+    if (url.startsWith("//")) {
+      result.protocol = base.match(protocolRegex)[1].toLocaleLowerCase();
+      return url.slice(2);
+    }
+  } catch (e) {
+    throw new Error(`Invalid URL format ${url} base url ${base}`);
+  }
 }
 
 // 授权部分解析 (hostname:port)
@@ -77,11 +84,6 @@ function parseAuthority(input: string, result: URL): string {
   const [host, port] = auth.split(":", 2);
   result.hostname = host.toLowerCase();
   result.port = port || "";
-  // 默认端口处理
-  if (!port) {
-    if (result.protocol === "http:") result.port = "80";
-    if (result.protocol === "https:") result.port = "443";
-  }
   return remaining;
 }
 
