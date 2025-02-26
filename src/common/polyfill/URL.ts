@@ -84,6 +84,7 @@ function parseAuthority(input: string, result: URL): string {
   const [host, port] = auth.split(":", 2);
   result.hostname = host.toLowerCase();
   result.port = port || "";
+  result.hostname && result.port && (result.host = `${result.hostname}:${result.port}`);
   return remaining;
 }
 
