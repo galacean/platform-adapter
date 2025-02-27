@@ -124,25 +124,13 @@ function normalizePath(path: string): string {
 function resolveUrl(url: string, base: string): string {
   if (!base) return url;
   // 基础协议处理
-  // const baseMatch = base.match(/^([a-z0-9+.-]+:)\/\/[^/]+/i);
   const baseMatch = base.match(/^([a-z][a-z0-9+\-.]*):\/\/(.*)/i);
-  if (!baseMatch) throw new Error("Invalid base URL");
+  if (!baseMatch) throw new Error(`Invalid URL format ${url} base url ${base}`);
   const baseProtocol = `${baseMatch[1]}:`;
   const baseHost = base.slice(baseProtocol.length + 2).split(/[/?#]/)[0];
-  const basePath = base.split(/[/?#]/).slice(1).join("/") || "/";
-  if (url.startsWith("/")) {
-    return `${baseProtocol}//${baseHost}${url}`;
+  const urlMatch = url.match(/(?<!\/)\/(?!\/)/);
+  if (urlMatch && urlMatch.index !== url.length - 1) {
+    return `${baseProtocol}//${baseHost}${url.slice(urlMatch.index)}`;
   }
-  // 合并相对路径
-  const pathSegments = basePath.split("/").slice(0, -1);
-  const relativeSegments = url.split("/");
-
-  for (const seg of relativeSegments) {
-    if (seg === "..") {
-      pathSegments.pop();
-    } else if (seg !== ".") {
-      pathSegments.push(seg);
-    }
-  }
-  return `${baseProtocol}//${baseHost}/${pathSegments.join("/")}`;
+  throw new Error(`Invalid URL format ${url} base url ${base}`);
 }
