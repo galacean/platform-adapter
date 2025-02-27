@@ -4,8 +4,8 @@ import './Document';
 import utils from '../../../../common/utils/Utils';
 
 declare global {
-  const wx;
-  const GameGlobal;
+  const wx: any;
+  const GameGlobal: any;
 }
 
 (function inject () {
