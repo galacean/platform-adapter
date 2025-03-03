@@ -48,7 +48,7 @@ export class URL {
 
     // 没有解析到协议，则解析 base
     if (!resolvedURL[1]) {
-      if (base) {
+      if (!base) {
         throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
       }
       const resolvedBase = parseURL(base);
