@@ -32,77 +32,80 @@ export class URL {
   // todo: 完善URL对象
   constructor(url: string, base = "") {
     const resolvedURL = parseURL(url);
-    if (resolvedURL) {
-      let whereQuery = indexOfQueryString(url);
-      if (whereQuery > -1) {
-        const query = url.substring(whereQuery);
-        this.search = query;
-        this.searchParams = new URLSearchParams(query);
-      }
-      // 没有解析到协议，则解析 base
-      if (!resolvedURL[1]) {
-        if (base) {
-          const resolvedBase = parseURL(base);
-          // 没有解析到协议，抛出异常
-          if (!resolvedBase[1]) {
-            throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}, base ${base}`);
-          }
-
-          whereQuery = url.indexOf(this.search);
-          if (whereQuery > -1) {
-            this.pathname = url.substring(0, whereQuery);
-          } else {
-            this.pathname = url;
-          }
-
-          whereQuery = indexOfQueryString(resolvedBase[3]);
-          if (whereQuery > -1) {
-            resolvedBase[3] = resolvedBase[3].slice(0, whereQuery);
-          }
-
-          // 融合 url 和 base
-          if (!url.startsWith('/')) {
-            whereQuery = resolvedBase[3].lastIndexOf('/');
-            if (whereQuery > -1) {
-              this.pathname = resolvedBase[3].substring(0, whereQuery + 1) + this.pathname;
-            }
-          }
-          this.protocol = resolvedBase[1].split('//')[0];
-          if (this.protocol !== 'files:') {
-            this.origin = resolvedBase[1] + resolvedBase[2];
-            this.host = resolvedBase[2];
-          } else {
-            this.origin = "null";
-            this.host = "";
-          }
-        } else {
-          throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
-        }
-      } else {
-        whereQuery = resolvedURL[3].indexOf(this.search);
-        if (whereQuery > -1) {
-          this.pathname = resolvedURL[3].substring(0, whereQuery);
-        } else {
-          this.pathname = resolvedURL[3];
-        }
-        this.protocol = resolvedURL[1].split('//')[0];
-        if (this.protocol !== 'files:') {
-          this.origin = resolvedURL[1] + resolvedURL[2];
-          this.host = resolvedURL[2];
-        } else {
-          this.origin = "null";
-          this.host = "";
-          this.pathname = resolvedURL[2] + this.pathname;
-        }
-      }
-      const hostAndPort = this.host.split(':');
-      this.hostname = hostAndPort[0];
-      this.port = hostAndPort.length > 1 ? hostAndPort[1] : "";
-      this.pathname = normalizePath(this.pathname);
-      this.href = (this.origin && this.origin !== "null" ? this.origin : this.protocol + '//') + this.pathname + (this.search ?? '');
-    } else {
+    if (!resolvedURL) {
       throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
     }
+    let whereQuery = indexOfQueryString(url);
+    if (whereQuery > -1) {
+      const query = url.substring(whereQuery);
+      this.search = query;
+      this.searchParams = new URLSearchParams(query);
+    }
+
+    let protocol = resolvedURL[1];
+    let pathname = '';
+    let search = this.search;
+
+    // 没有解析到协议，则解析 base
+    if (!resolvedURL[1]) {
+      if (base) {
+        throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
+      }
+      const resolvedBase = parseURL(base);
+      // 没有解析到协议，抛出异常
+      if (!resolvedBase || !resolvedBase[1]) {
+        throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}, base ${base}`);
+      }
+
+      if (whereQuery > -1) {
+        pathname = url.substring(0, whereQuery);
+      } else {
+        pathname = url;
+      }
+
+      whereQuery = indexOfQueryString(resolvedBase[3]);
+      if (whereQuery > -1) {
+        resolvedBase[3] = resolvedBase[3].slice(0, whereQuery);
+      }
+
+      // 融合 url 和 base
+      if (!url.startsWith('/')) {
+        whereQuery = resolvedBase[3].lastIndexOf('/');
+        if (whereQuery > -1) {
+          pathname = resolvedBase[3].substring(0, whereQuery + 1) + pathname;
+        }
+      }
+      protocol = resolvedBase[1].split('//')[0];
+      if (protocol !== 'files:') {
+        this.origin = resolvedBase[1] + resolvedBase[2];
+        this.host = resolvedBase[2];
+      } else {
+        this.origin = "null";
+        this.host = "";
+      }
+    } else {
+      whereQuery = resolvedURL[3].indexOf(search);
+      if (whereQuery > -1) {
+        pathname = resolvedURL[3].substring(0, whereQuery);
+      } else {
+        pathname = resolvedURL[3];
+      }
+      protocol = resolvedURL[1].split('//')[0];
+      if (protocol !== 'files:') {
+        this.origin = resolvedURL[1] + resolvedURL[2];
+        this.host = resolvedURL[2];
+      } else {
+        this.origin = "null";
+        this.host = "";
+        pathname = resolvedURL[2] + pathname;
+      }
+    }
+    const hostAndPort = this.host.split(':');
+    this.hostname = hostAndPort[0];
+    this.port = hostAndPort.length > 1 ? hostAndPort[1] : "";
+    this.pathname = normalizePath(pathname);
+    this.protocol = protocol;
+    this.href = (this.origin && this.origin !== "null" ? this.origin : protocol + '//') + this.pathname + (search ?? '');
   }
 }
 
