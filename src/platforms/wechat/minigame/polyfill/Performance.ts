@@ -4,15 +4,15 @@ import Performance from "../../../../common/polyfill/Performance";
 (function initPerformance() {
   if (wx.getPerformance) {
     const { platform } = wx.getSystemInfoSync();
-    const wxPerf = wx.getPerformance();
-    const initTime = wxPerf.now();
+    const perf = wx.getPerformance();
+    const initTime = perf.now();
 
     if (platform === 'devtools') {
-      platformAdapter.performance = wxPerf;
+      platformAdapter.performance = perf;
     } else {
       const clientPerfAdapter: Performance = {
         now: function() {
-          return (wxPerf.now() - initTime) / 1000;
+          return (perf.now() - initTime) / 1000;
         }
       };
 

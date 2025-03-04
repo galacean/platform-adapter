@@ -32,6 +32,9 @@ const navigator: Navigator = {
               },
               timestamp: (new Date()).valueOf()
             })
+          },
+          fail(res) {
+            console.error(res.errMsg);
           }
         });
       } else if (wx.getFuzzyLocation) {
@@ -45,6 +48,9 @@ const navigator: Navigator = {
               },
               timestamp: (new Date()).valueOf()
             })
+          },
+          fail(res) {
+            console.error(res.errMsg);
           }
         });
       }
