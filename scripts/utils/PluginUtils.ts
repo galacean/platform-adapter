@@ -129,4 +129,39 @@ function generateCode(node: Node): string {
   }
 }
 
-export { isReference, isStatement, isExpression, isCJSPrototype, flatten, generateCode, renameFunctionNode };
+/**
+ * Checks if the given JavaScript function is an anonymous function.
+ *
+ * An anonymous function is one that does not have a name
+ * associated with it. This function determines if the provided
+ * input is a function and if it lacks a name.
+ *
+ * @param {node} func - The function to check.
+ * @returns {boolean} - Returns true if the function is anonymous, false otherwise.
+ *
+ * @example
+ * 
+ * const namedFunc = function myFunc() {};
+ * console.log(isAnonymousFunction(namedFunc)); // false
+ * 
+ * const anonymousFunc = function() {};
+ * console.log(isAnonymousFunction(anonymousFunc)); // true
+ */
+function isAnonymousFunction(node: Node): boolean {
+  switch (node.type) {
+    case 'VariableDeclarator':
+      if (node.init && node.init.type === 'CallExpression') {
+        return node.init.callee.type === 'FunctionExpression' && (node.init.callee.id === null || node.init.callee.id.name === '');
+      }
+      return false;
+    case 'CallExpression':
+      return node.callee.type === 'FunctionExpression' && (node.callee.id === null || node.callee.id.name === '');
+    case 'FunctionDeclaration':
+    case 'FunctionExpression':
+      return node.id === null || node.id.name === '';
+    default:
+      return false;
+  }
+}
+
+export { isReference, isStatement, isExpression, isCJSPrototype, flatten, generateCode, renameFunctionNode, isAnonymousFunction };
