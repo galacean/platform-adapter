@@ -1,5 +1,5 @@
-import { Node, Identifier, VariableDeclarator, FunctionExpression } from 'estree';
-import { isCJSPrototype, renameFunctionNode } from './PluginUtils.js';
+import { Node, Identifier, VariableDeclarator, FunctionExpression, ExpressionStatement } from 'estree';
+import { isCJSPrototype, renameFunctionNode, isAnonymousFunction } from './PluginUtils.js';
 
 interface NodeWrapper {
   name: string,
@@ -136,13 +136,14 @@ class ClassParser extends ASTParser {
     return members.length > 0 ? members.flat() : undefined;
   }
 
-  parseVariableDeclarator(node: VariableDeclarator): NodeWrapper[] {
+  parseCommonNode(node: VariableDeclarator | ExpressionStatement): NodeWrapper[] {
     let members = ClassParser.parsePropertyAndMethodAsCommonJS(node);
     // Only if members is an array and members is not empty,
     // it means that the class has prototypes, and parse the members and methods from the class. 
     if (Array.isArray(members) && members.length > 0) {
       return members;
     }
+    return undefined;
   }
 
   parse(): ASTNode[] {
@@ -160,18 +161,28 @@ class ClassParser extends ASTParser {
         break;
       case 'VariableDeclaration':
         const declarator = node.declarations[0];
-        members = this.parseVariableDeclarator(declarator);
+        members = this.parseCommonNode(declarator);
         if (members.length > 0) {
-          this._isClass = true;
+          // 如果赋值表达式右值为匿名 block 表达式，则认为是 class 声明
+          this._isClass = isAnonymousFunction(declarator);
           className = (declarator.id as Identifier).name;
           parsed = declarator;
         }
         break;
       case 'VariableDeclarator':
-        members = this.parseVariableDeclarator(node);
+        members = this.parseCommonNode(node);
         if (members.length > 0) {
-          this._isClass = true;
+          this._isClass = isAnonymousFunction(node);
           className = (node.id as Identifier).name;
+          parsed = node;
+        }
+        break;
+      case 'ExpressionStatement':
+        members = this.parseCommonNode(node);
+        if (members.length > 0) {
+          // 如果赋值表达式右值为匿名 block 表达式，则认为是 class 声明
+          this._isClass = isAnonymousFunction(members[0].node);
+          className = members[0].name;
           parsed = node;
         }
         break;
@@ -190,6 +201,9 @@ class ClassParser extends ASTParser {
       },
       {
         type: 'VariableDeclarator',
+      },
+      {
+        type: 'ExpressionStatement',
       }
     ] as ASTNode[]).map(astNode => {
       astNode.name = className;
