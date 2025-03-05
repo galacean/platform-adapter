@@ -86,7 +86,7 @@ function isExpression(type: string): boolean {
 }
 
 function isCJSPrototype(name: string): boolean {
-  return name === 'prototype' || name === '_proto';
+  return name === 'prototype' || name === '_proto' || name === 'exports';
 }
 
 function renameFunctionNode(node: FunctionExpression, name: string): void {
