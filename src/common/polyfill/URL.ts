@@ -1,5 +1,6 @@
 import { btoa } from "./Base64";
 import { Blob } from "./Blob";
+import { URLSearchParams } from "./URLSearchParams";
 
 export class URL {
   /**
@@ -17,7 +18,7 @@ export class URL {
   static revokeObjectURL(url: string) {
     // Do nothing
   }
-
+  
   public href: string;
   public origin: string;
   public pathname: string;
@@ -25,20 +26,86 @@ export class URL {
   public host: string;
   public hostname: string;
   public port: string;
+  public search: string;
+  public searchParams: URLSearchParams;
 
   // todo: 完善URL对象
   constructor(url: string, base = "") {
-    this.href = resolveUrl(url, base);
-    // 解析协议
-    let remaining = parseProtocol(this.href, base, this);
-    // 解析授权部分 (hostname:port)
-    remaining = parseAuthority(remaining, this);
-    // 解析路径、查询参数和哈希
-    parsePathQueryHash(remaining, this);
-    // 计算 origin
-    this.origin = `${this.protocol}//${this.hostname}${
-      this.port ? `:${this.port}` : ""
-    }`;
+    const resolvedURL = parseURL(url);
+    if (!resolvedURL) {
+      throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
+    }
+    let whereQuery = indexOfQueryString(url);
+    if (whereQuery > -1) {
+      const query = url.substring(whereQuery);
+      this.search = query;
+      this.searchParams = new URLSearchParams(query);
+    }
+
+    let protocol = resolvedURL[1];
+    let pathname = '';
+    let search = this.search;
+
+    // 没有解析到协议，则解析 base
+    if (!resolvedURL[1]) {
+      if (!base) {
+        throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}`);
+      }
+      const resolvedBase = parseURL(base);
+      // 没有解析到协议，抛出异常
+      if (!resolvedBase || !resolvedBase[1]) {
+        throw new TypeError(`Failed to construct 'URL': Invalid URL ${url}, base ${base}`);
+      }
+
+      if (whereQuery > -1) {
+        pathname = url.substring(0, whereQuery);
+      } else {
+        pathname = url;
+      }
+
+      whereQuery = indexOfQueryString(resolvedBase[3]);
+      if (whereQuery > -1) {
+        resolvedBase[3] = resolvedBase[3].slice(0, whereQuery);
+      }
+
+      // 融合 url 和 base
+      if (!url.startsWith('/')) {
+        whereQuery = resolvedBase[3].lastIndexOf('/');
+        if (whereQuery > -1) {
+          pathname = resolvedBase[3].substring(0, whereQuery + 1) + pathname;
+        }
+      }
+      protocol = resolvedBase[1].split('//')[0];
+      if (protocol !== 'files:') {
+        this.origin = resolvedBase[1] + resolvedBase[2];
+        this.host = resolvedBase[2];
+      } else {
+        this.origin = "null";
+        this.host = "";
+      }
+    } else {
+      whereQuery = resolvedURL[3].indexOf(search);
+      if (whereQuery > -1) {
+        pathname = resolvedURL[3].substring(0, whereQuery);
+      } else {
+        pathname = resolvedURL[3];
+      }
+      protocol = resolvedURL[1].split('//')[0];
+      if (protocol !== 'files:') {
+        this.origin = resolvedURL[1] + resolvedURL[2];
+        this.host = resolvedURL[2];
+      } else {
+        this.origin = "null";
+        this.host = "";
+        pathname = resolvedURL[2] + pathname;
+      }
+    }
+    const hostAndPort = this.host.split(':');
+    this.hostname = hostAndPort[0];
+    this.port = hostAndPort.length > 1 ? hostAndPort[1] : "";
+    this.pathname = normalizePath(pathname);
+    this.protocol = protocol;
+    this.href = (this.origin && this.origin !== "null" ? this.origin : protocol + '//') + this.pathname + (search ?? '');
   }
 }
 
@@ -51,86 +118,43 @@ function _arrayBufferToBase64(buffer: ArrayBuffer) {
   return btoa(binary);
 }
 
-// 协议解析 (如 https:)
-function parseProtocol(url: string, base: string, result: URL): string {
-  const protocolRegex = /^([a-z0-9+.-]+:)\/\/(.*)/i;
-  const match = url.match(protocolRegex);
-  if (match) {
-    result.protocol = match[1].toLowerCase();
-    return match[2]; // 返回协议后的内容
-  }
-
-  if (!base) {
-    throw new Error(`Invalid URL format ${url} base url ${base}`);
-  }
-
-  // 处理协议相对路径 (//开头)
-  try {
-    if (url.startsWith("//")) {
-      result.protocol = base.match(protocolRegex)[1].toLocaleLowerCase();
-      return url.slice(2);
-    }
-  } catch (e) {
-    throw new Error(`Invalid URL format ${url} base url ${base}`);
-  }
+/**
+ * Parses the given URL string and returns its components.
+ *
+ * @param {string} url - The URL string to be parsed.
+ * @returns {Array} An array in the format [url, protocol, host, path].
+ * - `url`: The original, complete URL string.
+ * - `protocol`: The protocol part of the URL (e.g., 'http', 'https', 'ftp', etc.).
+ * - `host`: The host part of the URL (including the domain and optional port number).
+ * - `path`: The path part of the URL (the section after the host and before any query parameters).
+ */
+function parseURL(url: string): Array<string> {
+  return /(.+:\/\/)?([^\/]*)(\/.*)*/i.exec(url);
 }
 
-// 授权部分解析 (hostname:port)
-function parseAuthority(input: string, result: URL): string {
-  const end = input.search(/[/?#]/);
-  const auth = end === -1 ? input : input.slice(0, end);
-  const remaining = end === -1 ? "" : input.slice(end);
-  // 分离 host 和 port
-  const [host, port] = auth.split(":", 2);
-  result.hostname = host.toLowerCase();
-  result.port = port || "";
-  result.hostname && result.port && (result.host = `${result.hostname}:${result.port}`);
-  return remaining;
+function indexOfQueryString(url: string): number {
+  return url.indexOf('?');
 }
 
-// 路径、查询参数和哈希解析
-function parsePathQueryHash(input: string, result: URL) {
-  // 分离哈希部分
-  const hashIndex = input.indexOf("#");
-  if (hashIndex > -1) {
-    input = input.slice(0, hashIndex);
-  }
-  // 分离查询参数
-  const searchIndex = input.indexOf("?");
-  if (searchIndex > -1) {
-    input = input.slice(0, searchIndex);
-  }
-  // 处理路径
-  result.pathname = normalizePath(input || "/");
-}
-
-// 路径标准化
+/**
+ * Normalizes the given path string.
+ *
+ * @param path 
+ * @returns 
+ */
 function normalizePath(path: string): string {
-  const segments = path.split("/").filter((s) => s !== ".");
-  const stack: string[] = [];
-
-  for (const seg of segments) {
-    if (seg === "..") {
-      stack.pop();
-    } else if (seg) {
-      stack.push(seg);
+  const pathParts = path.split('/');
+  const normalizedPathParts = [];
+  for (let i = 0, len = pathParts.length; i < len; i++) {
+    if (pathParts[i] === '.') {
+      continue;
+    } else if (pathParts[i] === '..') {
+      if (normalizedPathParts.length > 1) {
+        normalizedPathParts.pop();
+      }
+    } else {
+      normalizedPathParts.push(pathParts[i]);
     }
   }
-
-  return "/" + stack.join("/");
-}
-
-// 相对路径解析
-function resolveUrl(url: string, base: string): string {
-  if (!base) return url;
-  // 基础协议处理
-  const baseMatch = base.match(/^([a-z][a-z0-9+\-.]*):\/\/(.*)/i);
-  if (!baseMatch) throw new Error(`Invalid URL format ${url} base url ${base}`);
-  const baseProtocol = `${baseMatch[1]}:`;
-  const baseHost = base.slice(baseProtocol.length + 2).split(/[/?#]/)[0];
-  const urlMatch = url.match(/(?<!\/)\/(?!\/)/);
-  if (urlMatch && urlMatch.index !== url.length - 1) {
-    return `${baseProtocol}//${baseHost}${url.slice(urlMatch.index)}`;
-  }
-  throw new Error(`Invalid URL format ${url} base url ${base}`);
+  return normalizedPathParts.join('/');
 }

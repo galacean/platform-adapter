@@ -18,6 +18,7 @@ class GalaceanAdapterParser {
         switch (subNode.type) {
           case 'ClassDeclaration':
           case 'VariableDeclaration':
+          case 'ExpressionStatement':
             parsed.push(new ClassParser(subNode).parse());
             break;
           case 'FunctionDeclaration':
@@ -46,6 +47,24 @@ class GalaceanAdapterParser {
     });
     return parsed;
   }
+}
+
+function getNodeName(node: Node) {
+  let name = '';
+  if (node.type === 'ExpressionStatement') {
+    if (node.expression.type === 'AssignmentExpression') {
+      const left = node.expression.left;
+      if (left.type === 'MemberExpression') {
+        if (left.object.type === 'Identifier' && left.property.type === 'Identifier') {
+          name = left.property.name
+        }
+      }
+    }
+  } else {
+    // @ts-ignore
+    node.id ? name = node.id.name : name = node.name;
+  }
+  return name ?? '';
 }
 
 export default class RebuildPlugin {
@@ -84,8 +103,7 @@ export default class RebuildPlugin {
               let gaWrapper;
               let ga: ASTNode;
               let adapterNode;
-              // @ts-ignore
-              let nodeName = node.id ? node.id.name : node.name;
+              let nodeName = getNodeName(node)
               gaWrapper = gaMap[nodeName];
               gaWrapper && (ga = gaWrapper[node.type]);
               if (!ga) {
@@ -96,12 +114,12 @@ export default class RebuildPlugin {
                   let classParser = new ClassParser(node);
                   classParser.parse();
                   if (classParser.isClass) {
-                      adapterNode = ga.node;
-                      // @ts-ignore
-                      magicString.overwrite(node.start, node.end, generate(adapterNode), {
-                        storeName: true
-                      });
-                      return true;
+                    adapterNode = ga.node;
+                    // @ts-ignore
+                    magicString.overwrite(node.start, node.end, generate(adapterNode), {
+                      storeName: true
+                    });
+                    return true;
                   }
                   return false;
                 case ASTType.Function:
