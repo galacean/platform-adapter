@@ -10,6 +10,17 @@ import { URLSearchParams } from "../polyfill/URLSearchParams";
 import Window from "../polyfill/Window";
 import utils from "../utils/Utils";
 
+declare global {
+  // Platform api bundles
+  const wx: any;         // Wechat
+  const tt: any;         // Tiktok
+  const my: any;         // Alipay
+
+  // Platform global vars
+  const GameGlobal: any; // Wechat, Tiktok
+  const globalThis: any; // Alipay
+}
+
 interface PlatformAdapter {
   document: Document;
   window: Window;
