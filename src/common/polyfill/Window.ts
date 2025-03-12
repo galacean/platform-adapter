@@ -16,6 +16,7 @@ export default interface Window {
   WebSocket,
   Image,
   Audio,
+  AudioContext,
   FileReader: typeof FileReader,
   HTMLElement,
   localStorage: {},
