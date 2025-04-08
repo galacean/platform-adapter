@@ -1,6 +1,3 @@
-import { AssertionError } from "assert";
-import { resolve } from "path";
-
 /**
  * ResourceManager
  */ var ResourceManager = /*#__PURE__*/ (function () {
