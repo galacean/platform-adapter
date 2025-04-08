@@ -49,7 +49,7 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
           },
           leave(node) {
             code = magicString.toString();
-            code = code.replace(/wasmBinaryFile="([^"]*)"/, `wasmBinaryFile="/public/physx.release.wasm"`);
+            code = code.replace(/wasmBinaryFile="([^"]*)"/, `wasmBinaryFile="/public/wasmSubpackage/physx.release.wasm"`);
             code = code.replace(`WebAssembly.RuntimeError`, `Error`);
             code = code.concat(`window.PHYSX = PHYSX`);
           }
