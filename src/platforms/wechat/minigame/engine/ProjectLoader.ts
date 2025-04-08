@@ -26,8 +26,3 @@ var ProjectLoader = /*#__PURE__*/ function(Loader) {
   };
   return ProjectLoader;
 }(engineCore.Loader);
-ProjectLoader = __decorate([
-  engineCore.resourceLoader(engineCore.AssetType.Project, [
-      "proj"
-  ], false)
-], ProjectLoader);
