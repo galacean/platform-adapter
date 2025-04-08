@@ -1,3 +1,5 @@
+/// @ts-nocheck
+
 /**
  * ResourceManager
  */ var ResourceManager = /*#__PURE__*/ (function () {
@@ -15,7 +17,7 @@
     this._graphicResourcePool = Object.create(null);
     this._contentRestorerPool = Object.create(null);
     this._subAssetPromiseCallbacks = {};
-    /** @internal */ this._objectPool = Object.create(null); //-----------------Editor temp solution-----------------
+    this./** @internal */ _objectPool = Object.create(null);
     this./** @internal */ _idResourceMap = Object.create(null);
     this./** @internal */ _virtualPathResourceMap = Object.create(null);
     this./** @internal */ _virtualPathSubpackageMap = Object.create(null);
@@ -52,7 +54,7 @@
     var referResourcePool = this._referResourcePool;
     for (var k in referResourcePool) {
       var resource = referResourcePool[k];
-      if (_instanceof(resource, type)) {
+      if (_instanceof1$2(resource, type)) {
         resources.push(resource);
       }
     }
@@ -148,9 +150,7 @@
     if (subPromiseCallback) {
       subPromiseCallback.resolve(value);
     } else {
-      var // Pending
-        _this__subAssetPromiseCallbacks,
-        _remoteAssetBaseURL;
+      var _this__subAssetPromiseCallbacks, _remoteAssetBaseURL;
       ((_this__subAssetPromiseCallbacks = this._subAssetPromiseCallbacks)[
         (_remoteAssetBaseURL = remoteAssetBaseURL)
       ] || (_this__subAssetPromiseCallbacks[_remoteAssetBaseURL] = {}))[
@@ -176,9 +176,7 @@
     if (subPromiseCallback) {
       subPromiseCallback.reject(value);
     } else {
-      var // Pending
-        _this__subAssetPromiseCallbacks,
-        _assetBaseURL;
+      var _this__subAssetPromiseCallbacks, _assetBaseURL;
       ((_this__subAssetPromiseCallbacks = this._subAssetPromiseCallbacks)[
         (_assetBaseURL = assetBaseURL)
       ] || (_this__subAssetPromiseCallbacks[_assetBaseURL] = {}))[
@@ -318,103 +316,103 @@
           }
         });
 
+        // 之前的通用逻辑
+        var _this = this;
+        var originLoadSingleItem = function () {
+          var _this__virtualPathResourceMap_assetBaseURL;
+          var item = _this._assignDefaultOptions(
+            isString
+              ? {
+                  url: itemOrURL,
+                }
+              : itemOrURL
+          );
+          var url = item.url;
+          // Not absolute and base url is set
+          if (!Utils.isAbsoluteUrl(url) && _this.baseUrl)
+            url = Utils.resolveAbsoluteUrl(_this.baseUrl, url);
+          // Parse url
+          var _this__parseURL = _this._parseURL(url),
+            assetBaseURL = _this__parseURL.assetBaseURL,
+            queryPath = _this__parseURL.queryPath;
+          var paths = queryPath ? _this._parseQueryPath(queryPath) : [];
+          var _this__virtualPathResourceMap_assetBaseURL_path;
+          // Get remote asset base url
+          var remoteAssetBaseURL =
+            (_this__virtualPathResourceMap_assetBaseURL_path =
+              (_this__virtualPathResourceMap_assetBaseURL =
+                _this._virtualPathResourceMap[assetBaseURL]) == null
+                ? void 0
+                : _this__virtualPathResourceMap_assetBaseURL.path) != null
+              ? _this__virtualPathResourceMap_assetBaseURL_path
+              : assetBaseURL;
+          // Check cache
+          var cacheObject = _this._assetUrlPool[remoteAssetBaseURL];
+          if (cacheObject) {
+            resolve(_this._getResolveResource(cacheObject, paths));
+            return;
+          }
+          // Get asset url
+          var remoteAssetURL = remoteAssetBaseURL;
+          if (queryPath) {
+            remoteAssetURL += "?q=" + paths.shift();
+            var index;
+            while ((index = paths.shift())) {
+              remoteAssetURL += "[" + index + "]";
+            }
+          }
+          // Check is loading
+          var loadingPromises = _this._loadingPromises;
+          var loadingPromise = loadingPromises[remoteAssetURL];
+          if (loadingPromise) {
+            loadingPromise
+              .onProgress(setTaskCompleteProgress, setTaskDetailProgress)
+              .then(function (resource) {
+                resolve(resource);
+              })
+              .catch(function (error) {
+                reject(error);
+              });
+            return;
+          }
+          // Check loader
+          var loader = ResourceManager._loaders[item.type];
+          if (!loader) {
+            reject(new Error("loader not found: " + item.type));
+          }
+          // Check sub asset
+          if (queryPath) {
+            // Check whether load main asset
+            var mainPromise =
+              loadingPromises[remoteAssetBaseURL] ||
+              _this._loadMainAsset(
+                loader,
+                item,
+                remoteAssetBaseURL,
+                assetBaseURL
+              );
+            mainPromise.catch(function (e) {
+              _this._onSubAssetFail(remoteAssetBaseURL, queryPath, e);
+            });
+            resolve(
+              _this._createSubAssetPromiseCallback(
+                remoteAssetBaseURL,
+                remoteAssetURL,
+                queryPath
+              )
+            );
+            return;
+          }
+          resolve(
+            _this._loadMainAsset(loader, item, remoteAssetBaseURL, assetBaseURL)
+          );
+        };
+
         if (subpackageName) {
           wx.loadSubpackage({
             name: subpackageName,
             success: () => {
-              var _this = this;
-              var _this__virtualPathResourceMap_assetBaseURL;
-              var item = this._assignDefaultOptions(
-                isString
-                  ? {
-                      url: itemOrURL,
-                    }
-                  : itemOrURL
-              );
-              var url = item.url;
-              // Not absolute and base url is set
-              if (!Utils.isAbsoluteUrl(url) && this.baseUrl)
-                url = Utils.resolveAbsoluteUrl(this.baseUrl, url);
-              // Parse url
-              var _this__parseURL = this._parseURL(url),
-                assetBaseURL = _this__parseURL.assetBaseURL,
-                queryPath = _this__parseURL.queryPath;
-              var paths = queryPath ? this._parseQueryPath(queryPath) : [];
-              var _this__virtualPathResourceMap_assetBaseURL_path;
-              // Get remote asset base url
-              var remoteAssetBaseURL =
-                (_this__virtualPathResourceMap_assetBaseURL_path =
-                  (_this__virtualPathResourceMap_assetBaseURL =
-                    this._virtualPathResourceMap[assetBaseURL]) == null
-                    ? void 0
-                    : _this__virtualPathResourceMap_assetBaseURL.path) != null
-                  ? _this__virtualPathResourceMap_assetBaseURL_path
-                  : assetBaseURL;
-              // Check cache
-              var cacheObject = this._assetUrlPool[remoteAssetBaseURL];
-              if (cacheObject) {
-                resolve(this._getResolveResource(cacheObject, paths));
-                return;
-              }
-              // Get asset url
-              var remoteAssetURL = remoteAssetBaseURL;
-              if (queryPath) {
-                remoteAssetURL += "?q=" + paths.shift();
-                var index;
-                while ((index = paths.shift())) {
-                  remoteAssetURL += "[" + index + "]";
-                }
-              }
-              // Check is loading
-              var loadingPromises = this._loadingPromises;
-              var loadingPromise = loadingPromises[remoteAssetURL];
-              if (loadingPromise) {
-                loadingPromise
-                  .onProgress(setTaskCompleteProgress, setTaskDetailProgress)
-                  .then(function (resource) {
-                    resolve(resource);
-                  })
-                  .catch(function (error) {
-                    reject(error);
-                  });
-                return;
-              }
-              // Check loader
-              var loader = ResourceManager._loaders[item.type];
-              if (!loader) {
-                throw "loader not found: " + item.type;
-              }
-              // Check sub asset
-              if (queryPath) {
-                // Check whether load main asset
-                var mainPromise =
-                  loadingPromises[remoteAssetBaseURL] ||
-                  this._loadMainAsset(
-                    loader,
-                    item,
-                    remoteAssetBaseURL,
-                    assetBaseURL
-                  );
-                mainPromise.catch(function (e) {
-                  _this._onSubAssetFail(remoteAssetBaseURL, queryPath, e);
-                });
-                resolve(
-                  this._createSubAssetPromiseCallback(
-                    remoteAssetBaseURL,
-                    remoteAssetURL,
-                    queryPath
-                  )
-                );
-                return;
-              }
-              resolve(
-                this._loadMainAsset(
-                  loader,
-                  item,
-                  remoteAssetBaseURL,
-                  assetBaseURL
-                )
-              );
+              originLoadSingleItem();
             },
             fail: () => {
               reject(
@@ -422,6 +420,8 @@
               );
             },
           });
+        } else {
+          originLoadSingleItem();
         }
       } catch (error) {
         reject(error);
