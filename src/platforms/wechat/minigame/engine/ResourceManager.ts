@@ -619,7 +619,7 @@
     config
   ) {
     var _this = this;
-    config.forEach(function (element) {
+    config && config.forEach(function (element) {
       _this._virtualPathSubpackageMap[element.root] = element.name;
     });
   };
