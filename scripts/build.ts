@@ -6,7 +6,7 @@ import { parseArgs } from './cli.js';
   try {
     const envCfg = process.env['ADAPTER_BUNDLE_SETTINGS'];
     if (envCfg) {
-      buildSettings = JSON.parse(process.env['ADAPTER_BUNDLE_SETTINGS']);
+      buildSettings = JSON.parse(envCfg);
       !buildSettings.output && (buildSettings.output = buildSettings.outputDir);
     } else {
       if (!buildSettings) {
