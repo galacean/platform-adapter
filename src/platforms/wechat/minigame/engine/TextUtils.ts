@@ -1,6 +1,6 @@
 /// @ts-nocheck
 var TextUtils = function() {
-  function _measureFontOrChar(fontString, measureString, isChar) {
+  TextUtils._measureFontOrChar = function _measureFontOrChar(fontString, measureString, isChar) {
     const { canvas, context } = TextUtils.textContext();
     context.font = fontString;
     // Safari gets data confusion through getImageData when the canvas width is not an integer.
@@ -91,4 +91,4 @@ var TextUtils = function() {
       return { ascent, descent, size };
     }
   }
-}
+}();
