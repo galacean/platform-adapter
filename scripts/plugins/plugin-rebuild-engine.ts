@@ -84,11 +84,11 @@ export default class RebuildPlugin {
           const galaceanAdapterMap: Record<string, ASTNodeWrapper> = {};
           sourcecode.forEach(sc => {
             const parser = new GalaceanAdapterParser(this.parse(sc));
-            const result = parser.parse();
-            if (result) {
-              for (const wrapper in result) {
-                const node = result[wrapper];
-                galaceanAdapterMap[node.node.name] = result;
+            const astNodeWrapper = parser.parse();
+            if (astNodeWrapper) {
+              for (const wrapper in astNodeWrapper) {
+                const node = astNodeWrapper[wrapper];
+                galaceanAdapterMap[node.node.name] = astNodeWrapper;
               }
             }
           });
@@ -96,11 +96,11 @@ export default class RebuildPlugin {
           let magicString = new MagicString(code);
           function rebuildCode(node: Node): boolean {
             if (node) {
-              let gaWrapper;
-              let galaceanAdapterNode: ASTNode;
+              let galaceanAdapterNode: ASTNode = undefined;
               let nodeName = getNodeName(node)
-              gaWrapper = galaceanAdapterMap[nodeName];
-              gaWrapper && (galaceanAdapterNode = gaWrapper[node.type]);
+              if (galaceanAdapterMap[nodeName]) {
+                galaceanAdapterNode = galaceanAdapterMap[nodeName][node.type]
+              }
               if (!galaceanAdapterNode) {
                 return false;
               }
