@@ -9,10 +9,10 @@ else
 fi
 
 if [ -d "$TARGET_PATH" ]; then
-    rm -rf "$TARGET_PATH"
-    echo "Remove CLI directory and subfiles"
+  echo "Cleaned legacy CLI tool versions"
+  rm -rf "$TARGET_PATH"
 fi
 
-npm run build:cli
+npx tsc
 
-echo "Build CLI tools complete"
+echo "Successfully build CLI tools"
