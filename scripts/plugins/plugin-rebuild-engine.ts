@@ -1,6 +1,6 @@
 import { Node } from 'estree';
 import { walk } from 'estree-walker';
-import { ASTNode, ASTType, ClassParser, FunctionParser } from '../utils/ASTParser.js';
+import { ASTNode, ASTNodeWrapper, ASTType, ClassParser, FunctionParser } from '../utils/ASTParser.js';
 import MagicString from 'magic-string';
 import { generate } from 'escodegen';
 import { Plugin } from 'rollup';
@@ -11,29 +11,30 @@ import { Plugin } from 'rollup';
 class GalaceanAdapterParser {
   constructor(protected ast: Node) { }
 
-  parseNode(node: Node): ASTNode[] {
+  parseNode(node: Node): ASTNodeWrapper {
     if (node.type === 'Program' && node.body) {
-      let parsed = [];
+      let parsed = undefined;
+      // Assume that node.body contains only one element.
       for (const subNode of node.body) {
         switch (subNode.type) {
           case 'ClassDeclaration':
           case 'VariableDeclaration':
           case 'ExpressionStatement':
-            parsed.push(new ClassParser(subNode).parse());
+            parsed = new ClassParser(subNode).parse();
             break;
           case 'FunctionDeclaration':
-            parsed.push(new FunctionParser(subNode).parse());
+            parsed = new FunctionParser(subNode).parse();
             break;
           default:
             break;
         }
       }
-      return parsed.length > 0 ? parsed.flat() : undefined;
+      return parsed;
     }
     return undefined;
   }
 
-  parse(): ASTNode[] {
+  parse(): ASTNodeWrapper {
     const parseNode = this.parseNode;
     let parsed;
     walk(this.ast, {
@@ -62,7 +63,7 @@ function getNodeName(node: Node) {
     }
   } else {
     // @ts-ignore
-    node.id ? name = node.id.name : name = node.name;
+    name = node.id ? node.id.name : node.name;
   }
   return name ?? '';
 }
@@ -80,51 +81,53 @@ export default class RebuildPlugin {
             sourcecode = [sourcecode];
           }
 
-          const galaceanAdapters: ASTNode[] = [];
+          const galaceanAdapterMap: Record<string, ASTNodeWrapper> = {};
           sourcecode.forEach(sc => {
             const parser = new GalaceanAdapterParser(this.parse(sc));
-            const result = parser.parse();
-            if (result) {
-              galaceanAdapters.push(...result);
+            const astNodeWrapper = parser.parse();
+            if (astNodeWrapper) {
+              for (const wrapper in astNodeWrapper) {
+                const node = astNodeWrapper[wrapper];
+                galaceanAdapterMap[node.node.name] = astNodeWrapper;
+              }
             }
           });
-          const gaMap = galaceanAdapters.reduce((acc, cur) => {
-            !acc[cur.name] && (acc[cur.name] = {});
-            acc[cur.name][cur.type] = cur;
-            return acc;
-          }, {} as Record<string, Record<string, ASTNode>>);
 
-          const magicString = new MagicString(code);
+          let magicString = new MagicString(code);
           function rebuildCode(node: Node): boolean {
             if (node) {
-              let gaWrapper;
-              let ga: ASTNode;
-              let adapterNode;
+              let galaceanAdapterNode: ASTNode = undefined;
               let nodeName = getNodeName(node)
-              gaWrapper = gaMap[nodeName];
-              gaWrapper && (ga = gaWrapper[node.type]);
-              if (!ga) {
+              if (galaceanAdapterMap[nodeName]) {
+                galaceanAdapterNode = galaceanAdapterMap[nodeName][node.type]
+              }
+              if (!galaceanAdapterNode) {
                 return false;
               }
-              switch (ga.astType) {
+              const { astType, node: adapterNode, members: adapterMembers } = galaceanAdapterNode.node;
+              switch (astType) {
                 case ASTType.Class:
                   let classParser = new ClassParser(node);
-                  classParser.parse();
+                  const originASTNodeWrapper = classParser.parse();
                   if (classParser.isClass) {
-                    adapterNode = ga.node;
-                    // @ts-ignore
-                    magicString.overwrite(node.start, node.end, generate(adapterNode), {
-                      storeName: true
-                    });
+                    const originMembers = originASTNodeWrapper[node.type].node.members;
+                    for (const memberName in adapterMembers) {
+                      const adapterMember = adapterMembers[memberName];
+                      const originMember = originMembers[memberName]
+                      // Jump over properties in the class. Because it's not necessary to rebuild them.
+                      // todo: Need implement a way to append extra code in the class.
+                      if (adapterMember.type === 'Identifier' || !originMember) {
+                        continue;
+                      }
+                      // @ts-ignore
+                      magicString = magicString.overwrite(originMember.start, originMember.end, generate(adapterMember), { storeName: true });
+                    }
                     return true;
                   }
                   return false;
                 case ASTType.Function:
-                  adapterNode = ga.node;
                   // @ts-ignore
-                  magicString.overwrite(node.start, node.end, generate(adapterNode), {
-                    storeName: true
-                  });
+                  magicString.overwrite(node.start, node.end, generate(adapterNode), { storeName: true });
                   return true;;
                 default:
                   return false;
