@@ -29,6 +29,7 @@ const refWebAPI = [
   'HTMLCanvasElement',
   'HTMLImageElement',
   'Image',
+  'AudioContext',
 
   'atob',
   'navigator',

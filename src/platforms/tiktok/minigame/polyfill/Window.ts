@@ -5,6 +5,7 @@ import XMLHttpRequest from './XMLHttpRequest';
 import WebSocket from './WebSocket';
 import Image from './Image';
 import Audio from './Audio';
+import AudioContext from './AudioContext';
 import HTMLElement from './HTMLElement';
 import OffscreenCanvas from './OffscreenCanvas';
 import './Performance';
@@ -19,6 +20,7 @@ Object.assign(platformAdapter.window, {
   WebSocket: WebSocket,
   Image: Image,
   Audio: Audio,
+  AudioContext: AudioContext,
   HTMLElement: HTMLElement,
   localStorage: {
     get length() {
