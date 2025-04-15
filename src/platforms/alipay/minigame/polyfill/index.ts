@@ -3,8 +3,13 @@ import './Window';
 import './Document';
 import utils from '../../../../common/utils/Utils';
 
-(function inject () {
-  GameGlobal.platformAdapter = platformAdapter;
+declare global {
+  const my: any;
+  const globalThis: any;
+}
+
+(function inject() {
+  globalThis.platformAdapter = platformAdapter;
   Object.assign(platformAdapter.window, {
     addEventListener: (type, listener) => {
       // @ts-ignore
@@ -23,7 +28,7 @@ import utils from '../../../../common/utils/Utils';
   })
   utils.cloneProperty(platformAdapter, platformAdapter.window);
 
-  if (!GameGlobal.__isAdapterInjected) {
-    GameGlobal.__isAdapterInjected = true;
+  if (!globalThis.__isAdapterInjected) {
+    globalThis.__isAdapterInjected = true;
   }
 })();

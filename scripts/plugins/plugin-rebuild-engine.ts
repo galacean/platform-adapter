@@ -70,6 +70,9 @@ function getNodeName(node: Node) {
 
 export default class RebuildPlugin {
   static getPlugins(sourcecode: string | string[]): Plugin[] {
+    if (!sourcecode) {
+      return undefined;
+    }
     return [
       {
         name: 'inject-galacean-adapter-code',

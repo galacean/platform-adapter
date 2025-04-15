@@ -4,7 +4,6 @@ import Image from './Image';
 import Audio from './Audio';
 import Canvas from './Canvas';
 import './events';
-import Event from '../../../../common/polyfill/Event';
 
 Object.assign(platformAdapter.document, {
   documentElement: platformAdapter.window,
@@ -62,26 +61,4 @@ Object.assign(platformAdapter.document, {
     }
     return [];
   },
-  onvisibilitychange(visible: boolean) {
-    return () => {
-      this.visibilityState = visible ? 'visible' : 'hidden';
-      const hidden = !visible;
-      if (this.hidden === hidden) {
-        return;
-      }
-      this.hidden = hidden;
-      const event = new Event('visibilitychange');
-      event.target = this;
-      event.timestampe = Date.now();
-      this.dispatchEvent(event);
-    }
-  }
 });
-
-if (wx.onHide) {
-  wx.onHide(platformAdapter.document.onvisibilitychange(false));
-}
-
-if (wx.onShow) {
-  wx.onShow(platformAdapter.document.onvisibilitychange(true));
-}
