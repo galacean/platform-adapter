@@ -1,7 +1,7 @@
 {
   "name": "@galacean/platform-adapter",
   "type": "module",
-  "version": "0.0.0-alpha.13",
+  "version": "0.1-beta.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -20,7 +20,7 @@
     "preinstall": "npx only-allow pnpm",
     "build": "node ./cli/scripts/build.js --p true",
     "build:cli": "tsc",
-    "prepare": "pnpm run build:cli",
+    "prepare": "sh ./build.sh",
     "postpublish": "git tag -a v$npm_package_version -m 'Publish version $npm_package_version' && git push origin v$npm_package_version"
   },
   "dependencies": {
