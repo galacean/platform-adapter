@@ -9,5 +9,5 @@ runs:
       run: |
         cd ${{ github.action_path }}
         pnpm install
-        pnpm run build:cli
-        pnpm run build
+        pnpm run prepare
+        pnpm run bundle
