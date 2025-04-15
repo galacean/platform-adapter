@@ -3,11 +3,6 @@ import './Window';
 import './Document';
 import utils from '../../../../common/utils/Utils';
 
-declare global {
-  const my: any;
-  const globalThis: any;
-}
-
 (function inject() {
   globalThis.platformAdapter = platformAdapter;
   Object.assign(platformAdapter.window, {
