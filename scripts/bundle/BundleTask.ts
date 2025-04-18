@@ -4,7 +4,7 @@ import { swc, minify } from 'rollup-plugin-swc3';
 import chalk from 'chalk';
 
 import { BundleInfo } from './BundleInfo.js';
-import { getPolyfillBundle } from "./PolyfillBundle.js";
+import { getPolyfillBundle } from './PolyfillBundle.js';
 import { getEngineBundle, getJSWASMLoaderBundle, getWasmOutputs } from './EngineBundle.js';
 
 export interface BundleTaskSettings {
@@ -73,13 +73,19 @@ export default class BundleTaskFactory {
       switch (taskType) {
         case 'polyfill':
           if (bundleTaskSettings.polyfill) {
-            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame', bundleTaskSettings.output));
+            return [
+              new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame', bundleTaskSettings.output)),
+              new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'miniprogram', bundleTaskSettings.output)),
+            ];
           }
           return undefined;
         case 'engine':
           if (BundleTaskFactory.isArray(bundleTaskSettings.engine)) {
             let result = bundleTaskSettings.engine.flatMap((engine) => {
-              return getEngineBundle(engine, 'minigame', bundleTaskSettings.output);
+              return [
+                getEngineBundle(engine, 'minigame', bundleTaskSettings.output),
+                getEngineBundle(engine, 'miniprogram', bundleTaskSettings.output),
+              ].flat();
             });
             return new BundleTask('Engine', result);
           }
@@ -90,7 +96,10 @@ export default class BundleTaskFactory {
             bundleTaskSettings.wasm.flatMap((wasm) => {
               const lastIndex = wasm.lastIndexOf('/');
               const bundleName = wasm.substring(lastIndex == -1 ? 0 : lastIndex + 1, wasm.length);
-              const outputs = getWasmOutputs(wasm, 'minigame', output);
+              const outputs = [
+                getWasmOutputs(wasm, 'minigame', output),
+                getWasmOutputs(wasm, 'miniprogram', output)
+              ].flat();
               for (const output of outputs) {
                 const outputFile = `${output}/${bundleName}`;
                 console.log(`copy file ${wasm} to ${outputFile}`);

@@ -1,17 +1,17 @@
-import path from "path";
-import chalk from "chalk";
+import path from 'path';
+import chalk from 'chalk';
 import fs from 'fs';
 
 import resolve from '@rollup/plugin-node-resolve';
-import { BundleInfo, PlatformType } from "./BundleInfo.js";
-import { rootDir } from "../cli.js";
-import { getOutputDir, getPlatformsFromPath, getScriptsFromPath, normalizePath } from "../utils/Utils.js";
+import { BundleInfo, PlatformType } from './BundleInfo.js';
+import { rootDir } from '../cli.js';
+import { getOutputDir, getPlatformsFromPath, getScriptsFromPath, normalizePath } from '../utils/Utils.js';
 import { pluginReplaceGalaceanLogic } from '../plugins/plugin-replace-engine.js';
-import { pluginReplaceWebAPI } from "../plugins/plugin-replace-webapi.js";
-import { pluginReplaceSIMDSupported } from "../plugins/plugin-replace-simd.js";
-import ts from "typescript";
-import RebuildPlugin from "../plugins/plugin-rebuild-engine.js";
-import { injectWASM } from "../plugins/plugin-inject-wasm.js";
+import { pluginReplaceWebAPI } from '../plugins/plugin-replace-webapi.js';
+import { pluginReplaceSIMDSupported } from '../plugins/plugin-replace-simd.js';
+import ts from 'typescript';
+import RebuildPlugin from '../plugins/plugin-rebuild-engine.js';
+import { injectWASM } from '../plugins/plugin-inject-wasm.js';
 
 import { globalDefinition, wasmDefinition, refWebAPI } from './API.js';
 
@@ -29,11 +29,19 @@ export function getEngineBundle(dependence: string, platformType: PlatformType, 
   }
   let entry = normalizePath(dependence);
 
+  const globalAPI = globalDefinition[platformType];
+
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
     console.log(`Prepare ${bundleName} bundle info for ${chalk.green(platform)}.`);
 
-    const scriptsPath = path.join(rootDir, `src/platforms/${platform}/${platformType}/engine`);
+    const platformTypeDir = path.join(platformsPath, `${platform}/${platformType}`);
+    if (!fs.existsSync(platformTypeDir)) {
+      console.log(chalk.yellow(`${platform} does not have a ${platformType} implement, skipping...`));
+      continue;
+    }
+
+    const scriptsPath = path.join(platformTypeDir, `engine`);
     const uniqueBundleInfo: string[] = [];
     if (fs.existsSync(scriptsPath)) {
       const scripts = getScriptsFromPath(scriptsPath);
@@ -67,7 +75,7 @@ export function getEngineBundle(dependence: string, platformType: PlatformType, 
         pluginReplaceGalaceanLogic(),
         injectWASM(wasmDefinition[platform]),
         pluginReplaceSIMDSupported(),
-        pluginReplaceWebAPI(globalDefinition[platform], '.platformAdapter', ``, refWebAPI),
+        pluginReplaceWebAPI(globalAPI[platform], '.platformAdapter', ``, refWebAPI),
       ],
     });
   }
@@ -95,9 +103,17 @@ export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType
   let lastIndex = loader.lastIndexOf('/');
   let bundleName = loader.substring(lastIndex == -1 ? 0 : lastIndex + 1, loader.length);
 
+  const globalAPI = globalDefinition[platformType];
+
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
     console.log(`Prepare webassembly bundle info for ${chalk.green(platform)}.`);
+
+    const platformTypeDir =`src/platforms/${platform}/${platformType}`;
+    if (!fs.existsSync(platformTypeDir)) {
+      console.log(chalk.yellow(`${platform} does not have a ${platformType} implement, skipping...`));
+      continue;
+    }
 
     bundles.push({
       bundleName: bundleName,
@@ -113,7 +129,7 @@ export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType
       rollupPlugins: [
         resolve(),
         injectWASM(wasmDefinition[platform], [bundleName]),
-        pluginReplaceWebAPI(globalDefinition[platform], '.platformAdapter', ``, refWebAPI)
+        pluginReplaceWebAPI(globalAPI[platform], '.platformAdapter', ``, refWebAPI)
       ],
     });
   }

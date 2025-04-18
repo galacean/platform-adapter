@@ -9,7 +9,7 @@ import Performance from "./Performance";
 import Navigator from "./Navigator";
 
 export default interface Window {
-  canvas: HTMLElement,
+  [key: string]: any,
   document,
   navigator: Navigator,
   XMLHttpRequest,

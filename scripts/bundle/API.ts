@@ -2,9 +2,14 @@
  * @brief Declares global definitions that are specific to each platform.
  */
 const globalDefinition = {
-  'alipay': 'globalThis',
-  'tiktok': 'GameGlobal',
-  'wechat': 'GameGlobal',
+  minigame: {
+    alipay: 'globalThis',
+    tiktok: 'GameGlobal',
+    wechat: 'GameGlobal',
+  },
+  miniprogram: {
+    wechat: 'globalThis'
+  }
 };
 
 /**

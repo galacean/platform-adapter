@@ -1,4 +1,4 @@
-import { OutputOptions } from "rollup";
+import { OutputOptions } from 'rollup';
 
 export type BundleType = 'GalaceanEngine' | 'Adapter';
 export type PlatformType = 'miniprogram' | 'minigame';
