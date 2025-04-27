@@ -14,9 +14,6 @@ export function getPolyfillBundle(bundleName, platformType: PlatformType, output
 
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
-    if (platform === 'alipay') {
-      continue;
-    }
     console.log(`Prepare polyfill bundle info for ${chalk.green(platform)}.`);
     bundles.push({
       bundleName: bundleName,

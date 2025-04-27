@@ -33,23 +33,21 @@ export function getEngineBundle(dependence: string, platformType: PlatformType, 
   for (const platform of platforms) {
     console.log(`Prepare ${bundleName} bundle info for ${chalk.green(platform)}.`);
 
-    if (platform === 'alipay') {
-      continue;
-    }
-
     const scriptsPath = path.join(rootDir, `src/platforms/${platform}/${platformType}/engine`);
-    const scripts = getScriptsFromPath(scriptsPath);
     const uniqueBundleInfo: string[] = [];
-    for (const script of scripts) {
-      uniqueBundleInfo.push(ts.transpileModule(
-        fs.readFileSync(normalizePath(path.join(scriptsPath, script)), { encoding: 'utf-8' }),
-          {
-            compilerOptions: {
-              module: ts.ModuleKind.CommonJS
+    if (fs.existsSync(scriptsPath)) {
+      const scripts = getScriptsFromPath(scriptsPath);
+      for (const script of scripts) {
+        uniqueBundleInfo.push(ts.transpileModule(
+          fs.readFileSync(normalizePath(path.join(scriptsPath, script)), { encoding: 'utf-8' }),
+            {
+              compilerOptions: {
+                module: ts.ModuleKind.CommonJS
+              }
             }
-          }
-        ).outputText
-      );
+          ).outputText
+        );
+      }
     }
 
     bundles.push({
@@ -100,10 +98,6 @@ export function getJSWASMLoaderBundle(loader: string, platformType: PlatformType
   let bundles: BundleInfo[] = [];
   for (const platform of platforms) {
     console.log(`Prepare webassembly bundle info for ${chalk.green(platform)}.`);
-
-    if (platform === 'alipay') {
-      continue;
-    }
 
     bundles.push({
       bundleName: bundleName,
