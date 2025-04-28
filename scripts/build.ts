@@ -9,16 +9,8 @@ import { parseArgs } from './cli.js';
       buildSettings = JSON.parse(envCfg);
       !buildSettings.output && (buildSettings.output = buildSettings.outputDir);
     } else {
-      if (!buildSettings) {
-        const { polyfill, engine, wasm, jsWASMLoader, output } = parseArgs();
-        buildSettings = {
-          polyfill: polyfill,
-          engine: engine,
-          wasm: wasm,
-          jsWASMLoader: jsWASMLoader,
-          output: output
-        } as BundleTaskSettings;
-      }
+      !buildSettings && (buildSettings = parseArgs());
+      !buildSettings.output && (buildSettings.output = buildSettings.outputDir);
     }
   } catch (e) {
     console.warn("CLI arguments are not supported or environment variable ADAPTER_BUNDLE_SETTINGS not a valid JSON.");
@@ -29,7 +21,7 @@ import { parseArgs } from './cli.js';
     let tasks = BundleTaskFactory.createBundleTask(buildSettings);
     if (tasks) {
       for (const task of tasks) {
-        await task.run();
+        await task.run(buildSettings);
       }
     }
 

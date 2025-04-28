@@ -1,22 +1,29 @@
 import * as fs from 'fs';
 import { rollup } from 'rollup';
-import { swc, minify } from 'rollup-plugin-swc3';
+import swc from '@rollup/plugin-swc';
 import chalk from 'chalk';
 
-import { BundleInfo } from './BundleInfo.js';
+import { BundleInfo, AppType, Platform, AppDefination } from './BundleInfo.js';
 import { getPolyfillBundle } from "./PolyfillBundle.js";
 import { getEngineBundle, getJSWASMLoaderBundle, getWasmOutputs } from './EngineBundle.js';
+import { getDependencyBundle } from './DependencyBundle.js';
 
 export interface BundleTaskSettings {
   polyfill: boolean,
   engine: string[],
   wasm: string[],
   jsWASMLoader: string[],
+  root?: string,
   output?: string,
-  outputDir?: string
+  outputDir?: string,
+  dependency?: string[],
+  platform?: Platform,
+  app?: AppType,
+  sourcemap?: boolean,
+  minify?: boolean,
 }
 
-export type BundleTaskType = 'PlatformAdapter' | 'Engine';
+export type BundleTaskType = 'PlatformAdapter' | 'Engine' | 'Dependency';
 
 export class BundleTask {
   public taskType: BundleTaskType;
@@ -27,17 +34,38 @@ export class BundleTask {
     Array.isArray(bundles) ? this.bundles = bundles : this.bundles = [bundles];
   }
 
-  async createTask(bundle: BundleInfo, resolved?: () => void) {
+  async createTask(params: { bundle: BundleInfo, bundleSettings: BundleTaskSettings }, resolved?: () => void) {
+    const { bundle, bundleSettings } = params;
     await rollup({
       input: bundle.entry,
-      output: bundle.output,
       plugins: [
         ...(bundle.rollupPlugins || []),
-        swc(),
-        bundle.needUglify && minify(),
-      ]
+        swc({
+          swc: {
+            swcrc: false,
+            jsc: {
+              target: 'esnext',
+              transform: {
+                useDefineForClassFields: true,
+              },
+              parser: {
+                syntax: 'typescript',
+                decorators: true,
+              },
+            },
+            minify: !!bundleSettings.minify
+          },
+        }),
+      ],
+      onwarn(warning) {
+        if (warning.code === 'THIS_IS_UNDEFINED') return;
+        console.warn(warning.message);
+      }
     }).then(async (bundled) => {
-      await bundled.write(bundle.output);
+      await bundled.write({
+        sourcemap: !!bundleSettings.sourcemap,
+        ...bundle.output,
+      });
       await bundled.close();
       resolved && resolved();
     }).catch((err) => {
@@ -45,18 +73,18 @@ export class BundleTask {
     });
   }
 
-  async run() {
+  async run(settings: BundleTaskSettings) {
     console.log(chalk.magenta(`Start bundle ${this.taskType}.`));
     console.time(chalk.magenta(`Bundling ${this.taskType} complete, total time`));
     await Promise.all(this.bundles.map(async (bundle) => {
       let bundleName = bundle.bundleName;
       let bundleType = bundle.bundleType ?? 'Unknown';
       let platformName = bundle.platformName;
-      let platformType = bundle.platformType;
-      console.log(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${platformType}: ${bundleName}`));
-      console.time(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${platformType}: ${bundleName} complete, cost time`));
-      return this.createTask(bundle, () => {
-        console.timeEnd(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${platformType}: ${bundleName} complete, cost time`));
+      let appType = bundle.app;
+      console.log(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${appType}: ${bundleName}`));
+      console.time(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${appType}: ${bundleName} complete, cost time`));
+      return this.createTask({ bundle, bundleSettings: settings }, () => {
+        console.timeEnd(chalk.blue(`Bundling [${bundleType}] for ${platformName}/${appType}: ${bundleName} complete, cost time`));
       });
     }));
     console.timeEnd(chalk.magenta(`Bundling ${this.taskType} complete, total time`));
@@ -72,25 +100,47 @@ export default class BundleTaskFactory {
     function getBundleInfo(taskType: string): BundleTask | BundleTask[] {
       switch (taskType) {
         case 'polyfill':
-          if (bundleTaskSettings.polyfill) {
-            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', 'minigame', bundleTaskSettings.output));
+          const polyfill = bundleTaskSettings.polyfill;
+          if (polyfill) {
+            const { platform, app, root, output } = bundleTaskSettings;
+            if (app === 'all') {
+              return AppDefination.map(appType => {
+                return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', platform, appType, root, output));
+              });
+            }
+            return new BundleTask('PlatformAdapter', getPolyfillBundle('polyfill', platform, app, root, output));
           }
           return undefined;
         case 'engine':
-          if (BundleTaskFactory.isArray(bundleTaskSettings.engine)) {
-            let result = bundleTaskSettings.engine.flatMap((engine) => {
-              return getEngineBundle(engine, 'minigame', bundleTaskSettings.output);
+          const engine = bundleTaskSettings.engine;
+          if (BundleTaskFactory.isArray(engine)) {
+            const { platform, app, root, output } = bundleTaskSettings;
+            let result = engine.flatMap((engine) => {
+              if (app === 'all') {
+                return AppDefination.map(appType => {
+                  return getEngineBundle(engine, platform, appType, root, output);
+                }).flat();
+              }
+              return getEngineBundle(engine, platform, app, root, output);
             });
             return new BundleTask('Engine', result);
           }
           return undefined;
         case 'wasm':
-          if (BundleTaskFactory.isArray(bundleTaskSettings.wasm)) {
-            const output = bundleTaskSettings.output;
-            bundleTaskSettings.wasm.flatMap((wasm) => {
+          const wasm = bundleTaskSettings.wasm;
+          if (BundleTaskFactory.isArray(wasm)) {
+            const { platform, app, root, output } = bundleTaskSettings;
+            wasm.flatMap((wasm) => {
               const lastIndex = wasm.lastIndexOf('/');
               const bundleName = wasm.substring(lastIndex == -1 ? 0 : lastIndex + 1, wasm.length);
-              const outputs = getWasmOutputs(wasm, 'minigame', output);
+              let outputs: string[] = undefined;
+              if (app === 'all') {
+                outputs = AppDefination.map(appType => {
+                  return getWasmOutputs(wasm, platform, appType, root, output);
+                }).flat();
+              } else {
+                outputs = getWasmOutputs(wasm, platform, app, root, output);
+              }
               for (const output of outputs) {
                 const outputFile = `${output}/${bundleName}`;
                 console.log(`copy file ${wasm} to ${outputFile}`);
@@ -128,11 +178,33 @@ export default class BundleTaskFactory {
           }
           return undefined;
         case 'jsWASMLoader':
+          const jsWASMLoader = bundleTaskSettings.jsWASMLoader;
           if (BundleTaskFactory.isArray(bundleTaskSettings.jsWASMLoader)) {
-            let result = bundleTaskSettings.jsWASMLoader.flatMap((loader) => {
-              return getJSWASMLoaderBundle(loader, 'minigame', bundleTaskSettings.output);
+            const { platform, app, root, output } = bundleTaskSettings;
+            let result = jsWASMLoader.flatMap((loader) => {
+              if (app === 'all') {
+                return AppDefination.map(appType => {
+                  return getJSWASMLoaderBundle(loader, platform, appType, root, output);
+                }).flat();
+              }
+              return getJSWASMLoaderBundle(loader, platform, app, root, output);
             });
             return new BundleTask('Engine', result);
+          }
+          return undefined;
+        case 'dependency':
+          const dependency = bundleTaskSettings.dependency;
+          if (BundleTaskFactory.isArray(dependency)) {
+            const { platform, app, root, output } = bundleTaskSettings;
+            let result = dependency.flatMap((dependency) => {
+              if (app === 'all') {
+                return AppDefination.map(appType => {
+                  return getDependencyBundle(dependency, platform, appType, root, output);
+                }).flat();
+              }
+              return getDependencyBundle(dependency, platform, app, root, output);
+            });
+            return new BundleTask('Dependency', result);
           }
           return undefined;
         default:

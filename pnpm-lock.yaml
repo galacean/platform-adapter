@@ -11,6 +11,9 @@ dependencies:
   '@rollup/plugin-node-resolve':
     specifier: ^15.3.0
     version: 15.3.0(rollup@4.28.1)
+  '@rollup/plugin-swc':
+    specifier: ^0.4.0
+    version: 0.4.0(@swc/core@1.10.1)(rollup@4.28.1)
   '@rollup/plugin-typescript':
     specifier: ^12.1.1
     version: 12.1.1(rollup@4.28.1)(typescript@5.6.3)
@@ -35,9 +38,6 @@ dependencies:
   rollup:
     specifier: ^4.22.1
     version: 4.28.1
-  rollup-plugin-swc3:
-    specifier: ^0.12.1
-    version: 0.12.1(@swc/core@1.10.1)(rollup@4.28.1)
   typescript:
     specifier: ^5.6.2
     version: 5.6.3
@@ -54,14 +54,6 @@ devDependencies:
     version: 17.0.33
 
 packages:
-
-  /@dual-bundle/import-meta-resolve@4.1.0:
-    resolution: {integrity: sha512-+nxncfwHM5SgAtrVzgpzJOI1ol0PkumhVo469KCf9lUi21IGcY90G98VuHm9VRrUypmAzawAHO9bs6hqeADaVg==}
-    dev: false
-
-  /@fastify/deepmerge@2.0.0:
-    resolution: {integrity: sha512-fsaybTGDyQ5KpPsplQqb9yKdCf2x/pbNpMNk8Tvp3rRz7lVcupKysH4b2ELMN2P4Hak1+UqTYdTj/u4FNV2p0g==}
-    dev: false
 
   /@isaacs/cliui@8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -119,6 +111,22 @@ packages:
       is-module: 1.0.0
       resolve: 1.22.8
       rollup: 4.28.1
+    dev: false
+
+  /@rollup/plugin-swc@0.4.0(@swc/core@1.10.1)(rollup@4.28.1):
+    resolution: {integrity: sha512-oAtqXa8rOl7BOK1Rz3rRxI+LIL53S9SqO2KSq2UUUzWgOgXg6492Jh5mL2mv/f9cpit8zFWdwILuVeozZ0C8mg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@swc/core': ^1.3.0
+      rollup: ^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.1.3(rollup@4.28.1)
+      '@swc/core': 1.10.1
+      rollup: 4.28.1
+      smob: 1.5.0
     dev: false
 
   /@rollup/plugin-typescript@12.1.1(rollup@4.28.1)(typescript@5.6.3):
@@ -625,12 +633,6 @@ packages:
     engines: {node: 6.* || 8.* || >= 10.*}
     dev: false
 
-  /get-tsconfig@4.8.1:
-    resolution: {integrity: sha512-k9PN+cFBmaLWtVz29SkUoqU5O0slLuHJXt/2P+tMVFT+phsSGXGkp9t3rQIqdz0e+06EHNGs3oM6ZX1s2zHxRg==}
-    dependencies:
-      resolve-pkg-maps: 1.0.0
-    dev: false
-
   /glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
     hasBin: true
@@ -737,10 +739,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /resolve-pkg-maps@1.0.0:
-    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
-    dev: false
-
   /resolve@1.22.8:
     resolution: {integrity: sha512-oKWePCxqpd6FlLvGV1VU0x7bkPmmCNolxzjMf4NczoDnQcIWrAF+cPtZn5i6n+RfD2d9i0tzpKnG6Yk168yIyw==}
     hasBin: true
@@ -748,31 +746,6 @@ packages:
       is-core-module: 2.15.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
-    dev: false
-
-  /rollup-plugin-swc3@0.12.1(@swc/core@1.10.1)(rollup@4.28.1):
-    resolution: {integrity: sha512-iNV1T432XvyejZ19/41C2gLbXxEOiiJynPPAFF0WzwwFT5FHx7SstAp0yjJRLyrbZjfIhoWJVl3hX3c3Stv/GQ==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      '@swc/core': '>=1.2.165'
-      rollup: ^2.0.0 || ^3.0.0 || ^4.0.0
-    dependencies:
-      '@dual-bundle/import-meta-resolve': 4.1.0
-      '@fastify/deepmerge': 2.0.0
-      '@rollup/pluginutils': 5.1.3(rollup@4.28.1)
-      '@swc/core': 1.10.1
-      get-tsconfig: 4.8.1
-      rollup: 4.28.1
-      rollup-preserve-directives: 1.1.3(rollup@4.28.1)
-    dev: false
-
-  /rollup-preserve-directives@1.1.3(rollup@4.28.1):
-    resolution: {integrity: sha512-oXqxd6ZzkoQej8Qt0k+S/yvO2+S4CEVEVv2g85oL15o0cjAKTKEuo2MzyA8FcsBBXbtytBzBMFAbhvQg4YyPUQ==}
-    peerDependencies:
-      rollup: ^2.0.0 || ^3.0.0 || ^4.0.0
-    dependencies:
-      magic-string: 0.30.15
-      rollup: 4.28.1
     dev: false
 
   /rollup@4.28.1:
@@ -819,6 +792,10 @@ packages:
   /signal-exit@4.1.0:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
+    dev: false
+
+  /smob@1.5.0:
+    resolution: {integrity: sha512-g6T+p7QO8npa+/hNx9ohv1E5pVCmWrVCUzUXJyLdMmftX6ER0oiWY/w9knEonLpnOp6b6FenKnMfR8gqwWdwig==}
     dev: false
 
   /source-map@0.6.1:
