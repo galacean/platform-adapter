@@ -6,7 +6,7 @@ import { AppType, Platform } from './bundle/BundleInfo';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-export const rootDir = path.join(__dirname, '..');
+export const rootDir = path.join(__dirname, '.');
 
 export function parseArgs() {
   return yargs(process.argv).options({
@@ -63,7 +63,7 @@ export function parseArgs() {
     },
     sourcemap: {
       type: 'boolean',
-      default: true,
+      default: false,
       describe: 'Enable source map for your build.'
     },
     minify: {
