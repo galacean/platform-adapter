@@ -174,9 +174,6 @@ class BuildTask {
             swcrc: false,
             jsc: {
               target: 'esnext',
-              transform: {
-                useDefineForClassFields: true,
-              },
               parser: {
                 syntax: 'typescript',
                 decorators: true,
@@ -184,7 +181,6 @@ class BuildTask {
             },
             minify: !!buildSettings.minify
           },
-          exclude: ['physx.release.js']
         }),
         copy({
           targets: buildParams.copyAssets

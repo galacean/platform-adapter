@@ -45,9 +45,6 @@ export class BundleTask {
             swcrc: false,
             jsc: {
               target: 'esnext',
-              transform: {
-                useDefineForClassFields: true,
-              },
               parser: {
                 syntax: 'typescript',
                 decorators: true,
