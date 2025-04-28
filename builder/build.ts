@@ -56,10 +56,10 @@ import BuildTask from './build/BuildTask.js';
     const packageJson = loadPackageJson(path.join(projectPath, platformConfig.packageJson));
     if (packageJson) {
       if (!buildSettings.output) {
-        buildSettings.output = path.join(projectPath, packageJson.name);
+        buildSettings.output = packageJson.name;
       }
       if (!buildSettings.entry) {
-        buildSettings.entry = path.join(projectPath, packageJson.main);
+        buildSettings.entry = packageJson.main;
       }
       if (!buildSettings.dependencies || buildSettings.dependencies.length === 0) {
         const wasmModules = Object.keys(wasmConfig);
