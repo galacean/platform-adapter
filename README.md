@@ -37,7 +37,7 @@ Before using the CLI, ensure that you have installed the engine dependencies of 
   [CLI Description](#CLI)
 
 <a id="CLI"></a>
-### Description Of `CLI` And `ADAPTER_BUNDLE_SETTINGS`
+### Description Of `CLI`
 
 #### platform-adapter
 
