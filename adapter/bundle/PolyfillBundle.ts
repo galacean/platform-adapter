@@ -19,7 +19,7 @@ function getPlatformPolyfillBundle(bundleName: string, platform: Platform, app: 
     entry,
     output: {
       file: outputDir,
-      format: 'es',
+      format: 'cjs',
     },
     platformName: platform,
     app,

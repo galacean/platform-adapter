@@ -6,6 +6,7 @@
     "declaration": true,
     "sourceMap": true,
     "rootDir": ".",
+    "baseUrl": ".",
     "outDir": "./cli",
     "declarationDir": "./cli/types",
     "allowJs": true,
@@ -17,8 +18,11 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "minify/*": ["plugins/minify/*"],
+    }
   },
-  "include": ["src/**/*", "adapter/**/*", "builder/**/*"],
+  "include": ["adapter/**/*", "builder/**/*", "minify/**/*"],
   "exclude": ["node_modules", "dist/**/*"]
 }

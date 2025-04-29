@@ -9,11 +9,12 @@ import swc from '@rollup/plugin-swc';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import minify from 'minify/index.js';
 
 import BuildSettings from './BuildSettings.js';
 import { createResolveMatcher, getRelativePath, getSubDirRelativePath, loadPackageJson, normalizePath } from '../utils/Utils.js';
 import Package from './Package.js';
-import rebuildDependency from '../plugin/plugin-rebuild-dependency.js';
+import rebuildDependency from '../plugins/plugin-rebuild-dependency.js';
 
 type BuildParams = {
   [key: string]: any,
@@ -179,8 +180,10 @@ class BuildTask {
                 decorators: true,
               },
             },
-            minify: !!buildSettings.minify
           },
+        }),
+        !!buildSettings.minify && minify({
+          sourceMap: !!buildSettings.sourcemap
         }),
         copy({
           targets: buildParams.copyAssets
@@ -201,7 +204,7 @@ class BuildTask {
     .then(async (bundled) => {
       await bundled.write({
         dir: buildSettings.output,
-        format: 'es',
+        format: 'cjs',
         sourcemap: !!buildSettings.sourcemap,
         preserveModules: true,
         preserveModulesRoot: buildSettings.output,
@@ -256,7 +259,7 @@ class BuildTask {
     .then(async (bundled) => {
       await bundled.write({
         dir: outputDependencyPath,
-        format: 'es',
+        format: 'cjs',
         sourcemap: !!buildSettings.sourcemap,
         preserveModules: true,
         preserveModulesRoot: outputDependencyPath,

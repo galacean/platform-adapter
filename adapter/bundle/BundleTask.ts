@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { rollup } from 'rollup';
 import swc from '@rollup/plugin-swc';
 import chalk from 'chalk';
+import minify from 'minify/index.js';
 
 import { BundleInfo, AppType, Platform, AppDefination } from './BundleInfo.js';
 import { getPolyfillBundle } from "./PolyfillBundle.js";
@@ -50,9 +51,11 @@ export class BundleTask {
                 decorators: true,
               },
             },
-            minify: !!bundleSettings.minify
           },
         }),
+        !!bundleSettings.minify && minify({
+          sourceMap: !!bundleSettings.sourcemap
+        })
       ],
       onwarn(warning) {
         if (warning.code === 'THIS_IS_UNDEFINED') return;
