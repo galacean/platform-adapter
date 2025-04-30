@@ -1,4 +1,5 @@
-import BundleTaskFactory, { BundleTaskSettings } from './bundle/BundleTask.js';
+import chalk from 'chalk';
+import BundleTaskFactory from './bundle/BundleTask.js';
 import { parseArgs } from './cli.js';
 
 (async function bundleAdapter() {
@@ -27,7 +28,7 @@ import { parseArgs } from './cli.js';
 
     process.exit(0);
   } catch (e) {
-    console.error(e);
+    console.error(chalk.red(e.message));
     process.exit(1);
   }
 }());

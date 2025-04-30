@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs-extra';
 
@@ -105,7 +106,7 @@ import BuildTask from './build/BuildTask.js';
 
     process.exit(0);
   } catch (e) {
-    console.error(e);
+    console.error(chalk.red(e.message));
     process.exit(1);
   }
 }());
