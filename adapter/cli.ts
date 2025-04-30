@@ -9,7 +9,8 @@ const __dirname = path.dirname(__filename)
 export const rootDir = path.join(__dirname, '.');
 
 export function parseArgs() {
-  return yargs(process.argv).options({
+  return yargs(process.argv)
+  .options({
     polyfill: {
       alias: 'p',
       type: 'boolean',

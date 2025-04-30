@@ -81,13 +81,17 @@ class BuildTask {
     buildSettings.dependencies?.forEach(_dependency => {
       const packageInfo = parseDependencies(_dependency);
       if (packageInfo) {
-        const dependencyName = packageInfo.browser ?? packageInfo.main;
+        const dependencyScript = packageInfo.browser ?? packageInfo.main;
+        if (!dependencyScript) {
+          console.log(chalk.yellow(`No browser or main file found in '${_dependency}'`));
+          return;
+        }
         const src = path.join(_dependency, packageInfo.browser ?? packageInfo.main);
         const dependency = packageInfo.name;
         const dest = path.join(buildSettings.output!, path.join(dependencyPath, dependency));
         copyAssets.push({ src, dest });
         console.log(chalk.blue(`Copy dependencies '${src}' to '${dest}'`));
-        const basename = path.basename(dependencyName);
+        const basename = path.basename(dependencyScript);
         mappingDependencies.push({ find: packageInfo.name, replacement: path.join(dependency, basename) });
       }
     });
@@ -223,7 +227,7 @@ class BuildTask {
    * @param buildParams Build parameters containing the dependencies to be remapped.
    */
   private async buildDependencies(buildParams: BuildParams): Promise<void> {
-    if (!buildParams.dependencies) {
+    if (!buildParams.dependencies || buildParams.dependencies.length === 0) {
       return;
     }
     const buildSettings = this._buildSettings;
@@ -278,7 +282,7 @@ class BuildTask {
    * @param buildParams Build parameters containing the dependencies to be adapted.
    */
   private async adaptDependencies(buildParams: BuildParams) {
-    if (!buildParams.dependencies) {
+    if (!buildParams.dependencies || buildParams.dependencies.length === 0) {
       return;
     }
     const { _dependencyPath, _buildSettings } = this;

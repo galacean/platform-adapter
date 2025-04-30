@@ -64,6 +64,7 @@ Before using the CLI, ensure that you have installed the engine dependencies of 
 - `--o`, `--output`: The output directory for the build result. Default to the name field in package.json.
 - `--p`, `--platform`: Specify the platform to build, e.g. `wechat`. Default to `wechat`.
 - `--app`: Specify the app to build, e.g. `minigame` and `miniprogram`. Default to `minigame`.
+- `--extralWASM`: Specify the extra wasm configuration for your build. [See more about extralWASM](#--extralwasm-parameter-reference)
 - `--sourcemap`: Enable sourcemap generation. Default to `false`.
 - `--minify`: Enable minify generation. Default to `false`.
 - `--v`, `--visualizer`: Enable visualize build result. You can find them under the path of $project/.trash and remove them safely. Default to `false`.
@@ -82,4 +83,39 @@ dist/
       - polyfill.js # Platform-specific WebAPI
     - miniprogram/ # Mini-program platform
       - ...
+```
+
+### Appendix
+#### --extralWASM Parameter Reference
+
+**Integrating Custom WASM Modules with NPM Packaging**
+
+> Step 1: Create NPM Package for WASM Files
+
+``` shell
+# Generate .tgz package from your WASM project
+npm pack --workspace=./your-wasm-project
+# Install the packaged module in your main project
+npm install your-wasm-package-1.0.0.tgz
+```
+
+> Step 2: Configure WASM Module Paths
+
+Create `wasm-modules.json` at project root:
+
+``` json
+{
+  "your-custom-wasm": {
+    // Relative path from package to your-wasm-package under node_modules
+    "wasmBinary": "/dist/module.wasm",
+    // JavaScript loader path relative to your-wasm-package under node_modules
+    "loader": "your-wasm-package/loader.js"
+  }
+}
+```
+
+> Step 3: Build with WASM Configuration
+
+```shell
+npx project-builder --extralWASM ./wasm-modules.json
 ```

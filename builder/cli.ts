@@ -8,7 +8,8 @@ const __dirname = path.dirname(__filename)
 export const rootDir = path.join(__dirname, '..');
 
 export function parseArgs() {
-  return yargs(process.argv).options({
+  return yargs(process.argv)
+  .options({
     project: {
       type: 'string',
       default: '',
@@ -48,13 +49,18 @@ export function parseArgs() {
     },
     sourcemap: {
       type: 'boolean',
-      default: true,
+      default: false,
       describe: 'Enable source map for your build.'
     },
     minify: {
       type: 'boolean',
       default: false,
       describe: 'Enable minify for your build.'
+    },
+    extralWASM: {
+      type: 'string',
+      default: undefined,
+      describe: 'Specify the extra wasm configuration for your build.'
     },
     visualizer: {
       alias: 'v',

@@ -63,6 +63,15 @@ import BuildTask from './build/BuildTask.js';
       }
       if (!buildSettings.dependencies || buildSettings.dependencies.length === 0) {
         const wasmModules = Object.keys(wasmConfig);
+        let wasmConfigJson = { ...wasmConfig, }
+        if (buildSettings.extralWASM) {
+          const extralWASM = loadPackageJson(path.join(projectPath, buildSettings.extralWASM));
+          if (extralWASM) {
+            wasmModules.push(...Object.keys(extralWASM));
+            wasmConfigJson = { ...wasmConfigJson, ...extralWASM };
+          }
+        }
+
         buildSettings.dependencies = [];
         buildSettings.wasm = [];
         const dependencies = packageJson.dependencies;
@@ -72,8 +81,8 @@ import BuildTask from './build/BuildTask.js';
             buildSettings.dependencies.push(dependencyPath);
             const wasmModule = wasmModules.find(moduleName => moduleName === dependency);
             if (wasmModule) {
-              const wasmBinary = path.join(dependencyPath, wasmConfig[wasmModule].wasmBinary);
-              const loader = path.join(dependencyPath, wasmConfig[wasmModule].loader);
+              const wasmBinary = path.join(dependencyPath, wasmConfigJson[wasmModule].wasmBinary);
+              const loader = path.join(dependencyPath, wasmConfigJson[wasmModule].loader);
               buildSettings.wasm.push({
                 wasmBinary,
                 loader

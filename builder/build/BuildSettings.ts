@@ -8,6 +8,7 @@ type BuildSettings = {
   subpackages?: Array<string>,
   assets?: Array<string>,
   output?: string,
+  extralWASM?: string,
   sourcemap?: boolean,
   minify?: boolean,
   wasm?: Array<{ wasmBinary: string, loader: string }>
