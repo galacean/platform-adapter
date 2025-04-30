@@ -9,7 +9,6 @@ import swc from '@rollup/plugin-swc';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import minify from 'minify/index.js';
 
 import BuildSettings from './BuildSettings.js';
 import { createResolveMatcher, getRelativePath, getSubDirRelativePath, loadPackageJson, normalizePath } from '../utils/Utils.js';
@@ -180,10 +179,8 @@ class BuildTask {
                 decorators: true,
               },
             },
+            minify: !!buildSettings.minify
           },
-        }),
-        !!buildSettings.minify && minify({
-          sourceMap: !!buildSettings.sourcemap
         }),
         copy({
           targets: buildParams.copyAssets
@@ -204,7 +201,7 @@ class BuildTask {
     .then(async (bundled) => {
       await bundled.write({
         dir: buildSettings.output,
-        format: 'cjs',
+        format: 'es',
         sourcemap: !!buildSettings.sourcemap,
         preserveModules: true,
         preserveModulesRoot: buildSettings.output,
@@ -212,6 +209,7 @@ class BuildTask {
         entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
         exports: 'named',
+        compact: !!buildSettings.minify,
       });
       await bundled.close();
     })
@@ -259,13 +257,14 @@ class BuildTask {
     .then(async (bundled) => {
       await bundled.write({
         dir: outputDependencyPath,
-        format: 'cjs',
+        format: 'es',
         sourcemap: !!buildSettings.sourcemap,
         preserveModules: true,
         preserveModulesRoot: outputDependencyPath,
         esModule: true,
         entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
+        compact: !!buildSettings.minify,
       });
       await bundled.close();
     })

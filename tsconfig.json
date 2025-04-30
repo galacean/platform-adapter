@@ -19,10 +19,7 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "paths": {
-      "minify/*": ["plugins/minify/*"],
-    }
   },
-  "include": ["adapter/**/*", "builder/**/*", "minify/**/*"],
+  "include": ["adapter/**/*", "builder/**/*"],
   "exclude": ["node_modules", "dist/**/*"]
 }

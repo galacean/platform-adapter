@@ -21,7 +21,7 @@ function getSingleDependencyBundle(bundleName: string, platform: Platform, app: 
     entry: entry,
     output: {
       file: outputDir,
-      format: 'cjs',
+      format: 'es',
     },
     platformName: platform,
     app,
