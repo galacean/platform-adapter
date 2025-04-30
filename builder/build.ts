@@ -34,6 +34,9 @@ import BuildTask from './build/BuildTask.js';
       throw Error(`Project path not found: ${projectPath}`);
     }
 
+    if (!(buildSettings.app in Platform) || !(buildSettings.platform in Platform[buildSettings.app])) {
+      throw Error(`Unsupported platform: ${buildSettings.platform} ${buildSettings.app} `);
+    }
     const platformConfig = Platform[buildSettings.app][buildSettings.platform];
 
     const stdAssets = platformConfig.assets as string[];
