@@ -105,7 +105,7 @@ Create `wasm-modules.json` at project root:
 
 ``` json
 {
-  "your-custom-wasm": {
+  "your-wasm-package": {
     // Relative path from package to your-wasm-package under node_modules
     "wasmBinary": "/dist/module.wasm",
     // JavaScript loader path relative to your-wasm-package under node_modules
