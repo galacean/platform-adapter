@@ -38,25 +38,23 @@ import BuildTask from './build/BuildTask.js';
     if (!(buildSettings.app in Platform) || !(buildSettings.platform in Platform[buildSettings.app])) {
       throw Error(`Unsupported platform: ${buildSettings.platform} ${buildSettings.app} `);
     }
+
     const platformConfig = Platform[buildSettings.app][buildSettings.platform];
+    const configuredAssets = platformConfig.assets as string[];
+    const configFiles = platformConfig.configFiles as string[];
 
-    const stdAssets = platformConfig.assets as string[];
-    const stdConfigFiles = platformConfig.configFiles as string[];
-
-    // Filter exist assets and config files into buildSettings.assets;
-    stdAssets.forEach((asset) => {
+    // Append exist assets and config files into buildSettings.assets;
+    const buildSettingsAssets = buildSettings.assets = buildSettings.assets ?? [];
+    function appendAsset(asset: string) {
       const assetPath = path.join(projectPath, asset);
       if (fs.existsSync(assetPath)) {
-        buildSettings.assets.push(assetPath);
+        buildSettingsAssets.push(assetPath);
       }
-    });
-    stdConfigFiles.forEach((configFile) => {
-      const configFilePath = path.join(projectPath, configFile);
-      if (fs.existsSync(configFilePath)) {
-        buildSettings.assets.push(configFilePath);
-      }
-    });
+    }
+    configuredAssets?.forEach(appendAsset);
+    configFiles?.forEach(appendAsset);
 
+    // Prepare dependencies and wasm modules if packageJson exists.
     const packageJson = loadPackageJson(path.join(projectPath, platformConfig.packageJson));
     if (packageJson) {
       if (!buildSettings.output) {
@@ -65,33 +63,33 @@ import BuildTask from './build/BuildTask.js';
       if (!buildSettings.entry) {
         buildSettings.entry = packageJson.main;
       }
-      if (!buildSettings.dependencies || buildSettings.dependencies.length === 0) {
-        const wasmModules = Object.keys(wasmConfig);
-        let wasmConfigJson = { ...wasmConfig, }
-        if (buildSettings.extralWASM) {
-          const extralWASM = loadPackageJson(path.join(projectPath, buildSettings.extralWASM));
-          if (extralWASM) {
-            wasmModules.push(...Object.keys(extralWASM));
-            wasmConfigJson = { ...wasmConfigJson, ...extralWASM };
-          }
-        }
 
-        buildSettings.dependencies = [];
-        buildSettings.wasm = [];
-        const dependencies = packageJson.dependencies;
-        for (const dependency in dependencies) {
-          const dependencyPath = normalizePath(path.join(projectPath, 'node_modules', dependency)) ;
-          if (fs.pathExistsSync(dependencyPath)) {
-            buildSettings.dependencies.push(dependencyPath);
-            const wasmModule = wasmModules.find(moduleName => moduleName === dependency);
-            if (wasmModule) {
-              const wasmBinary = path.join(dependencyPath, wasmConfigJson[wasmModule].wasmBinary);
-              const loader = path.join(dependencyPath, wasmConfigJson[wasmModule].loader);
-              buildSettings.wasm.push({
-                wasmBinary,
-                loader
-              });
-            }
+      // Prepare wasm modules
+      buildSettings.dependencies = [];
+      buildSettings.wasm = [];
+      const wasmModules = Object.keys(wasmConfig);
+      let wasmConfigJson = { ...wasmConfig, }
+      if (buildSettings.extralWASM) {
+        const extralWASM = loadPackageJson(path.join(projectPath, buildSettings.extralWASM));
+        if (extralWASM) {
+          wasmModules.push(...Object.keys(extralWASM));
+          wasmConfigJson = { ...wasmConfigJson, ...extralWASM };
+        }
+      }
+
+      const dependencies = packageJson.dependencies;
+      for (const dependency in dependencies) {
+        const dependencyPath = normalizePath(path.join(projectPath, 'node_modules', dependency)) ;
+        if (fs.pathExistsSync(dependencyPath)) {
+          buildSettings.dependencies.push(dependencyPath);
+          const wasmModule = wasmModules.find(moduleName => moduleName === dependency);
+          if (wasmModule) {
+            const wasmBinary = path.join(dependencyPath, wasmConfigJson[wasmModule].wasmBinary);
+            const loader = path.join(dependencyPath, wasmConfigJson[wasmModule].loader);
+            buildSettings.wasm.push({
+              wasmBinary,
+              loader
+            });
           }
         }
       }

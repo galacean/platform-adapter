@@ -52,7 +52,7 @@ class BuildTask {
       input.push(...buildSettings.subpackages);
     }
     input = input.map(entry => {
-      return path.join(buildSettings.project!, entry);
+      return path.join(buildSettings.project!, getRelativePath(buildSettings.project!, entry));
     })
     .filter(path => {
       const exist = fs.pathExistsSync(path);
@@ -67,7 +67,6 @@ class BuildTask {
     }
 
     const copyAssets: Array<{ src: string, dest: string }> = [];
-
     if (buildSettings.assets && buildSettings.assets.length > 0) {
       copyAssets.push(...buildSettings.assets.map(asset => {
         const dest = path.join(buildSettings.output!, getRelativePath(buildSettings.project!, path.dirname(asset)));
@@ -88,7 +87,7 @@ class BuildTask {
         }
         const src = path.join(_dependency, packageInfo.browser ?? packageInfo.main);
         const dependency = packageInfo.name;
-        const dest = path.join(buildSettings.output!, path.join(dependencyPath, dependency));
+        const dest = path.join(buildSettings.output!, dependencyPath, dependency);
         copyAssets.push({ src, dest });
         console.log(chalk.blue(`Copy dependencies '${src}' to '${dest}'`));
         const basename = path.basename(dependencyScript);
