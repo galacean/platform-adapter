@@ -13,6 +13,6 @@ if [ -d "$TARGET_PATH" ]; then
   rm -rf "$TARGET_PATH"
 fi
 
-npx tsc
+npx tsc && tsc-alias
 
 echo "Successfully build CLI tools"
