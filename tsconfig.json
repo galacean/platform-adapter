@@ -4,9 +4,10 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "declaration": true,
-    "sourceMap": false,
-    "outDir": "./cli",
+    "sourceMap": true,
     "rootDir": ".",
+    "baseUrl": ".",
+    "outDir": "./cli",
     "declarationDir": "./cli/types",
     "allowJs": true,
     "noEmit": false,
@@ -17,7 +18,8 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "scripts/src/**/*.ts", "scripts/build.ts", "scripts/cli.ts"],
-  "exclude": ["node_modules", "dist/**/*", "scripts/dist/**/*"]
+  "include": ["adapter/**/*", "builder/**/*"],
+  "exclude": ["node_modules", "dist/**/*"]
 }
