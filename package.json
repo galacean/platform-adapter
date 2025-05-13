@@ -20,7 +20,6 @@
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "bundle": "node ./cli/scripts/build.js --p true",
     "prepare": "sh ./build.sh",
     "postpublish": "git tag -a v$npm_package_version -m 'Publish version $npm_package_version' && git push origin v$npm_package_version"
   },
