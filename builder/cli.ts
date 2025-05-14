@@ -5,7 +5,7 @@ import BuildSettings from './build/BuildSettings.js';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-export const rootDir = path.join(__dirname, '..');
+export const rootDir = path.join(__dirname, '.');
 
 export function parseArgs() {
   return yargs(process.argv)

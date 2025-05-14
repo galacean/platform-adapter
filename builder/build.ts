@@ -2,9 +2,7 @@ import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs-extra';
 
-import Platform from './config/platform.json' assert { type: 'json' };
-import wasmConfig from './config/wasm-builder.json' assert { type: 'json' };
-import { parseArgs } from './cli.js';
+import { parseArgs, rootDir } from './cli.js';
 import { loadPackageJson, normalizePath } from './utils/Utils.js';
 import BuildSettings from './build/BuildSettings.js';
 import BuildTask from './build/BuildTask.js';
@@ -34,6 +32,9 @@ import BuildTask from './build/BuildTask.js';
     if (!fs.pathExistsSync(projectPath)) {
       throw Error(`Project path not found: ${projectPath}`);
     }
+
+    const Platform = loadPackageJson(path.join(rootDir, "config/platform.json"));
+    const wasmConfig = loadPackageJson(path.join(rootDir, "config/wasm-builder.json"));
 
     if (!(buildSettings.app in Platform) || !(buildSettings.platform in Platform[buildSettings.app])) {
       throw Error(`Unsupported platform: ${buildSettings.platform} ${buildSettings.app} `);
