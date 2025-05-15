@@ -133,6 +133,11 @@ class BuildTask {
 
     console.log(chalk.green(`Start build project`));
 
+    if (fs.pathExistsSync(buildSettings.output)) {
+      console.log(chalk.green(`Start clean output directory: ${buildSettings.output}`));
+      fs.emptyDirSync(buildSettings.output);
+    }
+
     console.time(chalk.magenta(`Bundle project complete, total time`));
     await this.buildProject(buildParams);
     console.timeEnd(chalk.magenta(`Bundle project complete, total time`));
