@@ -44,6 +44,11 @@ class BuildTask {
     const buildSettings = this._buildSettings;
     const dependencyPath = this._dependencyPath;
 
+    if (fs.pathExistsSync(buildSettings.output)) {
+      console.log(chalk.green(`Start clean output directory: ${buildSettings.output}`));
+      fs.emptyDirSync(buildSettings.output);
+    }
+
     let input: Array<string> = [];
     if (buildSettings.entry) {
       input.push(buildSettings.entry);
@@ -132,11 +137,6 @@ class BuildTask {
     };
 
     console.log(chalk.green(`Start build project`));
-
-    if (fs.pathExistsSync(buildSettings.output)) {
-      console.log(chalk.green(`Start clean output directory: ${buildSettings.output}`));
-      fs.emptyDirSync(buildSettings.output);
-    }
 
     console.time(chalk.magenta(`Bundle project complete, total time`));
     await this.buildProject(buildParams);
