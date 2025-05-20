@@ -13,6 +13,14 @@ if [ -d "$TARGET_PATH" ]; then
   rm -rf "$TARGET_PATH"
 fi
 
-npx tsc
+npx tsc && tsc-alias
+
+echo "Append shebang to cli scripts"
+
+echo '#!/usr/bin/env node' | cat - cli/adapter/build.js > temp && mv temp cli/adapter/build.js
+echo '#!/usr/bin/env node' | cat - cli/builder/build.js > temp && mv temp cli/builder/build.js
+
+echo "Copy config files to $TARGET_PATH"
+cp -r ./builder/config "$TARGET_PATH"/builder
 
 echo "Successfully build CLI tools"

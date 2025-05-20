@@ -1,3 +1,5 @@
+import { Platform } from './BundleInfo';
+
 /**
  * @brief Declares global definitions that are specific to each platform.
  */
@@ -5,7 +7,7 @@ const globalDefinition = {
   'alipay': 'globalThis',
   'tiktok': 'GameGlobal',
   'wechat': 'GameGlobal',
-};
+} as Record<Platform, string>;
 
 /**
  * @brief Declares WebAssembly definitions specific to various platforms.
@@ -13,7 +15,7 @@ const globalDefinition = {
 const wasmDefinition = {
   'tiktok': 'TTWebAssembly',
   'wechat': 'WXWebAssembly',
-}
+} as Record<Platform, string>;
 
 /**
  * @brief Declares references to the engine's web API.

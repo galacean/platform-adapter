@@ -1,0 +1,6 @@
+{
+  "@galacean/engine-physics-physx": {
+    "wasmBinary": "libs/physx.release.wasm",
+    "loader": "libs/physx.release.js"
+  }
+}

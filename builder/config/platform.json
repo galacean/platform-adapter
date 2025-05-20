@@ -1,0 +1,20 @@
+{
+  "minigame": {
+    "wechat": {
+      "name": "微信小游戏",
+      "assets": [
+        "public"
+      ],
+      "configFiles": [
+        "game.json",
+        "project.config.json"
+      ],
+      "packageJson": "package.json"
+    }
+  },
+  "miniprogram": {
+    "wechat": {
+      "name": "微信小程序"
+    }
+  }
+}

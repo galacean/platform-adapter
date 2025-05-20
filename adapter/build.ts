@@ -1,4 +1,5 @@
-import BundleTaskFactory, { BundleTaskSettings } from './bundle/BundleTask.js';
+import chalk from 'chalk';
+import BundleTaskFactory from './bundle/BundleTask.js';
 import { parseArgs } from './cli.js';
 
 (async function bundleAdapter() {
@@ -9,16 +10,8 @@ import { parseArgs } from './cli.js';
       buildSettings = JSON.parse(envCfg);
       !buildSettings.output && (buildSettings.output = buildSettings.outputDir);
     } else {
-      if (!buildSettings) {
-        const { polyfill, engine, wasm, jsWASMLoader, output } = parseArgs();
-        buildSettings = {
-          polyfill: polyfill,
-          engine: engine,
-          wasm: wasm,
-          jsWASMLoader: jsWASMLoader,
-          output: output
-        } as BundleTaskSettings;
-      }
+      !buildSettings && (buildSettings = parseArgs());
+      !buildSettings.output && (buildSettings.output = buildSettings.outputDir);
     }
   } catch (e) {
     console.warn("CLI arguments are not supported or environment variable ADAPTER_BUNDLE_SETTINGS not a valid JSON.");
@@ -29,13 +22,13 @@ import { parseArgs } from './cli.js';
     let tasks = BundleTaskFactory.createBundleTask(buildSettings);
     if (tasks) {
       for (const task of tasks) {
-        await task.run();
+        await task.run(buildSettings);
       }
     }
 
     process.exit(0);
   } catch (e) {
-    console.error(e);
+    console.error(chalk.red(e.message));
     process.exit(1);
   }
 }());
