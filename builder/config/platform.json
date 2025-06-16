@@ -10,6 +10,17 @@
         "project.config.json"
       ],
       "packageJson": "package.json"
+    },
+    "tiktok": {
+      "name": "抖音小游戏",
+      "assets": [
+        "public"
+      ],
+      "configFiles": [
+        "game.json",
+        "project.config.json"
+      ],
+      "packageJson": "package.json"
     }
   },
   "miniprogram": {
