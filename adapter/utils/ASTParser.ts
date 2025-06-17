@@ -122,6 +122,13 @@ class ClassParser extends ASTParser {
               parsed && (Object.assign(members, parsed));
             }
           }
+        } else if (node.expression.type === 'CallExpression') {
+          // Record the callee function name.
+          const callee = node.expression.callee;
+          if (callee.type === 'Identifier') {
+            const _name = callee.name;
+            Object.assign(members, { [_name]: node });
+          }
         }
         break;
       default:
