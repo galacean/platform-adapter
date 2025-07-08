@@ -53,7 +53,6 @@ function getSingleEngineBundle(bundleName: string, platform: Platform, app: AppT
       resolve(),
       RebuildPlugin.getPlugins(uniqueBundleInfo),
       pluginReplaceGalaceanLogic(),
-      injectWASM(wasmDefinition[platform]),
       pluginReplaceSIMDSupported(),
       pluginReplaceWebAPI(globalDefinition[platform], '.platformAdapter', ``, refWebAPI),
     ],

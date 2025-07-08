@@ -29,8 +29,21 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
       })) {
         const magicString = new MagicString(code);
         const ast = this.parse(code);
+        let varName: string;
         walk(ast, {
           enter(node) {
+            if (node.type === 'AssignmentExpression' &&
+              node.left.type === 'MemberExpression' &&
+              node.left.object.type === 'Identifier' &&
+              node.left.object.name === 'module' &&
+              node.left.property.type === 'Identifier' &&
+              node.left.property.name === 'exports' &&
+              node.right.type === 'Identifier'
+            ) {
+              varName = node.right.name;
+              this.skip();
+            }
+
             if (node.type === 'FunctionDeclaration' &&
                 node.id &&
                 (
@@ -46,14 +59,15 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
                 magicString.overwrite(node.start, node.end, instantiateArrayBuffer.toString());
               }
             }
-          },
-          leave(node) {
-            code = magicString.toString();
-            code = code.replace(/wasmBinaryFile="([^"]*)"/, `wasmBinaryFile="/public/wasmSubpackage/physx.release.wasm"`);
-            code = code.replace(`WebAssembly.RuntimeError`, `Error`);
-            code = code.concat(`window.PHYSX = PHYSX`);
           }
         });
+
+        code = magicString.toString();
+        code = code.replace(/wasmBinaryFile\s*=\s*(['"])[^'"]*\1/, `wasmBinaryFile="/public/wasmSubpackage/${id.split('/').pop().split('.').slice(0, -1).join('.')}.wasm"`);
+        code = code.replace(`WebAssembly.RuntimeError`, `Error`);
+        if (varName) {
+          code = code.concat(`window.${varName} = ${varName}`);
+        }
       }
 
       if (wasmName) {

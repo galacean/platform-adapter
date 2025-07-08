@@ -1,71 +1,26 @@
 import { Node } from 'estree';
 import { walk } from 'estree-walker';
-import { ASTNode, ASTNodeWrapper, ASTType, ClassParser, FunctionParser } from '../utils/ASTParser.js';
+import { ASTNode, ASTNodeWrapper, ASTType, ClassParser, getASTParser } from '../utils/AST/index.js';
+import { getNodeName } from 'adapter/utils/PluginUtils.js';
 import MagicString from 'magic-string';
 import { generate } from 'escodegen';
 import { Plugin } from 'rollup';
 
-/**
- * A parser for galacean adapter code
- */
-class GalaceanAdapterParser {
-  constructor(protected ast: Node) { }
-
-  parseNode(node: Node): ASTNodeWrapper {
-    if (node.type === 'Program' && node.body) {
-      let parsed = undefined;
-      // Assume that node.body contains only one element.
-      for (const subNode of node.body) {
-        switch (subNode.type) {
-          case 'ClassDeclaration':
-          case 'VariableDeclaration':
-          case 'ExpressionStatement':
-            parsed = new ClassParser(subNode).parse();
-            break;
-          case 'FunctionDeclaration':
-            parsed = new FunctionParser(subNode).parse();
-            break;
-          default:
-            break;
-        }
-      }
-      return parsed;
-    }
-    return undefined;
-  }
-
-  parse(): ASTNodeWrapper {
-    const parseNode = this.parseNode;
-    let parsed;
-    walk(this.ast, {
-      enter(node) {
-        const astNode = parseNode(node);
+function parseEngineAdapterNode(ast: Node): ASTNodeWrapper {
+  let parsed = undefined;
+  walk(ast, {
+    enter(node) {
+      if (node.type === 'Program' && node.body && node.body.length > 0) {
+        // Assume that node.body contains only one element.
+        let astNode = getASTParser(node.body[0])?.parse();
         if (astNode) {
           parsed = astNode;
           this.skip();
         }
       }
-    });
-    return parsed;
-  }
-}
-
-function getNodeName(node: Node) {
-  let name = '';
-  if (node.type === 'ExpressionStatement') {
-    if (node.expression.type === 'AssignmentExpression') {
-      const left = node.expression.left;
-      if (left.type === 'MemberExpression') {
-        if (left.object.type === 'Identifier' && left.property.type === 'Identifier') {
-          name = left.property.name
-        }
-      }
     }
-  } else {
-    // @ts-ignore
-    name = node.id ? node.id.name : node.name;
-  }
-  return name ?? '';
+  });
+  return parsed;
 }
 
 export default class RebuildPlugin {
@@ -86,8 +41,7 @@ export default class RebuildPlugin {
 
           const galaceanAdapterMap: Record<string, ASTNodeWrapper> = {};
           sourcecode.forEach(sc => {
-            const parser = new GalaceanAdapterParser(this.parse(sc));
-            const astNodeWrapper = parser.parse();
+            const astNodeWrapper = parseEngineAdapterNode(this.parse(sc));
             if (astNodeWrapper) {
               for (const wrapper in astNodeWrapper) {
                 const node = astNodeWrapper[wrapper];
@@ -100,7 +54,7 @@ export default class RebuildPlugin {
           function rebuildCode(node: Node): boolean {
             if (node) {
               let galaceanAdapterNode: ASTNode = undefined;
-              let nodeName = getNodeName(node)
+              const nodeName = getNodeName(node)
               if (galaceanAdapterMap[nodeName]) {
                 galaceanAdapterNode = galaceanAdapterMap[nodeName][node.type]
               }
@@ -110,9 +64,12 @@ export default class RebuildPlugin {
               const { astType, node: adapterNode, members: adapterMembers } = galaceanAdapterNode.node;
               switch (astType) {
                 case ASTType.Class:
-                  let classParser = new ClassParser(node);
-                  const originASTNodeWrapper = classParser.parse();
-                  if (classParser.isClass) {
+                  const originCodeParser = getASTParser(node);
+                  if (!originCodeParser) {
+                    return false;
+                  }
+                  const originASTNodeWrapper = originCodeParser.parse();
+                  if (originCodeParser.type === ASTType.Class) {
                     const originMembers = originASTNodeWrapper[node.type].node.members;
                     for (const memberName in adapterMembers) {
                       const adapterMember = adapterMembers[memberName];
