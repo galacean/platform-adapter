@@ -4,7 +4,7 @@
     "loader": "libs/physx.release.js"
   },
   "@galacean/engine-loader": {
-    "wasmBinary": "basis_transcoder.wasm",
-    "loader": "basis_transcoder.js"
+    "wasmBinary": "libs/basis_transcoder.wasm",
+    "loader": "libs/basis_transcoder.js"
   }
 }
