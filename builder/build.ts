@@ -70,11 +70,11 @@ import BuildTask from './build/BuildTask.js';
       buildSettings.wasm = [];
       const wasmModules = Object.keys(wasmConfig);
       let wasmConfigJson = { ...wasmConfig, }
-      if (buildSettings.extralWASM) {
-        const extralWASM = loadPackageJson(path.join(projectPath, buildSettings.extralWASM));
-        if (extralWASM) {
-          wasmModules.push(...Object.keys(extralWASM));
-          wasmConfigJson = { ...wasmConfigJson, ...extralWASM };
+      if (buildSettings.extraWASM) {
+        const extraWASM = loadPackageJson(path.join(projectPath, buildSettings.extraWASM));
+        if (extraWASM) {
+          wasmModules.push(...Object.keys(extraWASM));
+          wasmConfigJson = { ...wasmConfigJson, ...extraWASM };
         }
       }
 

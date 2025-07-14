@@ -64,7 +64,7 @@ Before using the CLI, ensure that you have installed the engine dependencies of 
 - `--o`, `--output`: The output directory for the build result. Default to the name field in package.json.
 - `--p`, `--platform`: Specify the platform to build, e.g. `wechat`. Default to `wechat`.
 - `--app`: Specify the app to build, e.g. `minigame` and `miniprogram`. Default to `minigame`.
-- `--extralWASM`: Specify the extra wasm configuration for your build. [See more about extralWASM](#--extralwasm-parameter-reference)
+- `--extraWASM`: Specify the extra wasm configuration for your build. [See more about extraWASM](#--extrawasm-parameter-reference)
 - `--sourcemap`: Enable sourcemap generation. Default to `false`.
 - `--minify`: Enable minify generation. Default to `false`.
 - `--v`, `--visualizer`: Enable visualize build result. You can find them under the path of $project/.trash and remove them safely. Default to `false`.
@@ -86,7 +86,7 @@ dist/
 ```
 
 ### Appendix
-#### --extralWASM Parameter Reference
+#### --extraWASM Parameter Reference
 
 **Integrating Custom WASM Modules with NPM Packaging**
 
@@ -117,5 +117,5 @@ Create `wasm-modules.json` at project root:
 > Step 3: Build with WASM Configuration
 
 ```shell
-npx project-builder --extralWASM ./wasm-modules.json
+npx project-builder --extraWASM ./wasm-modules.json
 ```

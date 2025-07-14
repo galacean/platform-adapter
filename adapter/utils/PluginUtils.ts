@@ -130,6 +130,37 @@ function generateCode(node: Node): string {
 }
 
 /**
+ * Checks if the given JavaScript function is a function.
+ *
+ * @param {node} func - The function to check.
+ * @returns {boolean} - Returns true if the node is function, false otherwise.
+ *
+ * @example
+ * 
+ * const func = function myFunc() {};
+ * console.log(isFunction(func)); // true
+ * 
+ * const variable = "test";
+ * console.log(isFunction(variable)); // false
+ */
+function isFunction(node: Node): boolean {
+  switch (node.type) {
+    case 'FunctionDeclaration':
+    case 'FunctionExpression':
+    case 'ArrowFunctionExpression':
+      return true;
+    case 'VariableDeclarator':
+      return node.init && (node.init.type === 'FunctionExpression' || node.init.type === 'ArrowFunctionExpression');
+    case 'CallExpression':
+      return node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression';
+    case 'MethodDefinition':
+      return node.value.type === 'FunctionExpression' || node.value.type === 'ArrowFunctionExpression';
+    default:
+      return false;
+  }
+}
+
+/**
  * Checks if the given JavaScript function is an anonymous function.
  *
  * An anonymous function is one that does not have a name
@@ -164,4 +195,33 @@ function isAnonymousFunction(node: Node): boolean {
   }
 }
 
-export { isReference, isStatement, isExpression, isCJSPrototype, flatten, generateCode, renameFunctionNode, isAnonymousFunction };
+function getNodeName(node: Node) {
+  let name = '';
+  if (node.type === 'ExpressionStatement') {
+    if (node.expression.type === 'AssignmentExpression') {
+      const left = node.expression.left;
+      if (left.type === 'MemberExpression') {
+        if (left.object.type === 'Identifier' && left.property.type === 'Identifier') {
+          name = left.property.name
+        }
+      }
+    }
+  } else {
+    // @ts-ignore
+    name = node.id ? node.id.name : node.name;
+  }
+  return name ?? '';
+}
+
+export {
+  isReference,
+  isStatement,
+  isExpression,
+  isCJSPrototype,
+  flatten,
+  generateCode,
+  renameFunctionNode,
+  isAnonymousFunction,
+  isFunction,
+  getNodeName
+};
