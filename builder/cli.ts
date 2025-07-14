@@ -57,7 +57,7 @@ export function parseArgs() {
       default: false,
       describe: 'Enable minify for your build.'
     },
-    extralWASM: {
+    extraWASM: {
       type: 'string',
       default: undefined,
       describe: 'Specify the extra wasm configuration for your build.'
