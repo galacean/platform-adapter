@@ -1,0 +1,16 @@
+{
+  "physx": {
+    "@galacean/engine-physics-physx": {
+      "wasmBinary": "libs/physx.release.wasm",
+      "loader": "libs/physx.release.js"
+    }
+  },
+  "ktx2": {
+    "@galacean/engine-loader": [
+      {
+        "wasmBinary": "libs/basis_transcoder.wasm",
+        "loader": "libs/basis_transcoder.js"
+      }
+    ]
+  }
+}

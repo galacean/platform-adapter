@@ -305,6 +305,16 @@ class BuildTask {
     })
     .join(' ');
     const adaptWASMLoaders = buildParams.wasmloaders.join(' ');
+    console.log(chalk.green("Start adapt dependencies:"));
+    if (adaptEngines) {
+      console.log(chalk.cyan("  Engines:"), adaptEngines);
+    }
+    if (adaptDeps) {
+      console.log(chalk.cyan("  Dependencies:"), adaptDeps);
+    }
+    if (adaptWASMLoaders) {
+      console.log(chalk.cyan("  WASM Loaders:"), adaptWASMLoaders);
+    }
 
     const result = await promisify(exec)([
       'npx platform-adapter',
