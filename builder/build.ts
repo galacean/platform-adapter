@@ -78,9 +78,9 @@ function pushWASMElements(source: WASMWrapper[], target: WASMWrapper | WASMWrapp
     configuredAssets?.forEach(appendAsset);
     configFiles?.forEach(appendAsset);
 
-    const wasmPackage = loadPackageJson(path.join(rootDir, "config/wasm-package.json"));
     // Prepare dependencies and wasm modules if packageJson exists.
     const packageJson = loadPackageJson(path.join(projectPath, platformConfig.packageJson));
+    const wasmPackage = loadPackageJson(path.join(rootDir, "config/wasm-package.json"));
     if (packageJson) {
       if (!buildSettings.output) {
         buildSettings.output = packageJson.name;
