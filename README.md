@@ -88,34 +88,29 @@ dist/
 ### Appendix
 #### --extraWASM Parameter Reference
 
-**Integrating Custom WASM Modules with NPM Packaging**
+**Integrating Custom WASM Modules**
 
-> Step 1: Create NPM Package for WASM Files
+> Step 1: Configure WASM Module Paths
 
-``` shell
-# Generate .tgz package from your WASM project
-npm pack --workspace=./your-wasm-project
-# Install the packaged module in your main project
-npm install your-wasm-package-1.0.0.tgz
-```
-
-> Step 2: Configure WASM Module Paths
-
-Create `wasm-modules.json` at project root:
+Create `wasm-config.json` at project root:
 
 ``` json
 {
   "your-wasm-package": {
-    // Relative path from package to your-wasm-package under node_modules
-    "wasmBinary": "/dist/module.wasm",
-    // JavaScript loader path relative to your-wasm-package under node_modules
-    "loader": "your-wasm-package/loader.js"
-  }
+    "wasmBinary": "${workspace}/module.wasm",
+    "loader": "${workspace}/loader.js"
+  },
+  "another-wasm-package": [
+    {
+      "wasmBinary": "${workspace}/another-module.wasm",
+      "loader": "${workspace}/another-loader.js"
+    }
+  ]
 }
 ```
 
-> Step 3: Build with WASM Configuration
+> Step 2: Build with WASM Configuration
 
 ```shell
-npx project-builder --extraWASM ./wasm-modules.json
+npx project-builder --extraWASM ./wasm-config.json
 ```
