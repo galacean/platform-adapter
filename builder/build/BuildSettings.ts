@@ -14,4 +14,9 @@ type BuildSettings = {
   wasm?: Array<{ wasmBinary: string, loader: string }>
 }
 
+export type WASMWrapper = {
+  wasmBinary: string,
+  loader: string
+}
+
 export default BuildSettings;
