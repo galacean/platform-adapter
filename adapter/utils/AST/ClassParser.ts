@@ -70,8 +70,16 @@ export default class ClassParser extends ASTParser {
               // Return class method.
               const _name = left.property.name;
               const _node = node.expression.right;
-              if (!(node.expression.right as FunctionExpression).id) {
-                renameFunctionNode(_node as FunctionExpression, _name);
+              if (!(_node as FunctionExpression).id) {
+                if (_node.type === 'CallExpression' && _node.callee.type === 'FunctionExpression' && _node.callee.body.body.length > 0) {
+                  for (const statement of _node.callee.body.body) {
+                    parsed = this.parseClassAsCJS(statement, className);
+                    parsed && (Object.assign(members, parsed));
+                  }
+                  return members;
+                } else {
+                  renameFunctionNode(_node as FunctionExpression, _name);
+                }
               }
               Object.assign(members, { [_name]: _node });
             }
