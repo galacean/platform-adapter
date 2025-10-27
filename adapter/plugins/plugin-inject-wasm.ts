@@ -129,7 +129,7 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
         code = code.replace(/WebAssembly/g, wasmName);
         code = code.replace(/typeof WebAssembly/g, `typeof ${wasmName}`);
       }
-      return { code, map: null };
+      return { code };
     }
   }
 }

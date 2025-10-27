@@ -48,7 +48,7 @@ export function pluginReplaceSIMDSupported(): Plugin {
           }
         });
       }
-      return { code, map: null };
+      return { code };
     }
   }
 }
