@@ -91,7 +91,6 @@ function pushWASMElements(source: WASMWrapper[], target: WASMWrapper | WASMWrapp
 
       const npmPath = path.join(projectPath, "node_modules");
       // Prepare wasm modules
-      buildSettings.dependencies = [];
       buildSettings.wasm = [] as WASMWrapper[];
       if (buildSettings.extraWASM) {
         const extraWASM = loadPackageJson(path.join(projectPath, buildSettings.extraWASM));
@@ -114,13 +113,15 @@ function pushWASMElements(source: WASMWrapper[], target: WASMWrapper | WASMWrapp
             pushWASMElements(buildSettings.wasm, extraWASM[wasmKey], projectPath);
           });
         }
+      }
 
-        const dependencies = buildSettings.dependencies;
-        for (const dependency in packageJson.dependencies) {
-          const dependencyPath = normalizePath(path.join(npmPath, dependency)) ;
-          if (fs.pathExistsSync(dependencyPath)) {
-            dependencies.push(dependencyPath);
-          }
+      // Prepare dependencies
+      buildSettings.dependencies = [];
+      const dependencies = buildSettings.dependencies;
+      for (const dependency in packageJson.dependencies) {
+        const dependencyPath = normalizePath(path.join(npmPath, dependency)) ;
+        if (fs.pathExistsSync(dependencyPath)) {
+          dependencies.push(dependencyPath);
         }
       }
     }
