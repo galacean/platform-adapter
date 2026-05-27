@@ -64,7 +64,7 @@ function createResolveMatcher(id: string) {
  * @returns {string} The escaped string.
  */
 function escapeGlob(string: string) {
-  return string.replace(/[\\?*\[\]{}()^!]/g, '\\$&');
+  return normalizePath(string).replace(/[?*\[\]{}()^!]/g, '\\$&');
 }
 
 export {

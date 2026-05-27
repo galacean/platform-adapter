@@ -7,11 +7,12 @@ import alias from '@rollup/plugin-alias';
 import resolve from '@rollup/plugin-node-resolve';
 import swc from '@rollup/plugin-swc';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 
 import BuildSettings from './BuildSettings.js';
 import { createResolveMatcher, escapeGlob, getRelativePath, getSubDirRelativePath, loadPackageJson, normalizePath } from '../utils/Utils.js';
+import { rootDir } from '../cli.js';
 import Package from './Package.js';
 import rebuildDependency from '../plugins/plugin-rebuild-dependency.js';
 
@@ -37,7 +38,7 @@ class BuildTask {
   private _outputDependencyPath: string;
 
   constructor(private _buildSettings: BuildSettings) {
-    this._outputDependencyPath = path.join(_buildSettings.output!, this._dependencyPath);
+    this._outputDependencyPath = normalizePath(path.join(_buildSettings.output!, this._dependencyPath));
   }
 
   public async run(): Promise<void> {
@@ -246,6 +247,10 @@ class BuildTask {
       }
       return '';
     }).filter(p => p);
+    if (input.length === 0) {
+      console.warn(chalk.yellow('No dependency inputs found. Skip dependency rebundling.'));
+      return;
+    }
     return rollup({
       input,
       plugins: [
@@ -290,47 +295,41 @@ class BuildTask {
       return;
     }
     const { _dependencyPath, _buildSettings } = this;
-    const adaptEngines = buildParams.dependencies.filter(({ find }) => {
-      return find.indexOf('@galacean') !== -1;
-    })
-    .map(({ find, replacement }) => {
-      return path.join(_dependencyPath, find, path.basename(replacement));
-    })
-    .join(' ');
-    const adaptDeps = buildParams.dependencies.filter(({ find }) => {
-      return find.indexOf('@galacean') === -1;
-    })
-    .map(({ find, replacement }) => {
-      return path.join(_dependencyPath, find, path.basename(replacement));
-    })
-    .join(' ');
-    const adaptWASMLoaders = buildParams.wasmloaders.join(' ');
+    const toAdaptPath = ({ find, replacement }: { find: string, replacement: string }) =>
+      normalizePath(path.join(_dependencyPath, find, path.basename(replacement)));
+    const adaptEnginesArray = buildParams.dependencies
+      .filter(({ find }) => find.includes('@galacean'))
+      .map(toAdaptPath);
+    const adaptDepsArray = buildParams.dependencies
+      .filter(({ find }) => !find.includes('@galacean'))
+      .map(toAdaptPath);
+    const wasmLoaderArray = buildParams.wasmloaders ?? [];
     console.log(chalk.green("Start adapt dependencies:"));
-    if (adaptEngines) {
-      console.log(chalk.cyan("  Engines:"), adaptEngines);
+    if (adaptEnginesArray.length) {
+      console.log(chalk.cyan("  Engines:"), adaptEnginesArray.join(' '));
     }
-    if (adaptDeps) {
-      console.log(chalk.cyan("  Dependencies:"), adaptDeps);
+    if (adaptDepsArray.length) {
+      console.log(chalk.cyan("  Dependencies:"), adaptDepsArray.join(' '));
     }
-    if (adaptWASMLoaders) {
-      console.log(chalk.cyan("  WASM Loaders:"), adaptWASMLoaders);
+    if (wasmLoaderArray.length) {
+      console.log(chalk.cyan("  WASM Loaders:"), wasmLoaderArray.join(' '));
     }
 
-    const result = await promisify(exec)([
-      'npx platform-adapter',
-      '--polyfill true',
-      adaptEngines && `--engine ${adaptEngines}`,
-      adaptDeps && `--dependency ${adaptDeps}`,
-      adaptWASMLoaders && `--jsWASMLoader ${adaptWASMLoaders}`,
-      `--platform ${_buildSettings.platform}`,
-      `--app ${_buildSettings.app}`,
-      `--root ${_buildSettings.output}`,
-      `--output ${_buildSettings.output}`,
-      `--sourcemap ${_buildSettings.sourcemap}`,
-      `--minify ${_buildSettings.minify}`,
-    ]
-    .filter(p => p)
-    .join(' '));
+    const args = [
+      '--polyfill', 'true',
+      ...(adaptEnginesArray.length ? ['--engine', ...adaptEnginesArray] : []),
+      ...(adaptDepsArray.length ? ['--dependency', ...adaptDepsArray] : []),
+      ...(wasmLoaderArray.length ? ['--jsWASMLoader', ...wasmLoaderArray] : []),
+      '--platform', _buildSettings.platform,
+      '--app', _buildSettings.app,
+      '--root', normalizePath(_buildSettings.output),
+      '--output', normalizePath(_buildSettings.output),
+      '--sourcemap', String(_buildSettings.sourcemap),
+      '--minify', String(_buildSettings.minify),
+    ];
+
+    const adapterCliPath = path.resolve(rootDir, '../adapter/build.js');
+    const result = await promisify(execFile)(process.execPath, [adapterCliPath, ...args]);
 
     if (result.stdout) {
       console.log(result.stdout);
