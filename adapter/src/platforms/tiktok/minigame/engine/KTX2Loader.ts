@@ -3,7 +3,7 @@ exports.KTX2Loader = /*#__PURE__*/ function(Loader) {
     /** @internal */ KTX2Loader._parseBuffer = function _parseBuffer(buffer, engine, params) {
         var ktx2Container = new KTX2Container(buffer);
         var _params_priorityFormats;
-        var formatPriorities = (_params_priorityFormats = params == null ? void 0 : params.priorityFormats) != null ? _params_priorityFormats : KTX2Loader._priorityFormats[ktx2Container.isUASTC ? "uastc" : "etc1s"];
+        var formatPriorities = (_params_priorityFormats = params == null ? void 0 : params.priorityFormats) != null ? _params_priorityFormats : KTX2Loader._priorityFormats[ktx2Container.colorModel];
         var targetFormat = KTX2Loader._decideTargetFormat(engine, ktx2Container, formatPriorities);
         var binomialLLCWorker = KTX2Loader._getBinomialLLCTranscoder();
         var transcodeResultPromise = binomialLLCWorker.init().then(function() {
