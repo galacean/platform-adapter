@@ -36,11 +36,6 @@ export interface RollupInjectOptions {
    * You can separate values to inject from other options.
    */
   modules?: { [str: string]: Injectment };
-
-  /**
-   * 
-   */
-  sourceMap?: boolean;
 }
 
 const sep = path.sep;
@@ -58,8 +53,6 @@ export default function injectGlobalVars(options: RollupInjectOptions): Plugin {
     modules = Object.assign({}, options) as { [str: string]: Injectment };
     delete modules.include;
     delete modules.exclude;
-    delete modules.sourceMap;
-    delete modules.sourcemap;
   }
 
   const modulesMap = new Map(Object.entries(modules));
@@ -83,7 +76,6 @@ export default function injectGlobalVars(options: RollupInjectOptions): Plugin {
   }
 
   const firstpass = new RegExp(`(?:${Array.from(modulesMap.keys()).map(escape).join('|')})`, 'g');
-  const sourceMap = options.sourceMap !== false;
 
   return {
     name: 'inject',
@@ -136,11 +128,6 @@ export default function injectGlobalVars(options: RollupInjectOptions): Plugin {
 
       walk(ast, {
         enter(node: any, parent) {
-          if (sourceMap) {
-            magicString.addSourcemapLocation(node.start);
-            magicString.addSourcemapLocation(node.end);
-          }
-
           if (node.scope) {
             scope = node.scope; // eslint-disable-line prefer-destructuring
           }
@@ -169,10 +156,7 @@ export default function injectGlobalVars(options: RollupInjectOptions): Plugin {
         },
       });
 
-      return {
-        code: magicString.toString(),
-        map: sourceMap ? magicString.generateMap({ hires: true }) : null,
-      };
+      return { code: magicString.toString() };
     },
   };
 }

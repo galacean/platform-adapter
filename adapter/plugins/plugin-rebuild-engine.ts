@@ -101,10 +101,7 @@ export default class RebuildPlugin {
               rebuildCode(node);
             },
           });
-          return {
-            code: magicString.toString(),
-            map: null
-          }
+          return { code: magicString.toString()}
         }
       }
     ];
