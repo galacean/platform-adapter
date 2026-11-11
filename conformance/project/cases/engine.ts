@@ -50,9 +50,9 @@ function spySubpackage(ctx: Context) {
 }
 
 /** Maps `<subpackage>/<file>` to a file the Editor would have exported into that subpackage. */
-function registerSubpackageTexture(ctx: Context, file: string, subpackageName: string): void {
+function registerSubpackageAsset(ctx: Context, file: string, subpackageName: string, type: string = AssetType.Texture): void {
   ctx.engine.resourceManager.registerVirtualResources([
-    { virtualPath: `${subpackageName}/${file}`, path: `public/${subpackageName}/${file}`, type: AssetType.Texture, subpackageName }
+    { virtualPath: `${subpackageName}/${file}`, path: `public/${subpackageName}/${file}`, type, subpackageName }
   ] as any);
 }
 
@@ -108,7 +108,7 @@ export const engineOverrideCases: Case[] = [
     async run(ctx) {
       const spy = spySubpackage(ctx);
       try {
-        registerSubpackageTexture(ctx, "red.png", "conf-sub");
+        registerSubpackageAsset(ctx, "red.png", "conf-sub");
         const texture = await load<Texture2D>(ctx.engine, "conf-sub/red.png", AssetType.Texture);
         assert(spy.calls.includes("conf-sub"), `loadSubpackage was not called (calls: ${JSON.stringify(spy.calls)})`);
         await expectTextureColor(ctx, texture, RED, 8, "subpackage texture");
@@ -125,7 +125,7 @@ export const engineOverrideCases: Case[] = [
     async run(ctx) {
       const spy = spySubpackage(ctx);
       try {
-        registerSubpackageTexture(ctx, "green.png", "conf-sub");
+        registerSubpackageAsset(ctx, "green.png", "conf-sub");
         // Two materials that use the same texture: Engine must hand both the same object.
         const [first, second] = await Promise.all([
           load<Texture2D>(ctx.engine, "conf-sub/green.png", AssetType.Texture),
@@ -155,7 +155,7 @@ export const engineOverrideCases: Case[] = [
           (error) => `rejected: ${String(error?.message ?? error).slice(0, 80)}`
         );
       try {
-        registerSubpackageTexture(ctx, "any.png", "conf-missing");
+        registerSubpackageAsset(ctx, "any.png", "conf-missing");
         const first = await attempt();
         assert(first.startsWith("rejected"), `loading from a subpackage that does not exist ${first}`);
         // A stale "loading" entry would answer the second load with the first failure, without asking the platform.
@@ -174,7 +174,7 @@ export const engineOverrideCases: Case[] = [
     title: "分包资源加载中可以取消",
     covers: "ResourceManager.cancelNotLoaded while the override waits for loadSubpackage",
     async run(ctx) {
-      registerSubpackageTexture(ctx, "blue.png", "conf-sub");
+      registerSubpackageAsset(ctx, "blue.png", "conf-sub");
       const cancelRightAfterStart = async (when: string) => {
         const pending = load(ctx.engine, "conf-sub/blue.png", AssetType.Texture).then(
           () => "resolved",
@@ -197,6 +197,62 @@ export const engineOverrideCases: Case[] = [
       } finally {
         ctx.api.loadSubpackage = original;
       }
+    }
+  },
+  {
+    id: "subpackage-asset-cancel-reload",
+    category: "engine-override",
+    title: "取消分包资源后立即重新加载，仍然只加载一份",
+    covers: "ResourceManager._loadSubpackageAndMainAsset override: the loading entry has one owner, so Engine's cleanup of a canceled load cannot remove the entry of the reload",
+    async run(ctx) {
+      registerSubpackageAsset(ctx, "yellow.png", "conf-sub");
+      const url = "conf-sub/yellow.png";
+      // The platform answers at once (WeChat on Android does for a subpackage that is already loaded), so the
+      // asset is loading when the cancel arrives.
+      const original = ctx.api.loadSubpackage;
+      ctx.api.loadSubpackage = (options: any) => options.success?.();
+      try {
+        let reload: Promise<Texture2D>;
+        const first = load<Texture2D>(ctx.engine, url, AssetType.Texture);
+        // A game that loads the asset again when its load is rejected (a retry, or the next scene needs it too).
+        const reloadStarted = new Promise<void>((resolve) =>
+          first.then(undefined, () => {
+            reload = load<Texture2D>(ctx.engine, url, AssetType.Texture);
+            resolve();
+          })
+        );
+        ctx.engine.resourceManager.cancelNotLoaded(url);
+        await reloadStarted;
+        // Let the canceled load finish its own cleanup before the next load arrives.
+        for (let i = 0; i < 12; i++) await Promise.resolve();
+        const next = load<Texture2D>(ctx.engine, url, AssetType.Texture);
+        const [a, b] = await Promise.all([reload, next]);
+        assert(a === b, `the reload and a load that arrived while it ran created two textures (instanceId ${a.instanceId} and ${b.instanceId})`);
+      } finally {
+        ctx.api.loadSubpackage = original;
+      }
+    }
+  },
+  {
+    id: "subpackage-subasset-failure",
+    category: "engine-override",
+    title: "分包加载失败后不留下子资源的回调记录",
+    covers: "ResourceManager._loadSubpackageAndMainAsset override: a sub-asset request (url?q=…) whose subpackage fails leaves nothing behind",
+    async run(ctx) {
+      const rm: any = ctx.engine.resourceManager;
+      // Engine's internal tables: the callbacks of sub-asset requests, and the loads that are running.
+      if (typeof rm._subAssetPromiseCallbacks !== "object" || typeof rm._loadingPromises !== "object") {
+        return { status: "skip", detail: "ResourceManager._subAssetPromiseCallbacks / _loadingPromises not found" };
+      }
+      registerSubpackageAsset(ctx, "any.gltf", "conf-missing", AssetType.GLTF);
+      const outcome = await load(ctx.engine, "conf-missing/any.gltf?q=meshes[0][0]", AssetType.GLTF).then(
+        () => "resolved",
+        (error) => `rejected: ${String(error?.message ?? error).slice(0, 80)}`
+      );
+      assert(outcome.startsWith("rejected"), `a sub-asset of a subpackage that does not exist ${outcome}`);
+      const left = [...Object.keys(rm._subAssetPromiseCallbacks), ...Object.keys(rm._loadingPromises)].filter((key) => key.indexOf("any.gltf") >= 0);
+      assert(left.length === 0, `the failed load left entries behind: ${JSON.stringify(left)}`);
+      return { status: "pass", detail: outcome };
     }
   },
   {
@@ -266,9 +322,14 @@ export const engineOverrideCases: Case[] = [
     covers: "SourceFontLoader override → the platform's loadFont (no FontFace / document.fonts)",
     async run(ctx) {
       const started = Date.now();
-      const font = await load<Font>(ctx.engine, `${ctx.local}/box.ttf`, AssetType.SourceFont);
-      assert(font && font.name, "the loaded Font has no name");
-      return { status: "pass", detail: `family "${font.name}"; loaded in ${Date.now() - started} ms` };
+      const font = await load<Font>(ctx.engine, `${ctx.local}/source.ttf`, AssetType.SourceFont);
+      const ms = Date.now() - started;
+      // The font draws "s" and "y" as solid boxes, so it lights far more pixels than a system font.
+      const custom = await textLitPixels(ctx, font, "sy");
+      const system = await textLitPixels(ctx, Font.createFromOS(ctx.engine, "Arial"), "sy");
+      const detail = `family "${font.name}"; loaded in ${ms} ms; Engine "sy" lit ${custom} (Arial ${system})`;
+      assert(custom > system * 1.5, `the font was not used: ${detail}`);
+      return { status: "pass", detail };
     }
   },
   {

@@ -134,10 +134,10 @@ export function gltfQuad(bufferUri) {
 }
 
 /**
- * A tiny OpenType font (family "GalaceanConformance") whose "A" and "B" are solid boxes.
+ * A tiny OpenType font whose glyphs for `chars` are solid boxes.
  * Saved as .ttf because that suffix is in the WeChat package whitelist and .otf is not.
  */
-async function boxFont() {
+async function boxFont(familyName, chars) {
   const { default: opentype } = await import("opentype.js");
   const box = (name, unicode) => {
     const glyphPath = new opentype.Path();
@@ -149,12 +149,15 @@ async function boxFont() {
     return new opentype.Glyph({ name, unicode, advanceWidth: 600, path: glyphPath });
   };
   const font = new opentype.Font({
-    familyName: "GalaceanConformance",
+    familyName,
     styleName: "Regular",
     unitsPerEm: 1000,
     ascender: 800,
     descender: -200,
-    glyphs: [new opentype.Glyph({ name: ".notdef", advanceWidth: 600, path: new opentype.Path() }), box("A", 65), box("B", 66)]
+    glyphs: [
+      new opentype.Glyph({ name: ".notdef", advanceWidth: 600, path: new opentype.Path() }),
+      ...[...chars].map((char) => box(char, char.codePointAt(0)))
+    ]
   });
   return Buffer.from(font.toArrayBuffer());
 }
@@ -222,7 +225,10 @@ export async function writeAssets(projectDir) {
     "quad.gltf": Buffer.from(quad.json),
     "quad.bin": quad.bin,
     "quad-embedded.gltf": Buffer.from(embedded.json),
-    "box.ttf": await boxFont(),
+    "box.ttf": await boxFont("GalaceanConformance", "AB"),
+    // Its own file and family, so the direct-load case does not render with what the FontLoader case registered.
+    // "s" and "y" are in the sample the FontLoader override measures to see that a family is usable.
+    "source.ttf": await boxFont("GalaceanSource", "sy"),
     "subset.ttf": await subsetFont(),
     // Engine's FontLoader reads a JSON description that points at the font file.
     "box-font.json": Buffer.from(JSON.stringify({ fontName: "ConformanceBox", fontUrl: "box.ttf" }))
@@ -233,6 +239,7 @@ export async function writeAssets(projectDir) {
   // One file per subpackage case, so no case finds another's texture in Engine's cache.
   writeFileSync(path.join(sub, "green.png"), png(4, 4, [0, 255, 0]));
   writeFileSync(path.join(sub, "blue.png"), png(4, 4, [0, 0, 255]));
+  writeFileSync(path.join(sub, "yellow.png"), png(4, 4, [255, 255, 0]));
   // Each subpackage entry records that it ran, so a case can tell whether DevTools compiled it.
   // `public/conf-sub` mirrors the Editor export layout; `conf-sub-top` sits at the project root.
   const marker = (name) =>

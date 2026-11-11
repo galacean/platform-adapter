@@ -10,7 +10,7 @@ declare const tt: any;
 declare const my: any;
 
 export type Status = "pass" | "fail" | "skip" | "manual" | "known";
-export type Category = "platform-api" | "engine-override" | "build" | "engine";
+export type Category = "platform-api" | "engine-override" | "build" | "engine" | "harness";
 
 export interface CaseResult {
   status: Status;
@@ -215,6 +215,17 @@ function captureConsole(sink: ConsoleEntry[]): void {
   }
 }
 
+/**
+ * Always the last case. An uncaught error or unhandled rejection fails the case that was running. This case
+ * fails for the errors no case was running for: while the engine started, or after a case had returned.
+ */
+const OUTSIDE_CASES = {
+  id: "uncaught-outside-cases",
+  category: "harness" as Category,
+  title: "用例之外没有未捕获的错误",
+  covers: "harness: uncaught errors and unhandled rejections while the engine starts or between cases"
+};
+
 export async function runConformance(cases: Case[], createPhysics?: () => any): Promise<void> {
   const consoleEntries: ConsoleEntry[] = [];
   captureConsole(consoleEntries);
@@ -224,7 +235,12 @@ export async function runConformance(cases: Case[], createPhysics?: () => any): 
 
   const started = Date.now();
   const device = describeDevice();
-  await post("/start", { runId: config.runId, total: cases.length, ids: cases.map((testCase) => testCase.id), device });
+  await post("/start", {
+    runId: config.runId,
+    total: cases.length + 1,
+    ids: [...cases.map((testCase) => testCase.id), OUTSIDE_CASES.id],
+    device
+  });
 
   // PhysX is optional: when it cannot initialize, physics cases are reported as failed by
   // `physx-initialize`, and the remaining cases still run on an engine without physics.
@@ -273,10 +289,14 @@ export async function runConformance(cases: Case[], createPhysics?: () => any): 
   };
 
   const finished: Array<{ id: string; showDetail?: boolean } & CaseResult> = [];
+  // Errors no case was running for. `errors` up to `seen` are already assigned to a case or to this list.
+  const outsideCases: string[] = [];
+  let seen = 0;
   for (const testCase of cases) {
+    outsideCases.push(...errors.slice(seen));
+    seen = errors.length;
     const root = scene.createRootEntity(`case-${testCase.id}`);
     const caseStarted = Date.now();
-    const errorCount = errors.length;
     consoleEntries.length = 0;
     let result: CaseResult;
     if (testCase.remote && !collectorReachable) {
@@ -290,8 +310,12 @@ export async function runConformance(cases: Case[], createPhysics?: () => any): 
         result = { status: "fail", detail: describeError(error) };
       }
     }
-    if (result.status === "pass" && errors.length > errorCount) {
-      result = { status: "fail", detail: `uncaught error during case: ${errors.slice(errorCount).join("\n")}` };
+    // Whatever the case reported ("known", "skip" and "manual" too), an error nobody caught is a failure.
+    const during = errors.slice(seen);
+    seen = errors.length;
+    if (result.status !== "fail" && during.length) {
+      const reported = result.status === "pass" ? "" : `\n(the case reported ${result.status}: ${result.detail ?? ""})`;
+      result = { status: "fail", detail: `uncaught error during case: ${during.join("\n")}${reported}` };
     }
     root.destroy();
     finished.push({ id: testCase.id, showDetail: testCase.showDetail, ...result });
@@ -306,6 +330,16 @@ export async function runConformance(cases: Case[], createPhysics?: () => any): 
       ...result
     });
   }
+
+  // An error thrown right after the last case returned arrives while its result is being reported: give a
+  // late one a moment as well. Errors after this point are not reported.
+  const outsideStarted = Date.now();
+  await base.wait(100);
+  outsideCases.push(...errors.slice(seen));
+  const outsideResult: CaseResult = outsideCases.length ? { status: "fail", detail: outsideCases.join("\n") } : { status: "pass" };
+  finished.push({ id: OUTSIDE_CASES.id, ...outsideResult });
+  // The console output since the last case stays in `afterConsole` below.
+  await post("/result", { runId: config.runId, ...OUTSIDE_CASES, ms: Date.now() - outsideStarted, console: [], ...outsideResult });
 
   await post("/done", {
     runId: config.runId,
