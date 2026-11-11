@@ -3,7 +3,8 @@ type Package = {
   name: string,
   version: string,
   main?: string,
-  browser?: string
+  browser?: string,
+  umd?: string
 }
 
 export default Package;

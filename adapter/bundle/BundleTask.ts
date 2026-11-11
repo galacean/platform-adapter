@@ -7,6 +7,8 @@ import { BundleInfo, AppType, Platform, AppDefination } from './BundleInfo.js';
 import { getPolyfillBundle } from "./PolyfillBundle.js";
 import { getEngineBundle, getJSWASMLoaderBundle, getWasmOutputs } from './EngineBundle.js';
 import { getDependencyBundle } from './DependencyBundle.js';
+import { compileTarget, lowersBigIntLiterals } from './API.js';
+import { downlevelBigInt } from '../plugins/plugin-downlevel-bigint.js';
 
 export interface BundleTaskSettings {
   polyfill: boolean,
@@ -44,7 +46,7 @@ export class BundleTask {
           swc: {
             swcrc: false,
             jsc: {
-              target: 'esnext',
+              target: compileTarget[bundle.platformName],
               parser: {
                 syntax: 'typescript',
                 decorators: true,
@@ -53,6 +55,7 @@ export class BundleTask {
             minify: !!bundleSettings.minify
           },
         }),
+        lowersBigIntLiterals(bundle.platformName) && downlevelBigInt(),
       ],
       onwarn(warning) {
         if (warning.code === 'THIS_IS_UNDEFINED') return;

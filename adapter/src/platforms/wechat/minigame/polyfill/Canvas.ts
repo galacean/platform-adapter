@@ -18,17 +18,6 @@ export default function Canvas() {
     };
   };
 
-  Object.defineProperty(canvas, 'style', {
-    get() {
-      return {
-        top: '0px',
-        left: '0px',
-        width: `${innerWidth}px`,
-        height: `${innerHeight}px`
-      };
-    }
-  });
-
   Object.defineProperty(canvas, 'clientWidth', {
     get() {
       return innerWidth;

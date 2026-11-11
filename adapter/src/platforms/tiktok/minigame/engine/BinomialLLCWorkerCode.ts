@@ -1,4 +1,5 @@
 /// @ts-nocheck
+// @adapter-target @galacean/engine
 var _init = function init() {
   var initPromise;
   return function init(wasmBinary) {
