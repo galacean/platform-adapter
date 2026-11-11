@@ -10,6 +10,7 @@ var Foo = /*#__PURE__*/ function() {
   function Foo() {}
   Foo.bar = function bar(a) { return a; };
   Foo.other = function other() { warn("engine"); };
+  Foo.flag = false;
   return Foo;
 }();
 function warn(message) { globalThis.__warned = message; }
@@ -65,6 +66,24 @@ describe('RebuildPlugin', () => {
     const code = await build([`var Foo = function() { Foo.bar = function bar(a) { check(a); warn("override"); return a + 1; }; }();`]);
     expect(code).toMatch(/function bar\(a\) \{\s*check\(a\);\s*warn\(['"]override['"]\);\s*return a \+ 1;/);
     expect(code).toContain('warn("engine")');
+  });
+
+  it('keeps an immediately-invoked function in an override method inside that method', async () => {
+    const code = await build([`var Foo = function() { Foo.bar = function bar(a) { var one = function() { warn("override"); return 1; }(); return a + one; }; }();`]);
+    expect(code).toMatch(/var one = function\s*\(\) \{\s*warn\(['"]override['"]\);/);
+    expect(code).toContain('warn("engine")');
+  });
+
+  it('keeps Engine\'s static initializer when an override method assigns that static', async () => {
+    // Engine's AudioManager.suspend does this: copied into an override, it must not replace the class-level `false`.
+    const code = await build([`var Foo = function() { Foo.bar = function bar(a) { Foo.flag = true; return a + 1; }; }();`]);
+    expect(code).toContain('Foo.flag = true;');
+    expect(code).toContain('Foo.flag = false;');
+  });
+
+  it('accepts an override method that assigns a static Engine does not declare', async () => {
+    const code = await build([`var Foo = function() { Foo.bar = function bar(a) { Foo.cache = {}; return a + 1; }; }();`]);
+    expect(code).toContain('Foo.cache = {};');
   });
 
   it('fails when an accessor override leaves out a setter Engine has', async () => {

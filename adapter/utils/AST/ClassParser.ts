@@ -8,11 +8,22 @@ import ASTParser, { NodeWrapper, ASTNode, ASTNodeWrapper, ASTType } from './ASTP
 export default class ClassParser extends ASTParser {
   /**
    * @param inFunction `node` is a statement of a constructor or method body, not of the class body. Only
-   * `this.x = …` declares something there: a call is part of that function, not a member of the class.
+   * `this.x = …` declares something there (a property). Everything else is that function's own code, not a
+   * member of the class: a call, a nested function, or `Class.x = …` that sets a static when the method runs.
    */
   static parseClassAsCJS(node: Node, className = '', inFunction = false): NodeWrapper {
     // This may be a class declaration
     const members: NodeWrapper = {};
+    if (inFunction) {
+      if (node.type === 'ExpressionStatement' && node.expression.type === 'AssignmentExpression') {
+        const left = node.expression.left;
+        if (left.type === 'MemberExpression' && left.object.type === 'ThisExpression' && left.property.type === 'Identifier') {
+          // Return class property.
+          Object.assign(members, { [left.property.name]: left.property });
+        }
+      }
+      return members;
+    }
     let parsed;
     switch (node.type) {
       case 'VariableDeclarator':
@@ -94,7 +105,7 @@ export default class ClassParser extends ASTParser {
               parsed && (Object.assign(members, parsed));
             }
           }
-        } else if (node.expression.type === 'CallExpression' && !inFunction) {
+        } else if (node.expression.type === 'CallExpression') {
           const callee = node.expression.callee;
           const accessors = ClassParser.parseAccessors(node.expression);
           if (accessors) {
