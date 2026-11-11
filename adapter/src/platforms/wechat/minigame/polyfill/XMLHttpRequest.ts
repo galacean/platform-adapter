@@ -1,4 +1,6 @@
 import { Blob } from '../../../../common/polyfill/Blob';
+import TextDecoder from '../../../../common/polyfill/TextDecoder';
+import { decodeDataURL, isDataURL } from '../../../../common/polyfill/utils/DataURL';
 
 type ResponseType = 'text' | 'arraybuffer';
 type DataType = 'json' | string;
@@ -134,6 +136,26 @@ export default class XMLHttpRequest {
         }
         this._triggerEvent('loadend');
       };
+
+      if (isDataURL(url)) {
+        // Neither the file system nor the request API accepts data URLs: decode them here.
+        try {
+          const bytes = decodeDataURL(url);
+          let body: any = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+          if (responseType as string !== 'arraybuffer' && responseType as string !== 'blob') {
+            body = new TextDecoder().decode(bytes);
+            if (dataType === 'json') {
+              try {
+                body = JSON.parse(body);
+              } catch (e) { }
+            }
+          }
+          success({ data: body, statusCode: 200, header: {} });
+        } catch (e) {
+          fail({ errMsg: String(e) });
+        }
+        return;
+      }
 
       const relative = XMLHttpRequest._isLocalPath(url);
       if (relative) {

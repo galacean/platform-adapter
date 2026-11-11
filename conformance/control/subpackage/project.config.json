@@ -1,0 +1,12 @@
+{
+  "description": "Subpackage control (no adapter)",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "minified": false
+  },
+  "compileType": "game",
+  "libVersion": "latest",
+  "appid": "touristappid",
+  "projectname": "galacean-subpackage-control"
+}

@@ -42,4 +42,5 @@ export default interface Window {
   cancelAnimationFrame,
   OffscreenCanvas,
   TextDecoder,
+  atob: (input: string) => string,
 }

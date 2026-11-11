@@ -2,6 +2,7 @@ import { Identifier, MemberExpression } from 'estree';
 import { walk } from 'estree-walker';
 import { generate } from 'escodegen';
 import { Plugin } from 'rollup';
+import MagicString from 'magic-string';
 
 export function pluginReplaceSIMDSupported(): Plugin {
   return {
@@ -9,6 +10,7 @@ export function pluginReplaceSIMDSupported(): Plugin {
     transform(code: string, id: string) {
       if (id.indexOf('@galacean') > -1) {
         const ast = this.parse(code);
+        const magicString = new MagicString(code);
         walk(ast, {
           enter(node) {
             // 微信基础库从2.16版本开始删除了原生WebAssembly的支持, WXWebAssembly不支持部分api以及SIMD, 且不支持远程加载wasm, 必须使用local wasm
@@ -43,10 +45,13 @@ export function pluginReplaceSIMDSupported(): Plugin {
               }
 
               const { start, end } = node as any;
-              code.replace(code.slice(start, end), generate(newAssignment));
+              // The result used to be discarded (`code.replace` returns a new string), so SIMD detection still
+              // called `WebAssembly.validate`, which mini-games do not define.
+              magicString.overwrite(start, end, generate(newAssignment as any));
             }
           }
         });
+        code = magicString.toString();
       }
       return { code, map: null };
     }

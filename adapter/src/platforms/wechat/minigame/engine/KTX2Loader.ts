@@ -1,4 +1,5 @@
 /// @ts-nocheck
+// @adapter-target @galacean/engine
 exports.KTX2Loader = /*#__PURE__*/ function(Loader) {
     /** @internal */ KTX2Loader._parseBuffer = function _parseBuffer(buffer, engine, params) {
         var ktx2Container = new KTX2Container(buffer);

@@ -6,9 +6,24 @@ import { isCJSPrototype, renameFunctionNode, getNodeName } from '../PluginUtils.
 import ASTParser, { NodeWrapper, ASTNode, ASTNodeWrapper, ASTType } from './ASTParser.js';
 
 export default class ClassParser extends ASTParser {
-  static parseClassAsCJS(node: Node, className = ''): NodeWrapper {
+  /**
+   * @param inFunction `node` is a statement of a constructor or method body, not of the class body. Only
+   * `this.x = …` declares something there (a property). Everything else is that function's own code, not a
+   * member of the class: a call, a nested function, or `Class.x = …` that sets a static when the method runs.
+   */
+  static parseClassAsCJS(node: Node, className = '', inFunction = false): NodeWrapper {
     // This may be a class declaration
     const members: NodeWrapper = {};
+    if (inFunction) {
+      if (node.type === 'ExpressionStatement' && node.expression.type === 'AssignmentExpression') {
+        const left = node.expression.left;
+        if (left.type === 'MemberExpression' && left.object.type === 'ThisExpression' && left.property.type === 'Identifier') {
+          // Return class property.
+          Object.assign(members, { [left.property.name]: left.property });
+        }
+      }
+      return members;
+    }
     let parsed;
     switch (node.type) {
       case 'VariableDeclarator':
@@ -32,7 +47,7 @@ export default class ClassParser extends ASTParser {
       case 'FunctionDeclaration':
         const statements = node.body.body;
         for (const statement of statements) {
-          parsed = this.parseClassAsCJS(statement, className);
+          parsed = this.parseClassAsCJS(statement, className, true);
           parsed && (Object.assign(members, parsed));
         }
         break;
@@ -86,14 +101,19 @@ export default class ClassParser extends ASTParser {
           }
           if (right.type === 'FunctionExpression') {
             for (const statement of right.body.body) {
-              parsed = this.parseClassAsCJS(statement, className);
+              parsed = this.parseClassAsCJS(statement, className, true);
               parsed && (Object.assign(members, parsed));
             }
           }
         } else if (node.expression.type === 'CallExpression') {
-          // Record the callee function name.
           const callee = node.expression.callee;
-          if (callee.type === 'Identifier') {
+          const accessors = ClassParser.parseAccessors(node.expression);
+          if (accessors) {
+            // `_create_class(Class, [{ key, get, set }, ...], [static ...])`: each accessor is its own member, so an
+            // override replaces only the accessors it declares and keeps the rest of Engine's.
+            Object.assign(members, accessors);
+          } else if (callee.type === 'Identifier') {
+            // Record the callee function name.
             const _name = callee.name;
             Object.assign(members, { [_name]: node });
           }
@@ -101,6 +121,30 @@ export default class ClassParser extends ASTParser {
         break;
       default:
         break;
+    }
+    return members;
+  }
+
+  /**
+   * Accessors declared through the class helper `_create_class(Class, protoProps, staticProps)` (the helper may be
+   * suffixed, e.g. `_create_class$2`), keyed `get/set <key>` and `static get/set <key>`.
+   */
+  static parseAccessors(call: Node): NodeWrapper | undefined {
+    if (call.type !== 'CallExpression' || call.callee.type !== 'Identifier' || !/^_create_class(\$\d+)?$/.test(call.callee.name)) {
+      return undefined;
+    }
+    const members: NodeWrapper = {};
+    const lists = [[call.arguments[1], 'get/set '], [call.arguments[2], 'static get/set ']] as const;
+    for (const [list, prefix] of lists) {
+      if (!list || list.type !== 'ArrayExpression') continue;
+      for (const element of list.elements) {
+        if (!element || element.type !== 'ObjectExpression') return undefined;
+        const key = element.properties.find(
+          (p) => p.type === 'Property' && p.key.type === 'Identifier' && p.key.name === 'key'
+        );
+        if (!key || key.type !== 'Property' || key.value.type !== 'Literal') return undefined;
+        Object.assign(members, { [prefix + String(key.value.value)]: element });
+      }
     }
     return members;
   }
