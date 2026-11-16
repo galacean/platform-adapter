@@ -48,12 +48,11 @@ var ResourceManager = /*#__PURE__*/ (function () {
     }
     // Whether `_loadMainAsset` ran: from then on Engine releases what this load registered.
     var started = false;
+    var mainAsset;
     var promise = new AssetPromise(function (resolve, reject, setTaskCompleteProgress, setTaskDetailProgress, onTaskCancel) {
       var canceled = false;
-      var mainAsset;
       onTaskCancel(function () {
         canceled = true;
-        mainAsset && mainAsset.cancel();
       });
       onAnswer = function () {
         // Canceled while the subpackage loaded: do not load the asset.
@@ -75,6 +74,10 @@ var ResourceManager = /*#__PURE__*/ (function () {
       // The platform may refuse before `loadSubpackage` returns (WeChat DevTools does for an unknown subpackage).
       answer && onAnswer();
     });
+    promise.cancel = function () {
+      mainAsset && mainAsset.cancel();
+      return AssetPromise.prototype.cancel.call(this);
+    };
     loadingPromises[remoteAssetBaseURL] = promise;
     // A load that failed or was canceled before the asset started must leave nothing behind: a registered entry
     // would answer every later load with this failure, and Engine releases the callbacks of sub-asset requests
