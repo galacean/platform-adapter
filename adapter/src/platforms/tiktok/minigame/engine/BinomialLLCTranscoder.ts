@@ -1,4 +1,5 @@
 /// @ts-nocheck
+// @adapter-target @galacean/engine
 /** @internal */ var BinomialLLCTranscoder = /*#__PURE__*/ function (AbstractTranscoder) {
   var _proto = BinomialLLCTranscoder.prototype;
   _proto._initTranscodeWorkerPool = function _initTranscodeWorkerPool() {

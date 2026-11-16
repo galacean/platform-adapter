@@ -1,0 +1,8 @@
+{
+  "name": "conformance-dep",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A third-party style package that uses Web APIs, to check that the adapter rewrites dependencies.",
+  "main": "index.js",
+  "type": "module"
+}

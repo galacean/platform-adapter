@@ -1,4 +1,5 @@
 /// @ts-nocheck
+// @adapter-target @galacean/engine-physics-physx
 /**
    * PhysX object creation.
    */ var PhysXPhysics = /*#__PURE__*/ function() {

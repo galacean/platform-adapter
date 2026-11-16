@@ -16,6 +16,7 @@ import { injectWASM } from '../plugins/plugin-inject-wasm.js';
 import { globalDefinition, wasmDefinition, refWebAPI } from './API.js';
 
 const matchGalaceanName = /@galacean\/([^\/]+)/;
+const matchAdapterTarget = /^\/\/ @adapter-target (\S+)$/m;
 
 function getSingleEngineBundle(bundleName: string, platform: Platform, app: AppType, entry: string, outputDir: string): BundleInfo {
   console.log(`Prepare ${bundleName} bundle info for ${chalk.green(platform)}.`);
@@ -26,10 +27,21 @@ function getSingleEngineBundle(bundleName: string, platform: Platform, app: AppT
 
   const scriptsPath = path.join(rootDir, `src/platforms/${platform}/${app}/engine`);
   const scripts = getScriptsFromPath(scriptsPath);
+  const packageName = `@galacean/${bundleName}`;
   const uniqueBundleInfo: string[] = [];
   for (const script of scripts) {
+    const source = fs.readFileSync(normalizePath(path.join(scriptsPath, script)), { encoding: 'utf-8' });
+    // Every override names the Engine package it patches, so the rebuild plugin can require
+    // that each override given to this bundle is actually found in it.
+    const target = source.match(matchAdapterTarget)?.[1];
+    if (!target) {
+      throw new Error(`Adapter override '${script}' must declare '// @adapter-target <package>'.`);
+    }
+    if (target !== packageName) {
+      continue;
+    }
     uniqueBundleInfo.push(ts.transpileModule(
-      fs.readFileSync(normalizePath(path.join(scriptsPath, script)), { encoding: 'utf-8' }),
+      source,
         {
           compilerOptions: {
             module: ts.ModuleKind.CommonJS
@@ -51,7 +63,7 @@ function getSingleEngineBundle(bundleName: string, platform: Platform, app: AppT
     bundleType: 'GalaceanEngine',
     rollupPlugins: [
       resolve(),
-      RebuildPlugin.getPlugins(uniqueBundleInfo),
+      RebuildPlugin.getPlugins(uniqueBundleInfo, packageName),
       pluginReplaceGalaceanLogic(),
       pluginReplaceSIMDSupported(),
       pluginReplaceWebAPI(globalDefinition[platform], '.platformAdapter', ``, refWebAPI),

@@ -1,3 +1,4 @@
+import { atob } from "../polyfill/Base64";
 import { Blob } from "../polyfill/Blob";
 import Document from '../polyfill/Document';
 import EventTarget from "../polyfill/EventTarget";
@@ -52,6 +53,8 @@ const window = {
   URL: URL,
   URLSearchParams: URLSearchParams,
   TextDecoder: TextDecoder,
+  // Engine's BufferLoader decodes a base64 data URL with `atob`, which is rewritten to this.
+  atob: atob,
 } as Window
 
 const platformAdapter: PlatformAdapter = {

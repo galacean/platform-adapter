@@ -1,0 +1,9 @@
+{
+  "deviceOrientation": "portrait",
+  "subpackages": [
+    { "name": "stageA", "root": "stageA/" },
+    { "name": "stageB", "root": "stageB" },
+    { "name": "stageC", "root": "public/stageC" },
+    { "name": "stageD", "root": "public/stageD/" }
+  ]
+}
