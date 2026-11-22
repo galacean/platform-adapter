@@ -44,6 +44,7 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@galacean/engine-core": "2.0.0-alpha.55",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.5.5",
     "@types/yargs": "^17.0.33",

@@ -1,16 +1,15 @@
 /// @ts-nocheck
+// @adapter-target @galacean/engine
+// Engine 2.0 TextUtils._measureFontOrChar without `actualBoundingBoxLeft/Right`:
+// the WeChat canvas `measureText` only reports `width`. Everything else, including the
+// Alpha8/R8 glyph data that Engine 2.0 uploads, follows Engine's implementation.
 var TextUtils = function() {
   TextUtils._measureFontOrChar = function _measureFontOrChar(fontString, measureString, isChar) {
     const { canvas, context } = TextUtils.textContext();
     context.font = fontString;
-    // Safari gets data confusion through getImageData when the canvas width is not an integer.
-    // The measure text width of some special invisible characters may be 0, so make sure the width is at least 1.
-    // @todo: Text layout may vary from standard and not support emoji.
     const { width: actualWidth } = context.measureText(measureString);
-    // In some case (ex: " "), actualBoundingBoxRight and actualBoundingBoxLeft will be 0, so use width.
-    // TODO: With testing, actualBoundingBoxLeft + actualBoundingBoxRight is the actual rendering width
-    // but the space rules between characters are unclear. Using actualBoundingBoxRight + Math.abs(actualBoundingBoxLeft) is the closest to the native effect.
-    const width = Math.max(1, actualWidth);
+    // The measure text width of some special invisible characters may be 0, so make sure the width is at least 1.
+    const width = Math.max(1, Math.round(actualWidth));
     // Make sure enough width.
     let baseline = Math.ceil(context.measureText(TextUtils._measureBaseline).width);
     let height = baseline * TextUtils._heightMultiplier;
@@ -53,8 +52,6 @@ var TextUtils = function() {
         if (y > bottom) {
           bottom = y;
         }
-      } else {
-        colorData[i] = colorData[i + 1] = colorData[i + 2] = 255;
       }
     }
 
@@ -68,9 +65,13 @@ var TextUtils = function() {
     if (isChar) {
       let data = null;
       if (size > 0) {
-        const lineIntegerW = integerW * 4;
-        // gl.texSubImage2D uploading data of type Uint8ClampedArray is not supported in some devices(eg: IphoneX IOS 13.6.1).
-        data = new Uint8Array(colorData.buffer, top * lineIntegerW, size * lineIntegerW);
+        // Extract alpha channel only for Alpha8 texture format.
+        const alphaPixelCount = size * integerW;
+        data = new Uint8Array(alphaPixelCount);
+        let offset = top * integerW * 4 + 3;
+        for (let i = 0; i < alphaPixelCount; i++, offset += 4) {
+          data[i] = colorData[offset];
+        }
       }
       return {
         char: measureString,

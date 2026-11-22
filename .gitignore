@@ -2,3 +2,8 @@ node_modules
 .DS_Store
 dist
 cli
+conformance/.work
+conformance/.local.json
+conformance/control/serve.log
+conformance/control/subpackage/project.private.config.json
+conformance/control/subpackage/config.js

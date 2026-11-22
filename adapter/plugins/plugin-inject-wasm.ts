@@ -79,9 +79,49 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
         const magicString = new MagicString(code);
         const ast = this.parse(code);
         let varName: string;
+        const wasmPath = `/public/wasmSubpackage/${id.split('/').pop().split('.').slice(0, -1).join('.')}.wasm`;
+        // Newer Emscripten glue (Engine 2.0's PhysX): `async createWasm()` awaits
+        // `instantiateAsync(binary, binaryFile, imports)` and resolves the path through `findWasmBinary()`.
+        const isAwaitGlue = /function findWasmBinary\s*\(/.test(code);
         let isAsnycCompileResolution = code.includes('instantiateAsync');
+        const replaced = new Set<string>();
+        // Source ranges this transform removed: nothing inside them is edited.
+        const removed: Array<[number, number]> = [];
         walk(ast, {
           enter(node) {
+            // @ts-ignore
+            const start: number = node.start, end: number = node.end;
+            if (removed.some(([from, to]) => start >= from && end <= to)) {
+              this.skip();
+              return;
+            }
+            // A mini-game never runs in Node, but Emscripten keeps its Node branch in the glue. Douyin's
+            // compiler resolves every `require` when it compiles the game and rejects the branch's
+            // `require("node:fs")` ("Can't resolve 'node:fs', unknown protocol"), so the game never starts.
+            // Empty the branch instead of leaving it as dead code.
+            if (node.type === 'VariableDeclarator' &&
+              node.id.type === 'Identifier' &&
+              node.id.name === 'ENVIRONMENT_IS_NODE' &&
+              node.init
+            ) {
+              // @ts-ignore
+              magicString.overwrite(node.init.start, node.init.end, 'false');
+              this.skip();
+              return;
+            }
+            if (node.type === 'IfStatement' &&
+              node.test.type === 'Identifier' &&
+              node.test.name === 'ENVIRONMENT_IS_NODE'
+            ) {
+              // Empty the branch and keep the statement. Removing the statement would hand its place to the
+              // next one: `if (a) {} else if (ENVIRONMENT_IS_NODE) {}` followed by `x()` would run `x()` as the `else`.
+              // The walk goes on into the `else` branch and patches what it contains.
+              // @ts-ignore
+              const from: number = node.consequent.start, to: number = node.consequent.end;
+              magicString.overwrite(from, to, '{}');
+              removed.push([from, to]);
+              return;
+            }
             if (node.type === 'AssignmentExpression' &&
               node.left.type === 'MemberExpression' &&
               node.left.object.type === 'Identifier' &&
@@ -95,7 +135,18 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
             }
 
             if (node.type === 'FunctionDeclaration' && node.id) {
-              if (isAsnycCompileResolution) {
+              if (isAwaitGlue) {
+                if (node.id.name === 'findWasmBinary') {
+                  // @ts-ignore
+                  magicString.overwrite(node.start, node.end, `function findWasmBinary() { return ${JSON.stringify(wasmPath)}; }`);
+                  replaced.add(node.id.name);
+                } else if (node.id.name === 'instantiateAsync') {
+                  // Mini-games instantiate local WASM by path: no fetch, streaming or ArrayBuffer.
+                  // @ts-ignore
+                  magicString.overwrite(node.start, node.end, `async function instantiateAsync(binary, binaryFile, imports) { return WebAssembly.instantiate(binaryFile, imports); }`);
+                  replaced.add(node.id.name);
+                }
+              } else if (isAsnycCompileResolution) {
                   if (node.id.name === 'instantiateAsync') {
                     // @ts-ignore
                     magicString.overwrite(node.start, node.end, instantiateAsync.toString());
@@ -116,9 +167,12 @@ export function injectWASM(wasmName: string, modulesInjectWASM?: string[]): Plug
             }
           }
         });
+        if (isAwaitGlue && (!replaced.has('findWasmBinary') || !replaced.has('instantiateAsync'))) {
+          this.error(`WASM loader '${id}' uses an unsupported Emscripten glue: findWasmBinary/instantiateAsync not found.`);
+        }
 
         code = magicString.toString();
-        code = code.replace(/wasmBinaryFile\s*=\s*(['"])[^'"]*\1/, `wasmBinaryFile="/public/wasmSubpackage/${id.split('/').pop().split('.').slice(0, -1).join('.')}.wasm"`);
+        code = code.replace(/wasmBinaryFile\s*=\s*(['"])[^'"]*\1/, `wasmBinaryFile="${wasmPath}"`);
         code = code.replace(`WebAssembly.RuntimeError`, `Error`);
         if (varName) {
           code = code.concat(`window.${varName} = ${varName}`);

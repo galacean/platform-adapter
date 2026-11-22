@@ -15,6 +15,9 @@ import { createResolveMatcher, escapeGlob, getRelativePath, getSubDirRelativePat
 import { rootDir } from '../cli.js';
 import Package from './Package.js';
 import rebuildDependency from '../plugins/plugin-rebuild-dependency.js';
+import { resolveDependencyScript } from './DependencyScript.js';
+import { compileTarget, lowersBigIntLiterals } from '../../adapter/bundle/API.js';
+import { downlevelBigInt } from '../../adapter/plugins/plugin-downlevel-bigint.js';
 
 type BuildParams = {
   [key: string]: any,
@@ -86,12 +89,12 @@ class BuildTask {
     buildSettings.dependencies?.forEach(_dependency => {
       const packageInfo = parseDependencies(_dependency);
       if (packageInfo) {
-        const dependencyScript = packageInfo.browser ?? packageInfo.main;
+        const dependencyScript = resolveDependencyScript(_dependency, packageInfo);
         if (!dependencyScript) {
           console.log(chalk.yellow(`No browser or main file found in '${_dependency}'`));
           return;
         }
-        const src = path.join(_dependency, packageInfo.browser ?? packageInfo.main);
+        const src = path.join(_dependency, dependencyScript);
         const dependency = packageInfo.name;
         const dest = path.join(buildSettings.output!, dependencyPath, dependency);
         copyAssets.push({ src: escapeGlob(src), dest });
@@ -182,7 +185,7 @@ class BuildTask {
           swc: {
             swcrc: false,
             jsc: {
-              target: 'esnext',
+              target: compileTarget[buildSettings.platform],
               parser: {
                 syntax: 'typescript',
                 decorators: true,
@@ -191,6 +194,7 @@ class BuildTask {
             minify: !!buildSettings.minify
           },
         }),
+        lowersBigIntLiterals(buildSettings.platform) && downlevelBigInt(),
         copy({
           targets: buildParams.copyAssets
         }),

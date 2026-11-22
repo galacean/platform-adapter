@@ -63,6 +63,9 @@ importers:
         specifier: ^17.7.2
         version: 17.7.2
     devDependencies:
+      '@galacean/engine-core':
+        specifier: 2.0.0-alpha.55
+        version: 2.0.0-alpha.55
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -89,6 +92,15 @@ packages:
 
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
+
+  '@galacean/engine-core@2.0.0-alpha.55':
+    resolution: {integrity: sha512-wpYa+UcZLbeahQuQgtqZq+j0rPOt7UnCY9MGgyiUBxPRnHvH0c7eUH1casaOmQW+nJxtvXzQkJhyvxHDMuQEig==}
+
+  '@galacean/engine-design@2.0.0-alpha.55':
+    resolution: {integrity: sha512-GwBxRCme4AhKgsPozwtmxSGXFjeqWa87W7pABkZ9lvKmQvuk4Zs7pSN83fodyNObAI+ZqlU9QoI1H/jAJoYD3w==}
+
+  '@galacean/engine-math@2.0.0-alpha.55':
+    resolution: {integrity: sha512-SppNHpMiOcVycxlogqN229E7h++oJmaVO/AggxLkcol1F+O0KE0JzxLAAg2WZJaZvOmhcHiiy3iEw6oaRtiHZg==}
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
@@ -1217,6 +1229,17 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@galacean/engine-core@2.0.0-alpha.55':
+    dependencies:
+      '@galacean/engine-design': 2.0.0-alpha.55
+      '@galacean/engine-math': 2.0.0-alpha.55
+
+  '@galacean/engine-design@2.0.0-alpha.55':
+    dependencies:
+      '@galacean/engine-math': 2.0.0-alpha.55
+
+  '@galacean/engine-math@2.0.0-alpha.55': {}
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
